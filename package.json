@@ -1,27 +1,41 @@
 {
-  "name": "financeandtradingapp",
+  "name": "kiddrive",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "ts-node-dev --respawn --transpile-only ./api/index.ts",
+    "start": "node dist/api/index.js",
+    "start:dev": "concurrently \"npm run build:watch\" \"nodemon ./dist/api/index.js\"",
+    "prod": "concurrently \"npm run build:watch\" \"node ./dist/api/index.js\"",
+    "vercel-build": "echo hello"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/almahdy-byte/FinanceAndTradingApp.git"
+    "url": "git+https://github.com/almahdy-byte/KidDrive.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "commonjs",
   "bugs": {
-    "url": "https://github.com/almahdy-byte/FinanceAndTradingApp/issues"
+    "url": "https://github.com/almahdy-byte/KidDrive/issues"
   },
-  "homepage": "https://github.com/almahdy-byte/FinanceAndTradingApp#readme",
+  "homepage": "https://github.com/almahdy-byte/KidDrive#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.1.0",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  },
   "dependencies": {
-    "express": "^5.2.1",
-    "nodemon": "^3.1.11"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
   }
 }

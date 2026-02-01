@@ -1,0 +1,110 @@
+import { Document, model, Schema, Types } from "mongoose";
+import { decrypt, encrypt, Role } from "../../../common";
+
+
+
+
+export interface IUser extends Document<Types.ObjectId, {}, IUser> {
+    _id: Types.ObjectId,
+    firstName: string,
+    lastName: string,
+    fullName: string,
+    role?: string,
+    isBanned?: boolean,
+    email: string,
+    password: string,
+    isVerified: boolean,
+    phone?: string,
+    OTP?: string | undefined,
+    changeCredentialTime: Date
+    updatedAt?: Date,
+    deletedAt?: Date,
+    isDeleted?: boolean,
+    createdAt?: Date,
+  
+}
+
+const userSchema = new Schema<IUser>({
+    firstName: {
+        type: String,
+        required: true
+    },
+    lastName: {
+        type: String,
+        required: true
+    },
+    fullName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        require: true,
+        unique: true
+    },
+    password: {
+        type: String
+    },
+    role: {
+        type: String,
+        default: Role.User
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    isBanned: {
+        type: Boolean,
+        default: false
+    },
+    phone: {
+        type: String,
+        // required:true
+    },
+    OTP: {
+        type: String
+    },
+    changeCredentialTime: {
+        type: Date,
+        default: Date.now()
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now()
+    },
+    deletedAt: {
+        type: Date,
+    },
+
+}, { timestamps: true, virtuals: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
+
+
+
+userSchema.post(/^find/, async function (docs) {
+    if (!docs) return;
+
+    const decryptUser = async (user: any) => {
+        if (user.phone) user.phone = await decrypt(user.phone);
+    };
+
+    // find → array
+    if (Array.isArray(docs)) {
+        await Promise.all(docs.map(decryptUser));
+    }
+    // findOne → object
+    else {
+        await decryptUser(docs);
+    }
+});
+
+userSchema.pre('save', async function () {
+    if (this.isModified('phone')) {
+        this.phone = await encrypt(this.phone as string);
+    }
+    this.fullName = `${this.firstName} ${this.lastName}`;
+});
+export const userModel = model('User', userSchema)

@@ -22,7 +22,7 @@ export const sendEmail = async ({
 
   // send mail with defined transport object
   const info = await transporter.sendMail({
-    from: "mohamedalmahdy02@gmail.com",
+    from: process.env.EMAIL,
     to,
     subject,
     text,

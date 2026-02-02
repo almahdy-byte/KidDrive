@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 import { NextFunction } from 'express'
 import { TokenType } from '../enums'
 import { Payload } from '../utils'
+export * from "./jwt";
 
 const sign = async(payload : Payload , key : string , options : jwt.SignOptions):Promise<String>=>{
     return await jwt.sign(payload , key , options)

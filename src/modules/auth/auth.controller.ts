@@ -66,21 +66,11 @@ export const register = asyncErrorHandler(
             html,
         });
         const user = await userRepo.create(userData);
+     
 
-
-        try {
-            await sendEmail({
-                to: email,
-                subject: "Verify your email",
-                text: `Your OTP is ${otp}`,
-                html: `<h1>Your OTP is ${otp}</h1>`,
-            });
-        } catch (err) {
-            console.error("Failed to send OTP email:", err);
-            return next(new AppError("Failed to send OTP email", StatusCodes.INTERNAL_SERVER_ERROR));
-        }
         const token = signToken(
-            { id: user._id.toString(),isVerified: user.isVerified },
+            { id: user._id.toString(),
+             isVerified: user.isVerified },
             { expiresIn: "10m" }
         );
 
@@ -118,3 +108,36 @@ export const verifyOTP = async (req: Request, res: Response, next: NextFunction)
         res.status(500).json({ message: "Server error" });
     }
 };
+
+
+export const login = asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return next(
+                new AppError("Email and password are required", StatusCodes.BAD_REQUEST)
+            );
+        }
+
+        const user = await userRepo.findByEmail({ email });
+        if (!user) return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
+
+        if (!user.isVerified) return next(new AppError("User not verified", StatusCodes.BAD_REQUEST));
+
+        const isPasswordValid = await compare(password, user.password);
+        if (!isPasswordValid) return next(new AppError("Invalid password", StatusCodes.BAD_REQUEST));
+
+        const token = signToken(
+            { id: user._id.toString(), isVerified: user.isVerified },
+            { expiresIn: "10m" }
+        );
+
+        successResponse({
+            res,
+            message: "Login successful",
+            data: { userId: user._id, email: user.email, token },
+            statusCode: StatusCodes.OK,
+        });
+    }
+);

@@ -1,9 +1,9 @@
-import { asyncErrorHandler, compare, hash, signToken } from "../../common";
+import { asyncErrorHandler, compare, createAccessToken, createToken, decodedToken, hash, signToken, TokenType } from "../../common";
 import { NextFunction, Request, Response } from "express";
 import { userRepo } from "../../db";
 import bcrypt from "bcrypt";
 import { AppError } from "../../common/error";
-import { successResponse } from "../../common/utils";
+import { Payload, successResponse } from "../../common/utils";
 import { StatusCodes } from "http-status-codes";
 import { sendEmail, generateOTP, template } from "../../common/utils/mail";
 
@@ -84,60 +84,159 @@ export const register = asyncErrorHandler(
 );
 
 
-export const verifyOTP = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const verifyOTP =asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
         const { email, code } = req.body;
 
 
         const user = await userRepo.findByEmail({ email });
-        if (!user) return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
+        if (!user){
+            return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
+        }
 
-        if (user.isVerified) return res.status(400).json({ message: "Already verified" });
+        if (user.isVerified) {
+            return next(new AppError("User already verified", StatusCodes.BAD_REQUEST));
+        }
         const isCodeValid = await compare(code, user.otp?.code || "");
         if (!isCodeValid || !user.otp?.expiresAt || user.otp?.expiresAt < new Date() || user.otp?.code === "") {
-            return res.status(400).json({ message: "Invalid or expired OTP" });
+            return next(new AppError("Invalid or expired OTP", StatusCodes.BAD_REQUEST));
         }
 
         user.isVerified = true;
         user.otp = undefined;
-        await user.save();
 
-        res.json({ message: "Email verified successfully" });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Server error" });
-    }
-};
+        
+        const [tokens , updatedUser] = await Promise.all([
+            createToken({_id:user._id, changeCredentialTime : user.changeCredentialTime.getTime().toString(), role:user.role || "parent"}),
+            user.save()
+        ])
+
+        successResponse({
+            res,
+            message: "Email verified successfully",
+            data: { tokens },
+            statusCode: StatusCodes.OK,
+        });
+})
 
 
 export const login = asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body;
 
-        if (!email || !password) {
-            return next(
-                new AppError("Email and password are required", StatusCodes.BAD_REQUEST)
-            );
+        const user = await userRepo.findByEmail({ email });
+        if (!user){
+            return next(new AppError("invalid email or password", StatusCodes.UNAUTHORIZED));
         }
 
-        const user = await userRepo.findByEmail({ email });
-        if (!user) return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
-
-        if (!user.isVerified) return next(new AppError("User not verified", StatusCodes.BAD_REQUEST));
+        if (!user.isVerified){
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "User not verified",
+                success: false,
+                status:'failed',
+                data:{
+                    isVerified: user.isVerified,
+                }
+            })
+        }
 
         const isPasswordValid = await compare(password, user.password);
-        if (!isPasswordValid) return next(new AppError("Invalid password", StatusCodes.BAD_REQUEST));
+        if (!isPasswordValid){
+            return next(new AppError("invalid email or password", StatusCodes.UNAUTHORIZED));
+        }
 
-        const token = signToken(
-            { id: user._id.toString(), isVerified: user.isVerified },
-            { expiresIn: "10m" }
-        );
+        const tokens = await createToken({_id:user._id, changeCredentialTime : user.changeCredentialTime.getTime().toString(), role:user.role || "parent"});
 
-        successResponse({
-            res,
+        return res.status(StatusCodes.OK).json({
             message: "Login successful",
-            data: { userId: user._id, email: user.email, token },
-            statusCode: StatusCodes.OK,
+            success: true,
+            status:'success',
+            data: { 
+                tokens,
+                isVerified: user.isVerified,
+
+             },
+        })
+    }
+);
+
+
+export const refreshToken = asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return next(new AppError("Refresh token is required", StatusCodes.UNAUTHORIZED));
+        }
+        const decoded:Payload = await decodedToken(refreshToken, TokenType.Refresh, next);
+        if(!decoded){
+            return next(new AppError("Refresh token is invalid", StatusCodes.UNAUTHORIZED));
+        }
+        const user = await userRepo.findOne({
+            filter:{
+                ...decoded
+            }
         });
+        if (!user) {
+            return next(new AppError("User not found", StatusCodes.UNAUTHORIZED));
+        }
+
+        if(!user.isVerified){
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: "User not verified",
+                success: false,
+                status:'failed',
+                data:{
+                    isVerified: user.isVerified,
+                }
+            })
+        
+        }
+
+        const token = await createAccessToken({_id:user._id, changeCredentialTime : user.changeCredentialTime.getTime().toString(), role:user.role || "parent"});
+        return res.status(StatusCodes.OK).json({
+            message: "Refresh token successful",
+            success: true,
+            status:'success',
+            data: { 
+                token,
+                isVerified: user.isVerified,
+
+             },
+        })
+    }
+);
+
+//send ver phone otp 
+
+export const resetOtp = asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.body;
+        const user = await userRepo.findByEmail({ email });
+        if (!user){
+            return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
+        }
+        if (user.isVerified) {
+            return next(new AppError("User already verified", StatusCodes.BAD_REQUEST));
+        }
+        const code = generateOTP();
+        user.otp = {
+            code: await hash(code),
+            expiresAt: new Date(Date.now() +  60 * 1000),
+        };
+        await user.save();
+        await sendEmail({
+            to: user.email,
+            subject: "OTP Code",
+            text: `Your OTP code is ${code}. It expires in 10 minutes.`,
+            html:template(code , user.firstName , 'Resned OTP Code'),
+        });
+        return res.status(StatusCodes.OK).json({
+            message: "OTP sent successfully",
+            success: true,
+            status:'success',
+            data: { 
+                email: user.email,
+             },
+        })
     }
 );

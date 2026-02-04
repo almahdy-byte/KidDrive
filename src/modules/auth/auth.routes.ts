@@ -22,6 +22,8 @@ router.post(
      validate(authValidation.loginSchema),
       authService.login
     );
+
+    
 router.post(
     "/refresh",
      validate(authValidation.resendOtpSchema),

@@ -18,7 +18,7 @@ interface FindManyOptions<TDoc> {
   select?: string;
   populate?: PopulateOptions[];
   sort?: { [key: string]: SortOrder };
-  limit?: number | undefined ;
+  limit?: number | undefined;
   page?: number | undefined;
 }
 
@@ -46,20 +46,20 @@ interface FindByIdAndUpdateOptions<TDoc> {
   update: Partial<TDoc>;
 }
 
-export class DBServices<TDoc>{
-    constructor(private model : Model<TDoc>){
-        
-    }
+export class DBServices<TDoc> {
+  constructor(private model: Model<TDoc>) {
+
+  }
 
 
   // Create
 
   // Find One
-   async findOne({
+  async findOne({
     filter,
     select = '',
     populate = [],
-  }: FindOptions<TDoc>): Promise<TDoc| null> {
+  }: FindOptions<TDoc>): Promise<TDoc | null> {
     return await this.model.findOne(filter).select(select).populate(populate);
   }
 
@@ -69,16 +69,16 @@ export class DBServices<TDoc>{
     select = '',
     populate = [],
     sort,
-    limit ,
+    limit,
     page = 1,
   }: FindManyOptions<TDoc>): Promise<TDoc[]> {
     const query = this.model.find(filter).select(select).populate(populate);
     if (sort) {
       query.sort(sort);
     }
-    
+
     if (limit) {
-      
+
       if (typeof limit !== 'number') {
         limit = parseInt(limit as unknown as string);
       }
@@ -87,22 +87,22 @@ export class DBServices<TDoc>{
       }
       if (page) {
         if (typeof page !== 'number') {
-            page = parseInt(page as unknown as string);
+          page = parseInt(page as unknown as string);
         }
         if (page < 1) {
-            page = 1;
+          page = 1;
         }
         const skip = (page - 1) * limit;
         query.skip(skip);
       }
-        query.limit(limit);
+      query.limit(limit);
     }
-      return await query.exec();
-    }
+    return await query.exec();
+  }
 
 
   // Update One
-  async updateOne({ filter, update }: UpdateOptions<TDoc>): Promise<TDoc| null> {
+  async updateOne({ filter, update }: UpdateOptions<TDoc>): Promise<TDoc | null> {
     return await this.model.findOneAndUpdate(filter, update, { new: true });
   }
 
@@ -111,7 +111,7 @@ export class DBServices<TDoc>{
     id,
     select = '',
     populate = [],
-  }: FindByIdOptions): Promise<TDoc| null> {
+  }: FindByIdOptions): Promise<TDoc | null> {
     return await this.model.findById(id).select(select).populate(populate);
   }
 
@@ -119,17 +119,17 @@ export class DBServices<TDoc>{
   async findByIdAndUpdate({
     id,
     update,
-  }: FindByIdAndUpdateOptions<TDoc>): Promise<TDoc| null> {
+  }: FindByIdAndUpdateOptions<TDoc>): Promise<TDoc | null> {
     return await this.model.findByIdAndUpdate(id, update, { new: true });
   }
 
   // Delete One By Id
-  async deleteById({ id }: FindByIdOptions): Promise<TDoc| null> {
+  async deleteById({ id }: FindByIdOptions): Promise<TDoc | null> {
     return await this.model.findByIdAndDelete(id);
   }
 
   // Delete One By Filter
-  async deleteOne({ filter }: DeleteOptions<TDoc>): Promise<TDoc| null> {
+  async deleteOne({ filter }: DeleteOptions<TDoc>): Promise<TDoc | null> {
     return await this.model.findOneAndDelete(filter);
   }
 

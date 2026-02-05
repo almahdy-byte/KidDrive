@@ -19,15 +19,15 @@ router.post(
     );
 router.post(
     "/login",
-     validate(authValidation.loginSchema),
-      authService.login
-    );
+    validate(authValidation.loginSchema),
+    authService.login
+);
 
-    
+
 router.post(
-    "/refresh",
-     validate(authValidation.resendOtpSchema),
-     authService.refreshToken)
+    "/refresh-token",
+    validate(authValidation.refreshSchema),
+    authService.refreshToken)
     ;
 router.post(
     "/resend-email-otp",

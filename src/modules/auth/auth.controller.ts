@@ -20,7 +20,7 @@ export const register = asyncErrorHandler(
             role,
             phone,
         } = req.body;
-
+        
 
         if (role && role !== "parent") {
             return next(new AppError("Invalid register", StatusCodes.BAD_REQUEST));
@@ -100,7 +100,11 @@ export const verifyOTP =asyncErrorHandler(
 
         
         const [tokens , updatedUser] = await Promise.all([
-            createToken({_id:user._id, changeCredentialTime : user.changeCredentialTime.getTime().toString(), role:user.role || "parent"}),
+            createToken({
+                _id:user._id,
+                changeCredentialTime : user.changeCredentialTime.getTime().toString(),
+                role:user.role || "parent"
+            }),
             user.save()
         ])
         return res.status(StatusCodes.OK).json({
@@ -167,11 +171,10 @@ export const refreshToken = asyncErrorHandler(
         if(!decoded){
             return next(new AppError("Refresh token is invalid", StatusCodes.UNAUTHORIZED));
         }
-        const user = await userRepo.findOne({
-            filter:{
-                ...decoded
-            }
-        });
+const user = await userRepo.findOne({
+  filter: { _id: decoded._id }
+});
+
         if (!user) {
             return next(new AppError("User not found", StatusCodes.UNAUTHORIZED));
         }

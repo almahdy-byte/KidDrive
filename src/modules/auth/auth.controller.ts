@@ -21,13 +21,7 @@ export const register = asyncErrorHandler(
             role,
             phone,
         } = req.body;
-        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-
-        if (!gmailRegex.test(email)) {
-            return next(
-                new AppError("Only Gmail addresses are allowed", StatusCodes.BAD_REQUEST)
-            );
-        }
+        
 
         if (role !== "parent") {
             return next(new AppError("Invalid register", StatusCodes.BAD_REQUEST));

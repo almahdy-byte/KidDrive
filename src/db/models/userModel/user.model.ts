@@ -15,13 +15,16 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
     password: string,
     isVerified: boolean,
     phone?: string,
-    OTP?: string | undefined,
+    otp?:{
+        code:string,
+        expiresAt:Date
+    }|undefined,
     changeCredentialTime: Date
     updatedAt?: Date,
     deletedAt?: Date,
     isDeleted?: boolean,
     createdAt?: Date,
-  
+
 }
 
 const userSchema = new Schema<IUser>({
@@ -47,7 +50,7 @@ const userSchema = new Schema<IUser>({
     },
     role: {
         type: String,
-        default: Role.User
+        default:"parent"
     },
     isVerified: {
         type: Boolean,
@@ -61,8 +64,14 @@ const userSchema = new Schema<IUser>({
         type: String,
         // required:true
     },
-    OTP: {
-        type: String
+    otp: {
+       code:{
+        type: String,
+       },
+       expiresAt:{
+        type: Date,
+        
+       }
     },
     changeCredentialTime: {
         type: Date,

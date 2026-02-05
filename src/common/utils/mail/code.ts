@@ -1,4 +1,4 @@
-export const code = (): string => {
+export const generateOTP = (): string => {
      // Generate 6-digit OTP
      const digits = '0123456789';
      let OTP = '';

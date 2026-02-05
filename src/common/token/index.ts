@@ -37,3 +37,8 @@ export const decodedToken =async (token : string ,type : TokenType = TokenType.A
     }
     return decoded
 }
+
+
+export const createAccessToken =async (payload:Payload):Promise<String> => {
+    return await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'1h'}) as string
+}

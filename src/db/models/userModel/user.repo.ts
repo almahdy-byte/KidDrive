@@ -15,6 +15,9 @@ class UserRepo extends DBServices<IUser> {
   async findByEmail({email , select = "" , populate = []} : FindByEmailOptions): Promise<IUser | null> {
     return await userModel.findOne({ email }).select(select).populate(populate);
   }
+    async create(data: Partial<IUser>): Promise<IUser> {
+    return await userModel.create(data);
+  }
 }
 
 export const userRepo = new UserRepo();

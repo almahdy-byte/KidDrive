@@ -13,7 +13,7 @@ router.post(
     authService.register
 );
 router.post(
-    "/verify-otp",
+    "/verify-email",
      validate(authValidation.verifyOTPSchema),
      authService.verifyOTP 
     );
@@ -30,7 +30,7 @@ router.post(
      authService.refreshToken)
     ;
 router.post(
-    "/resend-otp",
+    "/resend-email-otp",
      validate(authValidation.resendOtpSchema),
      authService.resetOtp
     );

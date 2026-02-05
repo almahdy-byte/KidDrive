@@ -1,6 +1,7 @@
 import express, { Application } from 'express';
 import { bootstrap } from '../src/app.controller';
-
+import * as dotenv from 'dotenv';
+dotenv.config();
 const app: Application = express();
 
 // Bootstrap the application (middleware, DB, routes)

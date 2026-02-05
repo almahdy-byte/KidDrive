@@ -1,9 +1,8 @@
-import { asyncErrorHandler, compare, createAccessToken, createToken, decodedToken, hash, signToken, TokenType } from "../../common";
+import { asyncErrorHandler, compare, createAccessToken, createToken, decodedToken, hash,  TokenType } from "../../common";
 import { NextFunction, Request, Response } from "express";
 import { userRepo } from "../../db";
-import bcrypt from "bcrypt";
 import { AppError } from "../../common/error";
-import { Payload, successResponse } from "../../common/utils";
+import { Payload } from "../../common/utils";
 import { StatusCodes } from "http-status-codes";
 import { sendEmail, generateOTP, template } from "../../common/utils/mail";
 
@@ -23,7 +22,7 @@ export const register = asyncErrorHandler(
         } = req.body;
 
 
-        if (role !== "parent") {
+        if (role && role !== "parent") {
             return next(new AppError("Invalid register", StatusCodes.BAD_REQUEST));
         }
 
@@ -68,18 +67,12 @@ export const register = asyncErrorHandler(
         const user = await userRepo.create(userData);
      
 
-        const token = signToken(
-            { id: user._id.toString(),
-             isVerified: user.isVerified },
-            { expiresIn: "10m" }
-        );
-
-        successResponse({
-            res,
+        return res.status(StatusCodes.CREATED).json({
             message: "Registered successfully. Please check your email for OTP.",
-            data: { userId: user._id, email: user.email, token },
-            statusCode: StatusCodes.CREATED,
-        });
+            success: true,
+            status:'success',
+            data: { userId: user._id, email: user.email },
+        })
     }
 );
 
@@ -110,13 +103,16 @@ export const verifyOTP =asyncErrorHandler(
             createToken({_id:user._id, changeCredentialTime : user.changeCredentialTime.getTime().toString(), role:user.role || "parent"}),
             user.save()
         ])
+        return res.status(StatusCodes.OK).json({
+            message: "User verified successfully",
+            success: true,
+            status:'success',
+            data: { 
+                tokens,
+                isVerified: updatedUser.isVerified,
 
-        successResponse({
-            res,
-            message: "Email verified successfully",
-            data: { tokens },
-            statusCode: StatusCodes.OK,
-        });
+             },
+        })
 })
 
 

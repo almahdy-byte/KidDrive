@@ -14,25 +14,25 @@ router.post(
 );
 router.post(
     "/verify-otp",
-     validate(authValidation.verifyOTPSchema),
-     authService.verifyOTP 
-    );
+    validate(authValidation.verifyOTPSchema),
+    authService.verifyOTP
+);
 router.post(
     "/login",
-     validate(authValidation.loginSchema),
-      authService.login
-    );
+    validate(authValidation.loginSchema),
+    authService.login
+);
 
-    
+
 router.post(
-    "/refresh",
-     validate(authValidation.resendOtpSchema),
-     authService.refreshToken)
+    "/refresh-token",
+    validate(authValidation.refreshSchema),
+    authService.refreshToken)
     ;
 router.post(
-    "/resend-otp",
-     validate(authValidation.resendOtpSchema),
-     authService.resetOtp
-    );
+    "/reset-otp",
+    validate(authValidation.resendOtpSchema),
+    authService.resetOtp
+);
 
 export default router;  

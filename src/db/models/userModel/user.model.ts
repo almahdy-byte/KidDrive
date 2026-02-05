@@ -19,6 +19,13 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
         code:string,
         expiresAt:Date
     }|undefined,
+    children?: {
+        childFirstName: string,
+        childFullname: string,
+        image?: Record<string, any>,
+        age?: number,
+        dob?: Date
+    }[],
     changeCredentialTime: Date
     updatedAt?: Date,
     deletedAt?: Date,
@@ -73,6 +80,27 @@ const userSchema = new Schema<IUser>({
         
        }
     },
+    children: [
+        {
+            childFirstName: {
+                type: String,
+                required: true
+            },
+            childFullname: {
+                type: String,
+                required: true
+            },
+            image: {
+                type: Object
+            },
+            age: {
+                type: Number
+            },
+            dob: {
+                type: Date
+            }
+        }
+    ],
     changeCredentialTime: {
         type: Date,
         default: Date.now()

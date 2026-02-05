@@ -4,6 +4,7 @@ import { Application, json, Request, Response } from "express";
 import { connectDB } from "./db";
 import { globalErrorHandler, notFoundHandler } from "./common";
 import authRoutes from "./modules/auth/auth.routes";
+import userRoutes from "./modules/user/user.routes";
 import cors from 'cors'
 
 
@@ -20,6 +21,7 @@ export const bootstrap = async (app: Application) => {
         res.send('KidDrive APIs')
     })
     app.use('/auth', authRoutes)
+    app.use('/user', userRoutes)
     app.use(notFoundHandler)
     app.use(globalErrorHandler)
 }

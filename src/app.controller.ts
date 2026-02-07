@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
 import { Application, json, Request, Response } from "express";
 import { connectDB } from "./db";
 import { globalErrorHandler, notFoundHandler } from "./common";
@@ -7,8 +9,7 @@ import userRoutes from "./modules/user/user.routes";
 
 import cors from 'cors'
 
-import * as dotenv from 'dotenv'
-dotenv.config()
+
 export const bootstrap = async (app: Application) => {
     // CORS configuration for cookie-based authentication
     app.use(cors({}))

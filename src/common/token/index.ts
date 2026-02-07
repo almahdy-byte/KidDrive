@@ -4,7 +4,6 @@ import { StatusCodes } from 'http-status-codes'
 import { NextFunction } from 'express'
 import { TokenType } from '../enums'
 import { Payload } from '../utils'
-export * from "./jwt";
 
 const sign = async(payload : Payload , key : string , options : jwt.SignOptions):Promise<String>=>{
     return await jwt.sign(payload , key , options)
@@ -42,4 +41,12 @@ export const decodedToken =async (token : string ,type : TokenType = TokenType.A
 
 export const createAccessToken =async (payload:Payload):Promise<String> => {
     return await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'1h'}) as string
+}
+
+export const createForgetPasswordToken =async (payload:Payload):Promise<String> => {
+    return await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'10m'}) as string
+}
+
+export const verifyForgetPasswordToken =async (token : string):Promise<Payload> => {
+    return await verify(token , process.env.ACCESS_TOKEN_SECRET as string) as Payload
 }

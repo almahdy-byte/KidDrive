@@ -1,4 +1,4 @@
-import { Document, model, Schema, Types } from "mongoose";
+import mongoose, { Document, model, Schema, Types } from "mongoose";
 import { decrypt, encrypt, Role } from "../../../common";
 
 
@@ -19,6 +19,7 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
         code:string,
         expiresAt:Date
     }|undefined,
+    children?: Types.ObjectId[],
     changeCredentialTime: Date
     updatedAt?: Date,
     deletedAt?: Date,
@@ -27,69 +28,82 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
 
 }
 
-const userSchema = new Schema<IUser>({
+const userSchema = new Schema<IUser>(
+  {
     firstName: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     lastName: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     fullName: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     email: {
-        type: String,
-        require: true,
-        unique: true
+      type: String,
+      require: true,
+      unique: true,
     },
     password: {
-        type: String
+      type: String,
     },
     role: {
-        type: String,
-        default: Role.Parent,
+      type: String,
+      default: Role.Parent,
     },
     isVerified: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     isBanned: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     phone: {
-        type: String,
-        // required:true
+      type: String,
+      // required:true
     },
     otp: {
-       code:{
+      code: {
         type: String,
-       },
-       expiresAt:{
+      },
+      expiresAt: {
         type: Date,
-        
-       }
+      },
     },
+    children: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Child",
+        required: false
+      },
+    ],
     changeCredentialTime: {
-        type: Date,
-        default: Date.now()
+      type: Date,
+      default: Date.now(),
     },
     isDeleted: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
     createdAt: {
-        type: Date,
-        default: Date.now()
+      type: Date,
+      default: Date.now(),
     },
     deletedAt: {
-        type: Date,
+      type: Date,
     },
-
-}, { timestamps: true, virtuals: true, toJSON: { virtuals: true }, toObject: { virtuals: true } })
+  },
+  {
+    timestamps: true,
+    virtuals: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  },
+);
 
 
 

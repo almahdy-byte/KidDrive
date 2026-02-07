@@ -1,12 +1,12 @@
 import { generalValidationSchema } from "../../middleware/validation.middleware";
 import Joi from "joi";
 export const registerSchema = Joi.object({
-  firstName: Joi.string().min(3).max(30).required(),
-  lastName: Joi.string().min(3).max(30).required(),
-  email: Joi.string().email().required(),
-  password: Joi.string().min(6).required(),
-  role: Joi.string().valid("parent").required(),
-  phone: Joi.string().required(),
+  firstName: generalValidationSchema.firstName.required(),
+  lastName: generalValidationSchema.lastName.required(),
+  email: generalValidationSchema.email.required(),
+  password: generalValidationSchema.password.required(),
+  role: generalValidationSchema.role.optional(),
+  phone: generalValidationSchema.phone.required(),
 });
 
 export const verifyOTPSchema = Joi.object({
@@ -25,4 +25,17 @@ export const refreshSchema = Joi.object({
 
 export const resendOtpSchema = Joi.object({
   email: generalValidationSchema.email.required(),
+});
+
+export const forgetPasswordSchema = Joi.object({
+  email: generalValidationSchema.email.required(),
+});
+
+export const verifyResetOtpSchema = Joi.object({
+  email: generalValidationSchema.email.required(),
+  code: generalValidationSchema.code.required(),
+});
+
+export const resetPasswordSchema = Joi.object({
+  password: generalValidationSchema.password.min(6).required(),
 });

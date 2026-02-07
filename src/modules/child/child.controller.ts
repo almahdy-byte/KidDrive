@@ -25,7 +25,7 @@ export const addChild = asyncErrorHandler(
      );
     }
 
-
+    
     const childData = {
       ...req.body,
       parent: parentId,
@@ -46,6 +46,14 @@ export const addChild = asyncErrorHandler(
     }
     const newChild = await childRepo.create(childData);
 
+    const updatedParent = await userRepo.findOneAndUpdate({
+      filter: {
+        _id: parentId,
+      },
+      update: {
+        $addToSet: { children: newChild._id },
+      },
+    });
     return res.status(StatusCodes.CREATED).json({
       message: "Child added successfully",
       success: true,

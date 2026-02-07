@@ -46,11 +46,15 @@ export const auth = asyncErrorHandler(
     const user = await userRepo.findOne({
       filter: {
         _id: decoded._id,
-        changeCredentialTime: new Date(decoded.changeCredentialTime),
         role: decoded.role,
-      }
+      },
+      select:"-password"
     });
 
+
+    if (user?.changeCredentialTime && decoded.changeCredentialTime && user?.changeCredentialTime.getTime() > Number(decoded.changeCredentialTime)) {
+      return next(new AppError("Forbidden" , StatusCodes.FORBIDDEN))
+    }
     if (!user) {
       return next(new AppError("unathorized", StatusCodes.UNAUTHORIZED));
     }

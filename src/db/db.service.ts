@@ -2,9 +2,15 @@ import mongoose, {
   QueryFilter,
   Model,
   PopulateOptions,
-  SortOrder
-} from 'mongoose';
+  SortOrder,
+  UpdateQuery,
+  QueryOptions,
+  HydratedDocument,
+  FlattenMaps,
+} from "mongoose";
 
+
+export type lean<T> = HydratedDocument<FlattenMaps<T>>;
 // Find options
 interface FindOptions<TDoc> {
   filter: QueryFilter<TDoc>;
@@ -46,18 +52,15 @@ interface FindByIdAndUpdateOptions<TDoc> {
   update: Partial<TDoc>;
 }
 
-export class DBServices<TDoc> {
-  constructor(private model: Model<TDoc>) {
-
-  }
-
+export abstract class DBServices<TDoc> {
+  constructor(protected readonly model: Model<TDoc>) {}
 
   // Create
 
   // Find One
   async findOne({
     filter,
-    select = '',
+    select = "",
     populate = [],
   }: FindOptions<TDoc>): Promise<TDoc | null> {
     return await this.model.findOne(filter).select(select).populate(populate);
@@ -66,7 +69,7 @@ export class DBServices<TDoc> {
   // Find All
   async findAll({
     filter = {},
-    select = '',
+    select = "",
     populate = [],
     sort,
     limit,
@@ -78,15 +81,14 @@ export class DBServices<TDoc> {
     }
 
     if (limit) {
-
-      if (typeof limit !== 'number') {
+      if (typeof limit !== "number") {
         limit = parseInt(limit as unknown as string);
       }
       if (limit < 1) {
         limit = 10;
       }
       if (page) {
-        if (typeof page !== 'number') {
+        if (typeof page !== "number") {
           page = parseInt(page as unknown as string);
         }
         if (page < 1) {
@@ -100,16 +102,18 @@ export class DBServices<TDoc> {
     return await query.exec();
   }
 
-
   // Update One
-  async updateOne({ filter, update }: UpdateOptions<TDoc>): Promise<TDoc | null> {
+  async updateOne({
+    filter,
+    update,
+  }: UpdateOptions<TDoc>): Promise<TDoc | null> {
     return await this.model.findOneAndUpdate(filter, update, { new: true });
   }
 
   // Find By Id
   async findById({
     id,
-    select = '',
+    select = "",
     populate = [],
   }: FindByIdOptions): Promise<TDoc | null> {
     return await this.model.findById(id).select(select).populate(populate);
@@ -138,5 +142,21 @@ export class DBServices<TDoc> {
     deletedCount?: number;
   }> {
     return await this.model.deleteMany(filter);
+  }
+
+  async findOneAndUpdate({
+    filter,
+    update = { new: true },
+    options,
+  }: {
+      filter?: any;
+    update: UpdateQuery<TDoc>;
+    options?: QueryOptions<TDoc> | null;
+  }): Promise<HydratedDocument<TDoc> | lean<TDoc> | null> {
+    return await this.model.findOneAndUpdate(
+      filter,
+      { ...update, $inc: { __v: 1 } },
+      options,
+    );
   }
 }

@@ -3,10 +3,11 @@ import * as userService from "./user.controller";
 import { validate } from "../../middleware/validation.middleware";
 import * as userValidation from './user.validation';
 import { auth } from "../../middleware/auth.middleware";
-
+import childRoutes from "../../modules/child/child.routes";
 const router = Router();
 
 router.use(auth);
+router.use("/:parentId/children", childRoutes);
 // Public or Protected? usually Profile is protected
 router.get(
     "/profile", 

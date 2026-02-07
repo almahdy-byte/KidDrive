@@ -9,7 +9,7 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
     firstName: string,
     lastName: string,
     fullName: string,
-    role?: string,
+    role?: Role,
     isBanned?: boolean,
     email: string,
     password: string,
@@ -50,7 +50,7 @@ const userSchema = new Schema<IUser>({
     },
     role: {
         type: String,
-        default:"parent"
+        default: Role.Parent,
     },
     isVerified: {
         type: Boolean,

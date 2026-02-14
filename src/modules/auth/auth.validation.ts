@@ -26,3 +26,16 @@ export const refreshSchema = Joi.object({
 export const resendOtpSchema = Joi.object({
   email: generalValidationSchema.email.required(),
 });
+
+export const forgetPasswordSchema = Joi.object({
+  email: generalValidationSchema.email.required(),
+});
+
+export const verifyResetOtpSchema = Joi.object({
+  email: generalValidationSchema.email.required(),
+  code: generalValidationSchema.code.required(),
+});
+
+export const resetPasswordSchema = Joi.object({
+  password: generalValidationSchema.password.min(6).required(),
+});

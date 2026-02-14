@@ -1,10 +1,11 @@
-import { asyncErrorHandler, compare, createAccessToken, createToken, decodedToken, hash,  TokenType } from "../../common";
+import { asyncErrorHandler, compare, createAccessToken, createForgetPasswordToken, createToken, decodedToken, hash,  TokenType, verifyForgetPasswordToken } from "../../common";
 import { NextFunction, Request, Response } from "express";
 import { userRepo } from "../../db";
 import { AppError } from "../../common/error";
 import { Payload } from "../../common/utils";
 import { StatusCodes } from "http-status-codes";
 import { sendEmail, generateOTP, template } from "../../common/utils/mail";
+import { verify } from "crypto";
 
 
 
@@ -76,6 +77,93 @@ export const register = asyncErrorHandler(
     }
 );
 
+export const forgetPassword = asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.body;
+        const user = await userRepo.findByEmail({ email });
+        if (!user) {
+            return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
+        }
+        const code = generateOTP();
+        user.otp = {
+            code: await hash(code),
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        };
+        await user.save();
+        await sendEmail({
+            to: user.email,
+            subject: "Reset Password",
+            text: `Your reset code is ${code}. It expires in 10 minutes.`,
+            html: template(code, user.firstName, "Reset Password"),
+        });
+        return res.status(StatusCodes.OK).json({
+            message: "Reset password OTP sent successfully",
+            success: true,
+            status: "success",
+            data: { email: user.email },
+        });
+    }
+);
+
+export const verifyResetPasswordOTP = asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { email, code } = req.body;
+        const user = await userRepo.findByEmail({ email });
+        if (!user) {
+            return next(new AppError("User not found", StatusCodes.BAD_REQUEST));
+        }
+        const isCodeValid = await compare(code, user.otp?.code || "");
+        if (!isCodeValid || !user.otp?.expiresAt || user.otp?.expiresAt < new Date() || user.otp?.code === "") {
+            return next(new AppError("Invalid or expired OTP", StatusCodes.BAD_REQUEST));
+        }
+        user.otp = undefined;
+        await user.save();
+        const token = await createForgetPasswordToken({
+            _id: user._id,
+            changeCredentialTime: user.changeCredentialTime.getTime().toString(),
+            role: user.role || "parent",
+        });
+        return res.status(StatusCodes.OK).json({
+            message: "OTP verified successfully",
+            success: true,
+            status: "success",
+            data: { token },
+        });
+    }
+);
+
+export const resetPassword = asyncErrorHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+        const { password } = req.body;
+        const token = req.headers.authorization?.split(" ")[1];
+        if (!token) {
+            return next(new AppError("Token is required", StatusCodes.UNAUTHORIZED));
+        }
+        const decoded: Payload = await verifyForgetPasswordToken(token);
+        if (!decoded) {
+            return next(new AppError("Invalid token", StatusCodes.UNAUTHORIZED));
+        }
+        const user = await userRepo.findOne({
+            filter: { _id: decoded._id },
+        });
+        if (!user) {
+            return next(new AppError("User not found", StatusCodes.NOT_FOUND));
+        }
+
+        if (decoded.changeCredentialTime.toString() !== user.changeCredentialTime.getTime().toString()) {
+            return next(new AppError("Token expired", StatusCodes.UNAUTHORIZED));
+        }
+
+        user.password = await hash(password);
+        user.changeCredentialTime = new Date();
+        await user.save();
+        return res.status(StatusCodes.OK).json({
+            message: "Password reset successfully",
+            success: true,
+            status: "success",
+        });
+    }
+);
 
 export const verifyOTP =asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {

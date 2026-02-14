@@ -1,9 +1,14 @@
-export enum Role{
-    User = 'user',
-    Admin = 'admin'
+export enum Role {
+    Admin = "admin",
+    Driver = "driver",
+    Parent = "parent",
 }
 
-export enum Status{
+export enum Gender {
+    Male = "male",
+    Female = "female",
+}
+export enum Status {
     ACCEPTED = "accepted subscription",
     REJECTED = 'rejected subscription',
     CANCELED = 'canceled',

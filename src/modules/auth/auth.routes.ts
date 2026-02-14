@@ -35,4 +35,20 @@ router.post(
      authService.resetOtp
     );
 
+router.post(
+    "/forget-password",
+    validate(authValidation.forgetPasswordSchema),
+    authService.forgetPassword
+);
+router.post(
+    "/verify-reset-otp",
+    validate(authValidation.verifyResetOtpSchema),
+    authService.verifyResetPasswordOTP
+);
+router.post(
+    "/reset-password",
+    validate(authValidation.resetPasswordSchema),
+    authService.resetPassword
+);
+
 export default router;  

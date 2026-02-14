@@ -3,7 +3,6 @@ import * as userService from "./user.controller";
 import { validate } from "../../middleware/validation.middleware";
 import * as userValidation from './user.validation';
 import { auth } from "../../middleware/auth.middleware";
-
 const router = Router();
 
 router.use(auth);

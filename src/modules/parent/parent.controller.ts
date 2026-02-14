@@ -9,22 +9,6 @@ export const addChild = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const parentId = req.user?._id;
 
-    if (!parentId) {
-      return next(
-        new AppError("User not authenticated", StatusCodes.UNAUTHORIZED),
-      );
-    }
-
-    const parent = await userRepo.findOne({
-      filter: { _id: parentId, role: Role.Parent },
-    });
-
-    if (!parent) {
-     return next(
-       new AppError("Parent not found", StatusCodes.NOT_FOUND),
-     );
-    }
-
     
     const childData = {
       ...req.body,
@@ -32,9 +16,9 @@ export const addChild = asyncErrorHandler(
     };
 
     const existingChild = await childRepo.findOne({
-      filter: {
-        parentId: parentId,
+      filter:{
         name: childData.name,
+        parent: parentId,
         isDeleted: false
       }
     });
@@ -46,7 +30,7 @@ export const addChild = asyncErrorHandler(
     }
     const newChild = await childRepo.create(childData);
 
-    const updatedParent = await userRepo.findOneAndUpdate({
+    await userRepo.findOneAndUpdate({
       filter: {
         _id: parentId,
       },
@@ -65,24 +49,11 @@ export const addChild = asyncErrorHandler(
 
 export const getAllChildren = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const parentId = req.user?._id;
 
-    if (!parentId) {
-      return next(
-        new AppError("User not authenticated", StatusCodes.UNAUTHORIZED),
-      );
-    }
 
-     const parent = await userRepo.findOne({
-       filter: { _id: parentId, role: Role.Parent },
-     });
-
-     if (!parent) {
-       return next(new AppError("Parent not found", StatusCodes.NOT_FOUND));
-    }
     
     const children = await childRepo.findAll({
-      filter: { parent: parentId, isDeleted: false },
+      filter: { parent: req.user?._id, isDeleted: false },
     });
 
     return res.status(StatusCodes.OK).json({
@@ -94,30 +65,16 @@ export const getAllChildren = asyncErrorHandler(
   },
 );
 
-export const getSingleChild = asyncErrorHandler(
+export const getChild = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const parentId = req.user?._id;
     const { childId } = req.params as unknown as { childId: Types.ObjectId };
 
-    if (!parentId) {
-      return next(
-        new AppError("User not authenticated", StatusCodes.UNAUTHORIZED),
-      );
-    }
-
-     const parent = await userRepo.findOne({
-       filter: { _id: parentId, role: Role.Parent },
-     });
-
-     if (!parent) {
-       return next(new AppError("Parent not found", StatusCodes.NOT_FOUND));
-     }
 
 
     const child = await childRepo.findOne({
       filter: {
         _id: childId,
-        parent: parentId,
+        parent:req.user?._id ,
         isDeleted: false
       },
     });
@@ -139,19 +96,6 @@ export const updateChild = asyncErrorHandler(
     const parentId = req.user?._id;
     const { childId } = req.params as unknown as { childId: Types.ObjectId };
 
-    if (!parentId) {
-      return next(
-        new AppError("User not authenticated", StatusCodes.UNAUTHORIZED),
-      );
-    }
-
-     const parent = await userRepo.findOne({
-       filter: { _id: parentId, role: Role.Parent },
-     });
-
-     if (!parent) {
-       return next(new AppError("Parent not found", StatusCodes.NOT_FOUND));
-    }
     
     const updatedChild = await childRepo.findOneAndUpdate({
       filter: {
@@ -177,28 +121,14 @@ export const updateChild = asyncErrorHandler(
 
 export const deleteChild = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const parentId = req.user?._id;
+
     const { childId } = req.params as unknown as { childId: Types.ObjectId };
-
-    if (!parentId) {
-      return next(
-        new AppError("User not authenticated", StatusCodes.UNAUTHORIZED),
-      );
-    }
-
-    const parent = await userRepo.findOne({
-      filter: { _id: parentId, role: Role.Parent },
-    });
-
-    if (!parent) {
-      return next(new AppError("Parent not found", StatusCodes.NOT_FOUND));
-    }
  
 
     const deletedChild = await childRepo.findOneAndUpdate({
       filter: {
         _id: childId,
-        parent: parentId,
+        parent: req.user?._id,
         isDeleted: false,
       },
       update: { isDeleted: true },

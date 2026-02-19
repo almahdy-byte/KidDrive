@@ -14,7 +14,7 @@ const verify = async(token : string , key : string):Promise<Payload>=>{
 
 
 export const createToken =async (payload:Payload , type?: TokenType):Promise<{accessToken:string , refreshToken?:string}> => {
-    const accessToken:String = await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'1h'})
+    const accessToken:String = await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'30d'})
     if(type === TokenType.Access){
         return {accessToken:accessToken as string}
     }
@@ -40,7 +40,7 @@ export const decodedToken =async (token : string ,type : TokenType = TokenType.A
 
 
 export const createAccessToken =async (payload:Payload):Promise<String> => {
-    return await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'1h'}) as string
+    return await sign(payload , process.env.ACCESS_TOKEN_SECRET as string , {expiresIn:'30d'}) as string
 }
 
 export const createForgetPasswordToken =async (payload:Payload):Promise<String> => {

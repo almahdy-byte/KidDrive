@@ -29,7 +29,10 @@ export const register = asyncErrorHandler(
 
 
         const exist = await userRepo.findByEmail({ email });
-        if (exist) throw new AppError("Email already exists", StatusCodes.BAD_REQUEST);
+
+        if (exist){
+            return next(new AppError("Email already exists", StatusCodes.BAD_REQUEST));
+        }
 
 
         const hashedPassword = await hash(password);

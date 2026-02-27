@@ -4,12 +4,14 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 const app: Application = express();
 
-// Bootstrap the application (middleware, DB, routes)
-bootstrap(app)
+// Initialize the application (middleware, DB, routes)
+const initializeApp = async () => {
+    await bootstrap(app);
+};
 
-
-app.listen(process.env.PORT || 3000 , ()=>{
-    console.log('Server is running on port 3000')
-})
-
+// Start the initialization
+initializeApp();
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
+});
 export default app;

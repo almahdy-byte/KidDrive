@@ -1,7 +1,7 @@
 import Joi, { func } from "joi"
-import { objectId } from "../child/child.validation";
 import { generalValidationSchema } from "../../middleware/validation.middleware";
 import { FileType, ImageType } from "../../common";
+import { objectId } from "../parent/parent.validation";
 
 
         
@@ -47,3 +47,4 @@ export const apply = Joi.object({
 export const approveApplication = Joi.object({
     applicationId: Joi.string().custom(objectId).required(),
 });
+

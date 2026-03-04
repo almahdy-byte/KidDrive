@@ -1,7 +1,8 @@
 import Joi from "joi";
-import { objectId } from "../child/child.validation";
+
 import { fileSchema } from "../driver/diver.validation";
 import { FileType } from "../../common";
+import { objectId } from "../parent/parent.validation";
 
 export const createVehicle = Joi.object({
   driverId: Joi.string().custom(objectId).required(),

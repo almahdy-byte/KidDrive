@@ -7,6 +7,8 @@ import mongoose, {
   QueryOptions,
   HydratedDocument,
   FlattenMaps,
+  UpdateWriteOpResult,
+  MongooseUpdateQueryOptions,
 } from "mongoose";
 
 
@@ -106,8 +108,27 @@ export abstract class DBServices<TDoc> {
   async updateOne({
     filter,
     update,
-  }: UpdateOptions<TDoc>): Promise<TDoc | null> {
-    return await this.model.findOneAndUpdate(filter, update, { new: true });
+    options,
+  }: {
+    filter: QueryFilter<TDoc>;
+    update: UpdateQuery<TDoc>;
+    options?: MongooseUpdateQueryOptions<TDoc> | null;
+  }): Promise<UpdateWriteOpResult> {
+    if (Array.isArray(update)) {
+      update.push({
+        $set: {
+          __v: {
+            $add: ["$__v", 1],
+          },
+        },
+      });
+      return await this.model.updateOne(filter, update, options);
+    }
+    return await this.model.updateOne(
+      filter,
+      { ...update, $inc: { __v: 1 } },
+      options,
+    );
   }
 
   // Find By Id
@@ -149,7 +170,7 @@ export abstract class DBServices<TDoc> {
     update = { new: true },
     options,
   }: {
-      filter?: any;
+    filter?: any;
     update: UpdateQuery<TDoc>;
     options?: QueryOptions<TDoc> | null;
   }): Promise<HydratedDocument<TDoc> | lean<TDoc> | null> {

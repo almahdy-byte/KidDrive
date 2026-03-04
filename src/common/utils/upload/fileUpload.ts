@@ -3,6 +3,7 @@ import multer, { FileFilterCallback } from "multer";
 import { AppError } from "../../../common/error";
 import { IRequest } from "../../../common/utils/type";
 
+
 export const ImageType = [
   "image/png",
   "image/jpeg",
@@ -32,7 +33,7 @@ export const FileType = [
 export type ImageMimeType = typeof ImageType[number];
 
 
-export const uploadFile = (type: string[]) => {
+export const cloudUploadFile = ({ type=[] } : {type: string[]}) => {
   const storage = multer.diskStorage({
   });
 
@@ -48,23 +49,19 @@ export const uploadFile = (type: string[]) => {
   return upload;
 };
 
-export const uploadFiles = (types: readonly string[]) => {
-
-  const storage = multer.diskStorage({
-  });
+export const cloudUploadFiles = ({ types = [] }: { types: string[] }) => {
+  const storage = multer.diskStorage({});
 
   const fileFilter = (
     req: IRequest,
     file: Express.Multer.File,
-    cb: FileFilterCallback
+    cb: FileFilterCallback,
   ) => {
     if (types.includes(file.mimetype)) {
       return cb(null, true);
     }
 
-    cb(
-      new AppError("invalid file type", StatusCodes.BAD_REQUEST)
-    );
+    cb(new AppError("invalid file type", StatusCodes.BAD_REQUEST));
   };
 
   return multer({ storage, fileFilter });

@@ -5,6 +5,7 @@ import { connectDB } from "./db";
 import { globalErrorHandler, notFoundHandler } from "./common";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/user/user.routes";
+import driverRoutes from "./modules/driver/driver.routes";
 
 
 import cors from 'cors'
@@ -24,6 +25,7 @@ export const bootstrap = async (app: Application) => {
     })
     app.use('/auth', authRoutes)
     app.use('/parent', userRoutes)
+    app.use('/driver', driverRoutes)
     app.use(notFoundHandler)
     app.use(globalErrorHandler)
 }

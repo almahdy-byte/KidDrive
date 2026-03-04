@@ -13,7 +13,7 @@ const router = Router({
 router.post(
   "/",
   auth,
-  validate(childValidation.addChildSchema.body),
+  validate(childValidation.addChildSchema),
   childService.addChild,
 );
 
@@ -21,7 +21,7 @@ router.post(
 router.get(
   "/",
   auth,
-  validate(childValidation.getChildrenSchema.params),
+  validate(childValidation.getChildrenSchema),
   childService.getAllChildren,
 );
 
@@ -29,7 +29,7 @@ router.get(
 router.get(
   "/:childId",
   auth,
-  validate(childValidation.getSingleChildSchema.params),
+  validate(childValidation.getSingleChildSchema),
   childService.getSingleChild,
 );
 
@@ -37,7 +37,7 @@ router.get(
 router.patch(
   "/:childId/update",
   auth,
-  validate(childValidation.updateChildSchema.body),
+  validate(childValidation.updateChildSchema),
   childService.updateChild,
 );
 
@@ -45,7 +45,7 @@ router.patch(
 router.delete(
   "/:childId/delete",
   auth,
-  validate(childValidation.getSingleChildSchema.params),
+  validate(childValidation.getSingleChildSchema),
   childService.deleteChild,
 );
 
@@ -53,7 +53,7 @@ router.delete(
 router.patch(
   "/:childId/restore",
   auth,
-  validate(childValidation.getSingleChildSchema.params),
+  validate(childValidation.getSingleChildSchema),
   childService.restoreChild,
 );
 

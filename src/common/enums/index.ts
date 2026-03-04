@@ -20,6 +20,12 @@ export enum Subject{
     ForgetPassword = 'forgetPassword',
 }
 
+export enum ApplicationStatus {
+    PENDING = 'pending',
+    APPROVED = 'approved',
+    REJECTED = 'rejected'
+}
+
 export enum TokenType{
     Access = 'access',
     Refresh = 'refresh',

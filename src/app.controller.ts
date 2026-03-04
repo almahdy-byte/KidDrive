@@ -6,7 +6,7 @@ import { globalErrorHandler, notFoundHandler } from "./common";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/user/user.routes";
 import driverRoutes from "./modules/driver/driver.routes";
-
+import parentRoutes from "./modules/parent/parent.routes";
 
 import cors from 'cors'
 
@@ -24,8 +24,9 @@ export const bootstrap = async (app: Application) => {
         res.send('KidDrive APIs')
     })
     app.use('/auth', authRoutes)
-    app.use('/parent', userRoutes)
-    app.use('/driver', driverRoutes)
+    app.use('/user', userRoutes)
+    app.use('/parent', parentRoutes)
+     app.use('/driver', driverRoutes)
     app.use(notFoundHandler)
     app.use(globalErrorHandler)
 }

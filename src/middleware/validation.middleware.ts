@@ -130,6 +130,8 @@ export const validate = (schema: Schema) => {
         ...req.body,
         ...req.params,
         ...req.query,
+        ...req.file,
+        ...req.files,
       };
     }
 
@@ -161,14 +163,21 @@ export const generalValidationSchema = {
     return value;
   }),
   email: Joi.string().email(),
-  firstName: Joi.string()
-    .min(3)
-    .max(30),
-  lastName: Joi.string()
-    .min(3)
-    .max(30),
+  firstName: Joi.string().min(3).max(30),
+  lastName: Joi.string().min(3).max(30),
   password: Joi.string(),
   phone: Joi.string(),
   role: Joi.string(),
   code: Joi.string().length(6),
+  file: {
+    fieldname: Joi.string(),
+    originalname: Joi.string(),
+    encoding: Joi.string(),
+    mimetype: Joi.string(),
+    finalPath: Joi.string(),
+    destination: Joi.string(),
+    filename: Joi.string(),
+    path: Joi.string(),
+    size: Joi.number().positive(),
+  },
 };

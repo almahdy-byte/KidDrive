@@ -187,3 +187,48 @@ export const restoreChild = asyncErrorHandler(
     });
   },
 );
+
+export const updateProfile = asyncErrorHandler(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const parentId = req.user?._id;
+    const { firstName, lastName, email, phone, location } = req.body;
+
+    if (!parentId) {
+      return next(new AppError("User not authenticated", StatusCodes.UNAUTHORIZED));
+    }
+
+    const updateData: any = {};
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (email) {
+      const existingUser = await userRepo.findOne({ filter: { email } });
+      if (existingUser && existingUser._id.toString() !== parentId.toString()) {
+        return next(new AppError("Email already exists", StatusCodes.BAD_REQUEST));
+      }
+      updateData.email = email;
+    }
+    if (phone) updateData.phone = phone;
+    if (location) {
+      updateData.location = {
+        city: location.city,
+        department: location.department,
+      };
+    }
+
+    const updatedUser = await userRepo.findOneAndUpdate({
+      filter: { _id: parentId },
+      update: updateData,
+    });
+
+    if (!updatedUser) {
+      return next(new AppError("User not found", StatusCodes.NOT_FOUND));
+    }
+
+    return res.status(StatusCodes.OK).json({
+      message: "Profile updated successfully",
+      success: true,
+      status: "success",
+      data: updatedUser,
+    });
+  },
+);

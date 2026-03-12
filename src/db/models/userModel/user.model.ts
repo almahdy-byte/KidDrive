@@ -1,31 +1,33 @@
 import mongoose, { Document, model, Schema, Types } from "mongoose";
 import { decrypt, encrypt, Role } from "../../../common";
 
-
-
-
 export interface IUser extends Document<Types.ObjectId, {}, IUser> {
-    _id: Types.ObjectId,
-    firstName: string,
-    lastName: string,
-    fullName: string,
-    role?: Role,
-    isBanned?: boolean,
-    email: string,
-    password: string,
-    isVerified: boolean,
-    phone?: string,
-    otp?:{
-        code:string,
-        expiresAt:Date
-    }|undefined,
-    children?: Types.ObjectId[],
-    changeCredentialTime: Date
-    updatedAt?: Date,
-    deletedAt?: Date,
-    isDeleted?: boolean,
-    createdAt?: Date,
-
+  _id: Types.ObjectId,
+  firstName: string,
+  lastName: string,
+  fullName: string,
+  role?: Role,
+  isBanned?: boolean,
+  email: string,
+  password: string,
+  isVerified: boolean,
+  phone?: string,
+  otp?: {
+    code: string,
+    expiresAt: Date
+  } | undefined,
+  children?: Types.ObjectId[],
+  changeCredentialTime: Date
+  updatedAt?: Date,
+  deletedAt?: Date,
+  isDeleted?: boolean,
+  createdAt?: Date,
+  isApprovedDriver?: boolean,
+  vehicles?: Types.ObjectId[],
+  location?: {
+    city: string;
+    department: string;
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -78,7 +80,7 @@ const userSchema = new Schema<IUser>(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Child",
-        required: false
+        required: false,
       },
     ],
     changeCredentialTime: {
@@ -95,6 +97,31 @@ const userSchema = new Schema<IUser>(
     },
     deletedAt: {
       type: Date,
+    },
+    isApprovedDriver: {
+      type: Boolean,
+      required: false,
+    },
+    vehicles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vehicle",
+        required:  false,
+      },
+    ],
+    location: {
+      city: { 
+        type: String, 
+        required: function(this: any) {
+          return this.role === 'parent' || this.role === undefined;
+        }
+      },
+      department: { 
+        type: String, 
+        required: function(this: any) {
+          return this.role === 'parent' || this.role === undefined;
+        }
+      },
     },
   },
   {

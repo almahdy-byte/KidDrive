@@ -5,7 +5,10 @@ import { connectDB } from "./db";
 import { globalErrorHandler, notFoundHandler } from "./common";
 import authRoutes from "./modules/auth/auth.routes";
 import userRoutes from "./modules/user/user.routes";
+import driverRoutes from "./modules/driver/driver.routes";
 import parentRoutes from "./modules/parent/parent.routes";
+import { subscriptionRoutes } from "./modules/subscription";
+import { tripRoutes } from "./modules/trip";
 
 import cors from 'cors'
 
@@ -25,6 +28,9 @@ export const bootstrap = async (app: Application) => {
     app.use('/auth', authRoutes)
     app.use('/user', userRoutes)
     app.use('/parent', parentRoutes)
+     app.use('/driver', driverRoutes)
+    app.use('/subscription', subscriptionRoutes)
+    app.use('/trip', tripRoutes)
     app.use(notFoundHandler)
     app.use(globalErrorHandler)
 }

@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { AppError, asyncErrorHandler, decodedToken,  IRequest, Payload, Role, SubscriptionType, TokenType } from "../common";
 import { NextFunction, Request, Response } from "express";
-import { userRepo } from "../db";
+import { driverRepo, userRepo } from "../db";
 
 
 export const auth = asyncErrorHandler(
@@ -41,17 +41,29 @@ export const auth = asyncErrorHandler(
       return next(new AppError("unathorized", StatusCodes.UNAUTHORIZED));
     }
 
-
-
-    const user = await userRepo.findOne({
-      filter: {
-        _id: decoded._id,
-        role: decoded.role,
-      },
-      select:"-password"
-    });
-
-
+    let user: any;
+    switch (decoded.role) {
+      case Role.Admin:
+        user = await userRepo.findOne({
+          filter: {
+            _id: decoded._id,
+            role: decoded.role,
+          },
+          select:"-password"
+        });
+        break;
+      case Role.Driver:
+        user = await driverRepo.findOne({
+          filter: {
+            _id: decoded._id,
+          },
+          select:"-password"
+        });
+        break;
+      default:
+        return next(new AppError("unathorized", StatusCodes.UNAUTHORIZED));
+    }
+    
     if (user?.changeCredentialTime && decoded.changeCredentialTime && user?.changeCredentialTime.getTime() > Number(decoded.changeCredentialTime)) {
       return next(new AppError("Forbidden" , StatusCodes.FORBIDDEN))
     }

@@ -1,7 +1,8 @@
 import { StatusCodes } from "http-status-codes";
-import { AppError, asyncErrorHandler, decodedToken,  IRequest, Payload, Role, SubscriptionType, TokenType } from "../common";
+import { AppError, asyncErrorHandler, decodedToken,  IRequest, Payload, Role,  TokenType } from "../common";
 import { NextFunction, Request, Response } from "express";
 import { driverRepo, userRepo } from "../db";
+
 
 
 export const auth = asyncErrorHandler(
@@ -86,7 +87,7 @@ export const auth = asyncErrorHandler(
   }
 );
 
-export const roleGuard = (roles:Role[] = [ Role.Admin ]) =>{
+export const roleGuard = (roles:Role[] = [ ...Object.values(Role) ]) =>{
         return (req:IRequest , res:Response , next:NextFunction) =>{ 
         
         //Check Role

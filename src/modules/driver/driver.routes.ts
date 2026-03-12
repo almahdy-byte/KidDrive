@@ -11,8 +11,6 @@ router.use("/:driverId/vehicle", vehicleRoutes);
 
 router.post(
   "/apply",
-  auth,
-  roleGuard([Role.Parent]),
   cloudUploadFiles({ types: ImageType }).fields([
     { name: "licenseImage", maxCount: 1 },
     { name: "carImage", maxCount: 1 },

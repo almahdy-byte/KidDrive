@@ -21,7 +21,7 @@ const childSchema = new Schema<IChild>(
       required: true,
     },
     gender: { type: String, default: Gender.Male, required: true },
-    isDeleted: { type: Boolean, required: false },
+    isDeleted: { type: Boolean, required: false , default:false },
     photo: { type: String, required: false },
   },
   {

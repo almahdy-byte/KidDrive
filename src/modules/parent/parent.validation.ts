@@ -13,8 +13,7 @@ export const addChildSchema = Joi.object({
   name: Joi.string().trim().min(2).max(50).required(),
   age: Joi.number().integer().min(0).max(18).required(),
   gender: Joi.string().valid("male", "female").optional(),
-  photo: Joi.string().uri().optional(),
-  parentId: Joi.string().custom(objectId).required(),
+  photo: Joi.string().uri().optional()
 });
 
 export const getChildrenSchema = Joi.object({

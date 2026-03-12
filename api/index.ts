@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import { bootstrap } from '../src/app.controller';
 import * as dotenv from 'dotenv';
+import { userRepo } from '../src/db';
+import { Role } from '../src/common';
 dotenv.config();
 const app: Application = express();
 

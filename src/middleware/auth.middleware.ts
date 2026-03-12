@@ -60,6 +60,15 @@ export const auth = asyncErrorHandler(
           select:"-password"
         });
         break;
+        case Role.Parent:
+        user = await userRepo.findOne({
+          filter: {
+            _id: decoded._id,
+            role: decoded.role,
+          },
+          select:"-password"
+        });
+        break;
       default:
         return next(new AppError("unathorized", StatusCodes.UNAUTHORIZED));
     }

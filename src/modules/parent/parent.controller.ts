@@ -7,18 +7,18 @@ import { Types } from "mongoose";
 
 export const addChild = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const parentId = req.user?._id;
+    const parentId = req.user?._id as Types.ObjectId;
 
     
     const childData = {
       ...req.body,
-      parent: parentId,
+      parentId: parentId,
     };
 
     const existingChild = await childRepo.findOne({
       filter:{
         name: childData.name,
-        parent: parentId,
+        parentId: parentId,
         isDeleted: false
       }
     });
@@ -49,11 +49,12 @@ export const addChild = asyncErrorHandler(
 
 export const getAllChildren = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
+    const parentId = req.user?._id as Types.ObjectId;
 
 
     
     const children = await childRepo.findAll({
-      filter: { parent: req.user?._id, isDeleted: false },
+      filter: { parentId: parentId, isDeleted: false },
     });
 
     return res.status(StatusCodes.OK).json({
@@ -71,10 +72,11 @@ export const getChild = asyncErrorHandler(
 
 
 
+    const parentId = req.user?._id as Types.ObjectId;
     const child = await childRepo.findOne({
       filter: {
         _id: childId,
-        parent:req.user?._id ,
+        parentId: parentId,
         isDeleted: false
       },
     });
@@ -100,7 +102,7 @@ export const updateChild = asyncErrorHandler(
     const updatedChild = await childRepo.findOneAndUpdate({
       filter: {
         _id: childId,
-        parent: parentId,
+        parentId: parentId,
         isDeleted: false,
       },
       update: req.body,
@@ -125,10 +127,11 @@ export const deleteChild = asyncErrorHandler(
     const { childId } = req.params as unknown as { childId: Types.ObjectId };
  
 
+    const parentId = req.user?._id as Types.ObjectId;
     const deletedChild = await childRepo.findOneAndUpdate({
       filter: {
         _id: childId,
-        parent: req.user?._id,
+        parentId: parentId,
         isDeleted: false,
       },
       update: { isDeleted: true },
@@ -169,7 +172,7 @@ export const restoreChild = asyncErrorHandler(
     const restoredChild = await childRepo.findOneAndUpdate({
       filter: {
         _id: childId,
-        parent: parentId,
+        parentId: parentId,
         isDeleted: true,
       },
       update: { isDeleted: false },
@@ -190,7 +193,7 @@ export const restoreChild = asyncErrorHandler(
 
 export const updateProfile = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
-    const parentId = req.user?._id;
+    const parentId = req.user?._id as Types.ObjectId;
     const { firstName, lastName, email, phone, location } = req.body;
 
     if (!parentId) {

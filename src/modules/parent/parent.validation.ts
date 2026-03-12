@@ -18,12 +18,12 @@ export const addChildSchema = Joi.object({
 });
 
 export const getChildrenSchema = Joi.object({
-  parentId: Joi.string().custom(objectId).required(),
+  parentId: Joi.string().custom(objectId).optional(),
 });
 
 export const getSingleChildSchema = Joi.object({
   childId: Joi.string().custom(objectId).required(),
-  parentId: Joi.string().custom(objectId).required(),
+  parentId: Joi.string().custom(objectId).optional(),
 });
 
 export const updateChildSchema =
@@ -41,8 +41,8 @@ export const updateParentProfileSchema = Joi.object({
   email: Joi.string().email().optional(),
   phone: Joi.string().optional(),
   location: Joi.object({
-    city: Joi.string().required(),
-    department: Joi.string().required(),
+    city: Joi.string().optional(),
+    department: Joi.string().optional(),
   }).optional(),
 }).min(1);
 

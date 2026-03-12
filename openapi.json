@@ -34,7 +34,6 @@
     "/auth/register": {
       "post": {
         "summary": "Register new user",
-        "description": "Register a new user (Parent, Driver, or Admin)",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -87,14 +86,7 @@
         },
         "responses": {
           "201": {
-            "description": "User registered successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
+            "description": "User registered successfully"
           },
           "400": {
             "description": "Bad request"
@@ -104,8 +96,7 @@
     },
     "/auth/verify-email": {
       "post": {
-        "summary": "Verify email",
-        "description": "Verify email with OTP code",
+        "summary": "Verify email with OTP",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -140,8 +131,7 @@
     },
     "/auth/login": {
       "post": {
-        "summary": "Login user",
-        "description": "Authenticate user and return tokens",
+        "summary": "User login",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -169,7 +159,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
+                  "type": "object",
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
                 }
               }
             }
@@ -183,7 +184,6 @@
     "/auth/refresh-token": {
       "post": {
         "summary": "Refresh access token",
-        "description": "Generate new access token using refresh token",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -203,14 +203,7 @@
         },
         "responses": {
           "200": {
-            "description": "Token refreshed successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
+            "description": "Token refreshed successfully"
           },
           "401": {
             "description": "Invalid refresh token"
@@ -220,8 +213,7 @@
     },
     "/auth/resend-email-otp": {
       "post": {
-        "summary": "Resend OTP",
-        "description": "Resend verification OTP to email",
+        "summary": "Resend email verification OTP",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -249,8 +241,7 @@
     },
     "/auth/forget-password": {
       "post": {
-        "summary": "Forgot password",
-        "description": "Request password reset OTP",
+        "summary": "Request password reset",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -271,15 +262,14 @@
         },
         "responses": {
           "200": {
-            "description": "Reset OTP sent"
+            "description": "Password reset email sent"
           }
         }
       }
     },
     "/auth/verify-reset-otp": {
       "post": {
-        "summary": "Verify reset OTP",
-        "description": "Verify password reset OTP",
+        "summary": "Verify password reset OTP",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -305,9 +295,6 @@
         "responses": {
           "200": {
             "description": "OTP verified successfully"
-          },
-          "400": {
-            "description": "Invalid OTP"
           }
         }
       }
@@ -315,7 +302,6 @@
     "/auth/reset-password": {
       "post": {
         "summary": "Reset password",
-        "description": "Reset password with new password",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -344,16 +330,15 @@
     "/user/profile": {
       "get": {
         "summary": "Get user profile",
-        "description": "Get current user's profile information",
         "tags": ["User"],
         "security": [{"bearerAuth": []}],
         "responses": {
           "200": {
-            "description": "Profile retrieved successfully",
+            "description": "User profile retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserProfile"
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
@@ -365,7 +350,6 @@
       },
       "patch": {
         "summary": "Update user profile",
-        "description": "Update current user's profile information",
         "tags": ["User"],
         "security": [{"bearerAuth": []}],
         "requestBody": {
@@ -388,21 +372,15 @@
                   "phone": {
                     "type": "string"
                   }
-                }
+                },
+                "minProperties": 1
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Profile updated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserProfile"
-                }
-              }
-            }
+            "description": "Profile updated successfully"
           },
           "401": {
             "description": "Unauthorized"
@@ -412,10 +390,8 @@
     },
     "/driver/apply": {
       "post": {
-        "summary": "Apply as driver",
-        "description": "Submit driver application with documents",
+        "summary": "Apply to become a driver",
         "tags": ["Driver"],
-        "security": [{"bearerAuth": []}],
         "requestBody": {
           "required": true,
           "content": {
@@ -424,55 +400,77 @@
                 "type": "object",
                 "properties": {
                   "licenseImage": {
-                    "type": "string",
-                    "format": "binary"
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "minItems": 1
                   },
                   "carImage": {
-                    "type": "string",
-                    "format": "binary"
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "minItems": 1
                   },
                   "nationalIdImage": {
-                    "type": "string",
-                    "format": "binary"
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "minItems": 1
+                  },
+                  "carModel": {
+                    "type": "string"
+                  },
+                  "plateNumber": {
+                    "type": "string"
+                  },
+                  "carColor": {
+                    "type": "string"
+                  },
+                  "governmentDocuments": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "minItems": 1
                   },
                   "nationalId": {
                     "type": "string"
                   },
-                  "experience": {
-                    "type": "number"
+                  "userName": {
+                    "type": "string"
                   },
-                  "vehicleInfo": {
-                    "type": "object",
-                    "properties": {
-                      "make": {
-                        "type": "string"
-                      },
-                      "model": {
-                        "type": "string"
-                      },
-                      "year": {
-                        "type": "number"
-                      },
-                      "licensePlate": {
-                        "type": "string"
-                      }
-                    }
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "department": {
+                    "type": "string"
                   }
                 },
-                "required": ["licenseImage", "carImage", "nationalIdImage", "nationalId", "experience", "vehicleInfo"]
+                "required": ["licenseImage", "carImage", "nationalIdImage", "carModel", "plateNumber", "carColor", "governmentDocuments", "nationalId", "userName", "email", "phone", "password", "city", "department"]
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Application submitted successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Only parents can apply as drivers"
+            "description": "Driver application submitted successfully"
           }
         }
       }
@@ -480,7 +478,6 @@
     "/driver/application/{applicationId}/approve": {
       "patch": {
         "summary": "Approve driver application",
-        "description": "Approve a driver application (Admin only)",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -493,22 +490,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "notes": {
-                    "type": "string",
-                    "maxLength": 500
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Application approved successfully"
@@ -517,7 +498,7 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
+            "description": "Forbidden - Admin only"
           }
         }
       }
@@ -525,7 +506,6 @@
     "/driver/login": {
       "post": {
         "summary": "Driver login",
-        "description": "Login specifically for drivers",
         "tags": ["Driver"],
         "requestBody": {
           "required": true,
@@ -549,14 +529,7 @@
         },
         "responses": {
           "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
+            "description": "Login successful"
           }
         }
       }
@@ -564,16 +537,15 @@
     "/driver/profile": {
       "get": {
         "summary": "Get driver profile",
-        "description": "Get current driver's profile",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "responses": {
           "200": {
-            "description": "Profile retrieved successfully",
+            "description": "Driver profile retrieved successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DriverProfile"
+                  "$ref": "#/components/schemas/Driver"
                 }
               }
             }
@@ -582,13 +554,12 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Driver access required"
+            "description": "Forbidden - Driver only"
           }
         }
       },
       "patch": {
         "summary": "Update driver profile",
-        "description": "Update current driver's profile",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "requestBody": {
@@ -598,23 +569,15 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 30
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 30
-                  },
-                  "phone": {
+                  "userName": {
                     "type": "string"
                   },
-                  "experience": {
-                    "type": "number"
+                  "email": {
+                    "type": "string",
+                    "format": "email"
                   }
-                }
+                },
+                "minProperties": 1
               }
             }
           }
@@ -627,15 +590,14 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Driver access required"
+            "description": "Forbidden - Driver only"
           }
         }
       }
     },
     "/driver/vehicle": {
       "patch": {
-        "summary": "Update driver vehicle",
-        "description": "Update driver vehicle information",
+        "summary": "Update driver vehicle information",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "requestBody": {
@@ -645,41 +607,37 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "governmentDocuments": {
-                    "type": "string",
-                    "format": "binary"
+                  "carModel": {
+                    "type": "string"
                   },
-                  "vehicleInfo": {
-                    "type": "object",
-                    "properties": {
-                      "make": {
-                        "type": "string"
-                      },
-                      "model": {
-                        "type": "string"
-                      },
-                      "year": {
-                        "type": "number"
-                      },
-                      "licensePlate": {
-                        "type": "string"
-                      }
+                  "plateNumber": {
+                    "type": "string"
+                  },
+                  "carColor": {
+                    "type": "string"
+                  },
+                  "governmentDocuments": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
                     }
                   }
-                }
+                },
+                "minProperties": 1
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Vehicle updated successfully"
+            "description": "Vehicle information updated successfully"
           },
           "401": {
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Driver access required"
+            "description": "Forbidden - Driver only"
           }
         }
       }
@@ -687,10 +645,23 @@
     "/driver/": {
       "get": {
         "summary": "Get all drivers",
-        "description": "Get list of all drivers (Admin and Parent)",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "department",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "page",
             "in": "query",
@@ -715,7 +686,29 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedDrivers"
+                  "type": "object",
+                  "properties": {
+                    "drivers": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Driver"
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -724,40 +717,32 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin or Parent access required"
+            "description": "Forbidden - Admin or Parent only"
           }
         }
       }
     },
     "/driver/nearby": {
       "get": {
-        "summary": "Get nearby drivers",
-        "description": "Get drivers near parent location",
+        "summary": "Get drivers near parent location",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "parameters": [
           {
-            "name": "latitude",
+            "name": "page",
             "in": "query",
-            "required": true,
             "schema": {
-              "type": "number"
+              "type": "integer",
+              "minimum": 1
             }
           },
           {
-            "name": "longitude",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "radius",
+            "name": "limit",
             "in": "query",
             "schema": {
-              "type": "number",
-              "default": 5
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
             }
           }
         ],
@@ -769,15 +754,14 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Parent access required"
+            "description": "Forbidden - Parent only"
           }
         }
       }
     },
     "/driver/{driverId}/rate": {
       "post": {
-        "summary": "Rate driver",
-        "description": "Rate a driver (Parent only)",
+        "summary": "Rate a driver",
         "tags": ["Driver"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -801,10 +785,6 @@
                     "type": "number",
                     "minimum": 1,
                     "maximum": 5
-                  },
-                  "comment": {
-                    "type": "string",
-                    "maxLength": 500
                   }
                 },
                 "required": ["rating"]
@@ -813,22 +793,21 @@
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Driver rated successfully"
           },
           "401": {
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Parent access required"
+            "description": "Forbidden - Parent only"
           }
         }
       }
     },
     "/driver/{driverId}/vehicle": {
       "post": {
-        "summary": "Create vehicle",
-        "description": "Add vehicle for driver",
+        "summary": "Create vehicle for driver",
         "tags": ["Vehicle"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -855,21 +834,9 @@
                       "format": "binary"
                     },
                     "maxItems": 3
-                  },
-                  "make": {
-                    "type": "string"
-                  },
-                  "model": {
-                    "type": "string"
-                  },
-                  "year": {
-                    "type": "number"
-                  },
-                  "licensePlate": {
-                    "type": "string"
                   }
                 },
-                "required": ["make", "model", "year", "licensePlate"]
+                "required": ["documents"]
               }
             }
           }
@@ -882,13 +849,14 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Driver access required"
+            "description": "Forbidden - Driver only"
           }
         }
-      },
+      }
+    },
+    "/driver/{driverId}/vehicle/{vehicleId}/approve": {
       "patch": {
         "summary": "Approve vehicle",
-        "description": "Approve driver vehicle (Admin only)",
         "tags": ["Vehicle"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -909,21 +877,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "notes": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Vehicle approved successfully"
@@ -932,15 +885,56 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
+            "description": "Forbidden - Admin only"
           }
         }
       }
     },
     "/parent/": {
+      "post": {
+        "summary": "Add child",
+        "tags": ["Parent"],
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "age": {
+                    "type": "number"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "enum": ["male", "female"]
+                  },
+                  "photo": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "age", "gender"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Child added successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Parent or Admin only"
+          }
+        }
+      },
       "get": {
         "summary": "Get all children",
-        "description": "Get all children for current parent or admin",
         "tags": ["Parent"],
         "security": [{"bearerAuth": []}],
         "responses": {
@@ -959,70 +953,16 @@
           },
           "401": {
             "description": "Unauthorized"
-          }
-        }
-      },
-      "post": {
-        "summary": "Add child",
-        "description": "Add a new child",
-        "tags": ["Parent"],
-        "security": [{"bearerAuth": []}],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "firstName": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 30
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 30
-                  },
-                  "age": {
-                    "type": "number",
-                    "minimum": 4,
-                    "maximum": 15
-                  },
-                  "grade": {
-                    "type": "string",
-                    "enum": ["Fourth Primary", "Fifth Primary", "Sixth Primary", "First Secondary", "Second Secondary", "Third Secondary"]
-                  },
-                  "school": {
-                    "type": "string"
-                  }
-                },
-                "required": ["firstName", "lastName", "age", "grade", "school"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Child added successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Child"
-                }
-              }
-            }
           },
-          "401": {
-            "description": "Unauthorized"
+          "403": {
+            "description": "Forbidden - Parent or Admin only"
           }
         }
       }
     },
     "/parent/{childId}": {
       "get": {
-        "summary": "Get child",
-        "description": "Get specific child details",
+        "summary": "Get single child",
         "tags": ["Parent"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1058,7 +998,6 @@
     "/parent/{childId}/update": {
       "patch": {
         "summary": "Update child",
-        "description": "Update child information",
         "tags": ["Parent"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1078,29 +1017,21 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "firstName": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 30
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "minLength": 3,
-                    "maxLength": 30
+                  "name": {
+                    "type": "string"
                   },
                   "age": {
-                    "type": "number",
-                    "minimum": 4,
-                    "maximum": 15
+                    "type": "number"
                   },
-                  "grade": {
+                  "gender": {
                     "type": "string",
-                    "enum": ["Fourth Primary", "Fifth Primary", "Sixth Primary", "First Secondary", "Second Secondary", "Third Secondary"]
+                    "enum": ["male", "female"]
                   },
-                  "school": {
+                  "photo": {
                     "type": "string"
                   }
-                }
+                },
+                "minProperties": 1
               }
             }
           }
@@ -1112,16 +1043,15 @@
           "401": {
             "description": "Unauthorized"
           },
-          "404": {
-            "description": "Child not found"
+          "403": {
+            "description": "Forbidden - Parent or Admin only"
           }
         }
       }
     },
     "/parent/{childId}/delete": {
       "delete": {
-        "summary": "Delete child",
-        "description": "Soft delete child",
+        "summary": "Delete child (soft delete)",
         "tags": ["Parent"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1141,8 +1071,8 @@
           "401": {
             "description": "Unauthorized"
           },
-          "404": {
-            "description": "Child not found"
+          "403": {
+            "description": "Forbidden - Parent or Admin only"
           }
         }
       }
@@ -1150,7 +1080,6 @@
     "/parent/{childId}/restore": {
       "patch": {
         "summary": "Restore child",
-        "description": "Restore soft deleted child",
         "tags": ["Parent"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1170,8 +1099,8 @@
           "401": {
             "description": "Unauthorized"
           },
-          "404": {
-            "description": "Child not found"
+          "403": {
+            "description": "Forbidden - Parent or Admin only"
           }
         }
       }
@@ -1179,7 +1108,6 @@
     "/parent/profile": {
       "patch": {
         "summary": "Update parent profile",
-        "description": "Update parent profile information",
         "tags": ["Parent"],
         "security": [{"bearerAuth": []}],
         "requestBody": {
@@ -1213,7 +1141,8 @@
                       }
                     }
                   }
-                }
+                },
+                "minProperties": 1
               }
             }
           }
@@ -1226,51 +1155,14 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Parent access required"
+            "description": "Forbidden - Parent only"
           }
         }
       }
     },
     "/subscription/": {
-      "get": {
-        "summary": "Get all subscriptions",
-        "description": "Get all subscriptions (Admin only)",
-        "tags": ["Subscription"],
-        "security": [{"bearerAuth": []}],
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Subscriptions retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Admin access required"
-          }
-        }
-      },
       "post": {
         "summary": "Create subscription",
-        "description": "Create new subscription",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "requestBody": {
@@ -1286,26 +1178,16 @@
                   "childId": {
                     "type": "string"
                   },
-                  "type": {
+                  "expiryDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "subscriptionType": {
                     "type": "string",
                     "enum": ["monthly", "term"]
-                  },
-                  "pickupAddress": {
-                    "type": "string"
-                  },
-                  "dropoffAddress": {
-                    "type": "string"
-                  },
-                  "pickupTime": {
-                    "type": "string",
-                    "format": "time"
-                  },
-                  "dropoffTime": {
-                    "type": "string",
-                    "format": "time"
                   }
                 },
-                "required": ["driverId", "childId", "type", "pickupAddress", "dropoffAddress", "pickupTime", "dropoffTime"]
+                "required": ["driverId", "childId", "expiryDate", "subscriptionType"]
               }
             }
           }
@@ -1318,12 +1200,27 @@
             "description": "Unauthorized"
           }
         }
+      },
+      "get": {
+        "summary": "Get all subscriptions (Admin only)",
+        "tags": ["Subscription"],
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Subscriptions retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin only"
+          }
+        }
       }
     },
     "/subscription/my": {
       "get": {
-        "summary": "Get my subscriptions",
-        "description": "Get subscriptions for current user",
+        "summary": "Get current user's subscriptions",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "responses": {
@@ -1339,7 +1236,6 @@
     "/subscription/{id}": {
       "get": {
         "summary": "Get subscription by ID",
-        "description": "Get specific subscription details",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1368,7 +1264,6 @@
     "/subscription/driver/{driverId}": {
       "get": {
         "summary": "Get subscriptions by driver",
-        "description": "Get subscriptions for specific driver",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1394,7 +1289,6 @@
     "/subscription/parent/{parentId}": {
       "get": {
         "summary": "Get subscriptions by parent",
-        "description": "Get subscriptions for specific parent",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1420,7 +1314,6 @@
     "/subscription/child/{childId}": {
       "get": {
         "summary": "Get subscriptions by child",
-        "description": "Get subscriptions for specific child",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1446,7 +1339,6 @@
     "/subscription/{id}/status": {
       "patch": {
         "summary": "Update subscription status",
-        "description": "Update subscription status",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1478,7 +1370,7 @@
         },
         "responses": {
           "200": {
-            "description": "Status updated successfully"
+            "description": "Subscription status updated successfully"
           },
           "401": {
             "description": "Unauthorized"
@@ -1489,7 +1381,6 @@
     "/subscription/pending/all": {
       "get": {
         "summary": "Get pending subscriptions",
-        "description": "Get all pending subscriptions",
         "tags": ["Subscription"],
         "security": [{"bearerAuth": []}],
         "responses": {
@@ -1502,48 +1393,9 @@
         }
       }
     },
-    "/trip/": {
-      "get": {
-        "summary": "Get all trips",
-        "description": "Get all trips (Admin only)",
-        "tags": ["Trip"],
-        "security": [{"bearerAuth": []}],
-        "parameters": [
-          {
-            "name": "page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          },
-          {
-            "name": "limit",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 100
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Trips retrieved successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Admin access required"
-          }
-        }
-      }
-    },
     "/trip/start": {
       "post": {
         "summary": "Start trip",
-        "description": "Start a new trip",
         "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "requestBody": {
@@ -1553,10 +1405,19 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "driverId": {
+                    "type": "string"
+                  },
+                  "parentId": {
+                    "type": "string"
+                  },
+                  "childId": {
+                    "type": "string"
+                  },
                   "subscriptionId": {
                     "type": "string"
                   },
-                  "pickupLocation": {
+                  "origin": {
                     "type": "object",
                     "properties": {
                       "latitude": {
@@ -1564,17 +1425,30 @@
                       },
                       "longitude": {
                         "type": "number"
+                      },
+                      "address": {
+                        "type": "string"
                       }
-                    }
+                    },
+                    "required": ["latitude", "longitude", "address"]
                   },
-                  "children": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "latitude": {
+                        "type": "number"
+                      },
+                      "longitude": {
+                        "type": "number"
+                      },
+                      "address": {
+                        "type": "string"
+                      }
+                    },
+                    "required": ["latitude", "longitude", "address"]
                   }
                 },
-                "required": ["subscriptionId", "pickupLocation", "children"]
+                "required": ["driverId", "parentId", "childId", "subscriptionId", "origin", "destination"]
               }
             }
           }
@@ -1589,10 +1463,82 @@
         }
       }
     },
+    "/trip/{id}/end": {
+      "patch": {
+        "summary": "End trip",
+        "tags": ["Trip"],
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip ended successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Driver only"
+          }
+        }
+      }
+    },
+    "/trip/{id}/status": {
+      "patch": {
+        "summary": "Update trip status",
+        "tags": ["Trip"],
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["child_boarded", "child_dropped_off", "trip_started", "trip_finished"]
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Trip status updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Driver only"
+          }
+        }
+      }
+    },
     "/trip/{id}": {
       "get": {
         "summary": "Get trip by ID",
-        "description": "Get specific trip details",
         "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1618,112 +1564,9 @@
         }
       }
     },
-    "/trip/{id}/end": {
-      "patch": {
-        "summary": "End trip",
-        "description": "End a trip (Driver only)",
-        "tags": ["Trip"],
-        "security": [{"bearerAuth": []}],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "dropoffLocation": {
-                    "type": "object",
-                    "properties": {
-                      "latitude": {
-                        "type": "number"
-                      },
-                      "longitude": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "notes": {
-                    "type": "string"
-                  }
-                },
-                "required": ["dropoffLocation"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Trip ended successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Driver access required"
-          }
-        }
-      }
-    },
-    "/trip/{id}/status": {
-      "patch": {
-        "summary": "Update trip status",
-        "description": "Update trip status (Driver only)",
-        "tags": ["Trip"],
-        "security": [{"bearerAuth": []}],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": ["started", "in_progress", "completed", "cancelled"]
-                  }
-                },
-                "required": ["status"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Status updated successfully"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Driver access required"
-          }
-        }
-      }
-    },
     "/trip/driver/{driverId}": {
       "get": {
         "summary": "Get trips by driver",
-        "description": "Get trips for specific driver",
         "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1749,7 +1592,6 @@
     "/trip/parent/{parentId}": {
       "get": {
         "summary": "Get trips by parent",
-        "description": "Get trips for specific parent",
         "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1775,7 +1617,6 @@
     "/trip/child/{childId}": {
       "get": {
         "summary": "Get trips by child",
-        "description": "Get trips for specific child",
         "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1801,7 +1642,6 @@
     "/trip/active": {
       "get": {
         "summary": "Get active trips",
-        "description": "Get currently active trips",
         "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "responses": {
@@ -1814,28 +1654,38 @@
         }
       }
     },
-    "/admin/dashboard/stats": {
+    "/trip/": {
       "get": {
-        "summary": "Get dashboard statistics",
-        "description": "Get comprehensive dashboard statistics",
-        "tags": ["Admin"],
+        "summary": "Get all trips (Admin only)",
+        "tags": ["Trip"],
         "security": [{"bearerAuth": []}],
         "responses": {
           "200": {
-            "description": "Statistics retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DashboardStats"
-                }
-              }
-            }
+            "description": "All trips retrieved successfully"
           },
           "401": {
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
+            "description": "Forbidden - Admin only"
+          }
+        }
+      }
+    },
+    "/admin/dashboard/stats": {
+      "get": {
+        "summary": "Get dashboard statistics",
+        "tags": ["Admin"],
+        "security": [{"bearerAuth": []}],
+        "responses": {
+          "200": {
+            "description": "Dashboard statistics retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin only"
           }
         }
       }
@@ -1843,7 +1693,6 @@
     "/admin/applications": {
       "get": {
         "summary": "Get driver applications",
-        "description": "Get driver applications with pagination and filtering",
         "tags": ["Admin"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1875,28 +1724,20 @@
         ],
         "responses": {
           "200": {
-            "description": "Applications retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedApplications"
-                }
-              }
-            }
+            "description": "Driver applications retrieved successfully"
           },
           "401": {
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
+            "description": "Forbidden - Admin only"
           }
         }
       }
     },
     "/admin/applications/{id}": {
       "get": {
-        "summary": "Get driver application",
-        "description": "Get specific driver application details",
+        "summary": "Get driver application by ID",
         "tags": ["Admin"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1911,20 +1752,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Application retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DriverApplication"
-                }
-              }
-            }
+            "description": "Driver application retrieved successfully"
           },
           "401": {
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
+            "description": "Forbidden - Admin only"
           },
           "404": {
             "description": "Application not found"
@@ -1935,7 +1769,6 @@
     "/admin/applications/{id}/approve": {
       "patch": {
         "summary": "Approve driver application",
-        "description": "Approve a driver application",
         "tags": ["Admin"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -1956,8 +1789,7 @@
                 "type": "object",
                 "properties": {
                   "notes": {
-                    "type": "string",
-                    "maxLength": 500
+                    "type": "string"
                   }
                 }
               }
@@ -1972,10 +1804,7 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
-          },
-          "404": {
-            "description": "Application not found"
+            "description": "Forbidden - Admin only"
           }
         }
       }
@@ -1983,7 +1812,6 @@
     "/admin/applications/{id}/reject": {
       "patch": {
         "summary": "Reject driver application",
-        "description": "Reject a driver application",
         "tags": ["Admin"],
         "security": [{"bearerAuth": []}],
         "parameters": [
@@ -2004,8 +1832,7 @@
                 "type": "object",
                 "properties": {
                   "reason": {
-                    "type": "string",
-                    "maxLength": 500
+                    "type": "string"
                   }
                 },
                 "required": ["reason"]
@@ -2021,10 +1848,7 @@
             "description": "Unauthorized"
           },
           "403": {
-            "description": "Admin access required"
-          },
-          "404": {
-            "description": "Application not found"
+            "description": "Forbidden - Admin only"
           }
         }
       }
@@ -2032,60 +1856,75 @@
   },
   "components": {
     "schemas": {
-      "AuthResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "token": {
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          },
-          "user": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string"
-              },
-              "firstName": {
-                "type": "string"
-              },
-              "lastName": {
-                "type": "string"
-              },
-              "email": {
-                "type": "string"
-              },
-              "role": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
-      "UserProfile": {
+      "User": {
         "type": "object",
         "properties": {
           "_id": {
             "type": "string"
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 30
           },
           "lastName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 30
+          },
+          "fullName": {
             "type": "string"
           },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "driver", "parent"]
+          },
+          "isBanned": {
+            "type": "boolean"
+          },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
+          },
+          "isVerified": {
+            "type": "boolean"
           },
           "phone": {
             "type": "string"
           },
-          "role": {
-            "type": "string"
+          "children": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "changeCredentialTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isApprovedDriver": {
+            "type": "boolean"
+          },
+          "vehicles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "location": {
             "type": "object",
@@ -2100,51 +1939,93 @@
           }
         }
       },
-      "DriverProfile": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/UserProfile"
+      "Driver": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
           },
-          {
+          "userName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "nationalId": {
+            "type": "string"
+          },
+          "licenseImage": {
             "type": "object",
             "properties": {
-              "experience": {
-                "type": "number"
+              "public_id": {
+                "type": "string"
               },
-              "rating": {
-                "type": "object",
-                "properties": {
-                  "average": {
-                    "type": "number"
-                  },
-                  "count": {
-                    "type": "number"
-                  }
-                }
-              },
-              "isActive": {
-                "type": "boolean"
-              },
-              "vehicle": {
-                "type": "object",
-                "properties": {
-                  "make": {
-                    "type": "string"
-                  },
-                  "model": {
-                    "type": "string"
-                  },
-                  "year": {
-                    "type": "number"
-                  },
-                  "licensePlate": {
-                    "type": "string"
-                  }
-                }
+              "secure_url": {
+                "type": "string"
               }
             }
+          },
+          "nationalIdImage": {
+            "type": "object",
+            "properties": {
+              "public_id": {
+                "type": "string"
+              },
+              "secure_url": {
+                "type": "string"
+              }
+            }
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "driver", "parent"]
+          },
+          "phone": {
+            "type": "string"
+          },
+          "isApproved": {
+            "type": "boolean"
+          },
+          "changeCredentialTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rating": {
+            "type": "object",
+            "properties": {
+              "average": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 5
+              },
+              "count": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "string"
+              },
+              "department": {
+                "type": "string"
+              }
+            },
+            "required": ["city", "department"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
-        ]
+        }
       },
       "Child": {
         "type": "object",
@@ -2152,70 +2033,188 @@
           "_id": {
             "type": "string"
           },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
+          "name": {
             "type": "string"
           },
           "age": {
             "type": "number"
-          },
-          "grade": {
-            "type": "string"
-          },
-          "school": {
-            "type": "string"
           },
           "parentId": {
             "type": "string"
           },
           "isDeleted": {
             "type": "boolean"
+          },
+          "gender": {
+            "type": "string",
+            "enum": ["male", "female"]
+          },
+          "photo": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "DashboardStats": {
+      "Vehicle": {
         "type": "object",
         "properties": {
-          "applications": {
-            "type": "object",
-            "properties": {
-              "total": {
-                "type": "number"
-              },
-              "pending": {
-                "type": "number"
-              },
-              "approved": {
-                "type": "number"
-              },
-              "rejected": {
-                "type": "number"
+          "_id": {
+            "type": "string"
+          },
+          "driver": {
+            "type": "string"
+          },
+          "carModel": {
+            "type": "string"
+          },
+          "plateNumber": {
+            "type": "string"
+          },
+          "carColor": {
+            "type": "string"
+          },
+          "governmentDocuments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "public_id": {
+                  "type": "string"
+                },
+                "secure_url": {
+                  "type": "string"
+                }
               }
             }
           },
-          "drivers": {
-            "type": "object",
-            "properties": {
-              "total": {
-                "type": "number"
-              },
-              "active": {
-                "type": "number"
-              },
-              "inactive": {
-                "type": "number"
-              }
-            }
+          "status": {
+            "type": "string",
+            "enum": ["pending", "approved", "rejected"]
           },
-          "parents": {
+          "isApproved": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "driverId": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "childId": {
+            "type": "string"
+          },
+          "expiryDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["accepted subscription", "rejected subscription", "canceled", "waiting for confirmation"]
+          },
+          "subscriptionType": {
+            "type": "string",
+            "enum": ["monthly", "term"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Trip": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "driverId": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "childId": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          },
+          "origin": {
             "type": "object",
             "properties": {
-              "total": {
+              "latitude": {
                 "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "address": {
+                "type": "string"
               }
-            }
+            },
+            "required": ["latitude", "longitude", "address"]
+          },
+          "destination": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              },
+              "address": {
+                "type": "string"
+              }
+            },
+            "required": ["latitude", "longitude", "address"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["child_boarded", "child_dropped_off", "trip_started", "trip_finished"]
+          },
+          "startTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -2226,125 +2225,100 @@
             "type": "string"
           },
           "driver": {
-            "type": "object",
-            "properties": {
-              "_id": {
-                "type": "string"
-              },
-              "firstName": {
-                "type": "string"
-              },
-              "lastName": {
-                "type": "string"
-              },
-              "email": {
-                "type": "string"
-              },
-              "nationalId": {
-                "type": "string"
-              },
-              "phone": {
-                "type": "string"
-              },
-              "city": {
-                "type": "string"
-              },
-              "department": {
-                "type": "string"
-              }
-            }
+            "type": "string"
           },
           "vehicle": {
-            "type": "object",
-            "properties": {
-              "make": {
-                "type": "string"
-              },
-              "model": {
-                "type": "string"
-              },
-              "year": {
-                "type": "number"
-              },
-              "licensePlate": {
-                "type": "string"
-              },
-              "registrationExpiry": {
-                "type": "string"
-              },
-              "insuranceExpiry": {
-                "type": "string"
-              },
-              "images": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
+            "type": "string"
           },
           "status": {
             "type": "string",
             "enum": ["pending", "approved", "rejected"]
           },
           "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "_id": {
             "type": "string"
+          },
+          "senderId": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "chatRoomId": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "PaginatedApplications": {
+      "Chat": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DriverApplication"
-            }
+          "_id": {
+            "type": "string"
           },
-          "pagination": {
+          "participants": {
             "type": "object",
             "properties": {
-              "page": {
-                "type": "number"
+              "parentId": {
+                "type": "string"
               },
-              "limit": {
-                "type": "number"
+              "driverId": {
+                "type": "string"
+              }
+            },
+            "required": ["parentId", "driverId"]
+          },
+          "lastMessage": {
+            "type": "object",
+            "properties": {
+              "senderId": {
+                "type": "string"
               },
-              "total": {
-                "type": "number"
+              "text": {
+                "type": "string"
               },
-              "pages": {
-                "type": "number"
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
               }
             }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
-      "PaginatedDrivers": {
+      "Payload": {
         "type": "object",
         "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/DriverProfile"
-            }
+          "_id": {
+            "type": "string"
           },
-          "pagination": {
-            "type": "object",
-            "properties": {
-              "page": {
-                "type": "number"
-              },
-              "limit": {
-                "type": "number"
-              },
-              "total": {
-                "type": "number"
-              },
-              "pages": {
-                "type": "number"
-              }
-            }
+          "changeCredentialTime": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
           }
         }
       }
@@ -2364,35 +2338,35 @@
     },
     {
       "name": "Authentication",
-      "description": "User authentication and authorization"
+      "description": "Authentication and authorization endpoints"
     },
     {
       "name": "User",
-      "description": "User profile management"
+      "description": "User management endpoints"
     },
     {
       "name": "Driver",
-      "description": "Driver management and operations"
+      "description": "Driver management endpoints"
     },
     {
       "name": "Parent",
-      "description": "Parent and child management"
+      "description": "Parent management endpoints"
     },
     {
       "name": "Vehicle",
-      "description": "Vehicle management"
+      "description": "Vehicle management endpoints"
     },
     {
       "name": "Subscription",
-      "description": "Subscription management"
+      "description": "Subscription management endpoints"
     },
     {
       "name": "Trip",
-      "description": "Trip management"
+      "description": "Trip management endpoints"
     },
     {
       "name": "Admin",
-      "description": "Administrative operations"
+      "description": "Admin management endpoints"
     }
   ]
 }

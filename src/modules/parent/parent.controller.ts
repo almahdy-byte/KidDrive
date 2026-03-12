@@ -54,7 +54,7 @@ export const getAllChildren = asyncErrorHandler(
 
     
     const children = await childRepo.findAll({
-      filter: { parentId: parentId, isDeleted: false },
+      filter: { parentId: parentId},
     });
 
     return res.status(StatusCodes.OK).json({

@@ -32,6 +32,5 @@ const driverApplicationSchema = new Schema<IDriverApplication>(
   },
 );
 
-export const DriverApplicationModel =
-  models.DriverApplication || model<IDriverApplication>("DriverApplication", driverApplicationSchema);
+export const DriverApplicationModel = models.DriverApplication as mongoose.Model<IDriverApplication> || model<IDriverApplication>("DriverApplication", driverApplicationSchema);
 export type HDriverApplicationDocument = HydratedDocument<IDriverApplication>;

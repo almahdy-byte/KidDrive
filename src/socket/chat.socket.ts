@@ -4,7 +4,7 @@ import { verify } from "jsonwebtoken";
 import { chatRepo } from "../db/models/chatModel/chat.repo";
 import { Types } from "mongoose";
 import { Role } from "../common";
-import { MessageModel } from '../db/models/chatModel/chat.model';
+import { MessageModel, IMessage, HMessageDocument } from '../db/models/chatModel/chat.model';
 
 interface AuthenticatedSocket extends Socket {
   userId?: string;
@@ -140,7 +140,7 @@ export const initializeChatSocket = (httpServer: HTTPServer) => {
           // Get populated message
           const populatedMessage = await MessageModel.findById(message._id)
             .populate('senderId', 'userName firstName lastName email')
-            .exec();
+            .exec() as HMessageDocument | null;
 
           // Emit to all participants in the chat room
           io.to(`chat_${chatRoomId}`).emit("new_message", {

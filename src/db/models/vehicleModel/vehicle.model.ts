@@ -10,6 +10,8 @@ export interface IVehicle {
   governmentDocuments: [{ public_id: string; secure_url: string }];
   status: ApplicationStatus;
   isApproved: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const vehicleSchema = new Schema<IVehicle>(

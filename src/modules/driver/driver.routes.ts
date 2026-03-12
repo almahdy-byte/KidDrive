@@ -30,4 +30,63 @@ router.patch(
   driverController.approveApplication,
 );
 
+router.post(
+  "/login",
+  validate(driverValidation.login),
+  driverController.login,
+);
+
+router.get(
+  "/profile",
+  auth,
+  roleGuard([Role.Driver]),
+  driverController.getProfile,
+);
+
+router.patch(
+  "/profile",
+  auth,
+  roleGuard([Role.Driver]),
+  validate(driverValidation.updateProfile),
+  driverController.updateProfile,
+);
+
+router.patch(
+  "/vehicle",
+  auth,
+  roleGuard([Role.Driver]),
+  cloudUploadFiles({ types: ImageType }).fields([
+    { name: "governmentDocuments", maxCount: 1 },
+  ]),
+  validate(driverValidation.updateVehicle),
+  driverController.updateVehicle,
+);
+
+// Get all drivers - Admin and Parent can access
+router.get(
+  "/",
+  auth,
+  roleGuard([Role.Admin, Role.Parent]),
+  validate(driverValidation.getAllDrivers),
+  driverController.getAllDrivers,
+);
+
+// Get drivers near parent location - Parent only
+router.get(
+  "/nearby",
+  auth,
+  roleGuard([Role.Parent]),
+  validate(driverValidation.getDriversNearParent),
+  driverController.getDriversNearParent,
+);
+
+// Rate driver - Parent only
+router.post(
+  "/:driverId/rate",
+  auth,
+  roleGuard([Role.Parent]),
+  validate(driverValidation.rateDriver),
+  driverController.rateDriver,
+);
+
 export default router;

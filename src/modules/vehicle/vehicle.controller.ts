@@ -1,4 +1,4 @@
-import { NextFunction } from "express";
+import { NextFunction, Response } from "express";
 import { AppError, ApplicationStatus, asyncErrorHandler, IRequest, Role, uploadFiles } from "../../common";
 import { userRepo, vehicleRepo } from "../../db";
 import { StatusCodes } from "http-status-codes";
@@ -11,10 +11,10 @@ export const createVehicle = asyncErrorHandler(
         const { driverId } = req.params;
         const driver = await userRepo.findOne({
             filter: {
-                _id: req.user?._id || driverId,
+                _id: req.user?._id ? new mongoose.Types.ObjectId(req.user._id.toString()) : new mongoose.Types.ObjectId(Array.isArray(driverId) ? driverId[0] : driverId),
                 role: Role.Driver,
                 isApprovedDriver: true,
-            }
+            } as any
         });
 
         if (!driver) {
@@ -23,10 +23,9 @@ export const createVehicle = asyncErrorHandler(
 
         const existingVehicle = await vehicleRepo.findOne({
             filter: {
-                driver: req.user?._id,
+                driver: req.user?._id ? new mongoose.Types.ObjectId(req.user._id.toString()) : undefined,
                 plateNumber: req.body.plateNumber,
-    
-            },
+            } as any
         });
 
     if (existingVehicle) {
@@ -51,7 +50,7 @@ export const createVehicle = asyncErrorHandler(
             carModel: req.body.carModel,
             plateNumber: req.body.plateNumber,
             carColor: req.body.carColor,
-            governmentDocuments: documents as { public_id: string; secure_url: string }[],
+            governmentDocuments: documents as any,
         });
 
       
@@ -71,10 +70,10 @@ export const approveVehicle = asyncErrorHandler(
        
         const vehicle = await vehicleRepo.findOne({
             filter: {
-                _id: vehicleId,
-                driver: driverId,
+                _id: new mongoose.Types.ObjectId(Array.isArray(vehicleId) ? vehicleId[0] : vehicleId),
+                driver: new mongoose.Types.ObjectId(Array.isArray(driverId) ? driverId[0] : driverId),
                 status: ApplicationStatus.PENDING,
-            },
+            } as any
         });
 
     if (!vehicle) {
@@ -88,9 +87,9 @@ export const approveVehicle = asyncErrorHandler(
 
           await userRepo.updateOne({
             filter: {
-              _id: driverId,
+              _id: new mongoose.Types.ObjectId(Array.isArray(driverId) ? driverId[0] : driverId),
               role: Role.Driver,
-            },
+            } as any,
             update: {
               vehicles: vehicle._id,
             },

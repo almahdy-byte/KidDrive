@@ -56,4 +56,12 @@ router.patch(
   parentService.restoreChild,
 );
 
+// Update Parent Profile
+router.patch(
+  "/profile",
+  roleGuard([Role.Parent]),
+  validate(parentValidation.updateParentProfileSchema),
+  parentService.updateProfile,
+);
+
 export default router;

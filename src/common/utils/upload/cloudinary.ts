@@ -54,7 +54,9 @@ export const uploadFiles = async ({
   }
 
   for (const key in files) {
-    const file = files[key][0];
+    const file = files[key]?.[0];
+
+    if (!file) continue;
 
     const { public_id, secure_url } = await uploadFile({
       file,

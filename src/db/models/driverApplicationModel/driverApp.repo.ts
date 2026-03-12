@@ -11,7 +11,7 @@ export class DriverApplicationRepo extends DBServices<TDocument> {
     super(model);
   }
  
-  async create(data: Partial<IDriverApplication>): Promise<IDriverApplication> {
+  async create(data: Partial<IDriverApplication>): Promise<IDriverApplication | null> {
     return await DriverApplicationModel.create(data);
   }
 }

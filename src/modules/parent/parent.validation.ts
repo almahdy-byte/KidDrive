@@ -35,4 +35,15 @@ export const updateChildSchema =
     photo: Joi.string().uri().optional(),
   });
 
+export const updateParentProfileSchema = Joi.object({
+  firstName: Joi.string().trim().min(2).max(50).optional(),
+  lastName: Joi.string().trim().min(2).max(50).optional(),
+  email: Joi.string().email().optional(),
+  phone: Joi.string().optional(),
+  location: Joi.object({
+    city: Joi.string().required(),
+    department: Joi.string().required(),
+  }).optional(),
+}).min(1);
+
 

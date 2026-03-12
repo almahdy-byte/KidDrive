@@ -3,23 +3,24 @@ import { ApplicationStatus } from "../../../common";
 
 export interface IDriverApplication {
   _id: Types.ObjectId;
-  user: Types.ObjectId;
-  licenseImage: { public_id: string; secure_url: string };
-  carImage: { public_id: string; secure_url: string };
-  nationalIdImage: { public_id: string; secure_url: string };
+
+  driver: Types.ObjectId;
+  vehicle: Types.ObjectId;
   status: ApplicationStatus;
 }
 
 const driverApplicationSchema = new Schema<IDriverApplication>(
   {
-    user: {
+    driver: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Driver",
       required: true,
     },
-    licenseImage: { secure_url: String, public_id: String },
-    carImage: { secure_url: String, public_id: String },
-    nationalIdImage: { secure_url: String, public_id: String },
+    vehicle: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
+      required: true,
+    },
     status: {
       type: String,
       enum: Object.values(ApplicationStatus),

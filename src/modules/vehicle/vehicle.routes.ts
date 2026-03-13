@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { auth, roleGuard } from "../../middleware/auth.middleware";
 import * as vehicleController from "./vehicle.controller";
-import { cloudUploadFiles, FileType, Role } from "../../common";
+import { cloudUploadFiles, cloudUploadAnyFiles, FileType, Role } from "../../common";
 import * as vehicleValidation from "./vehicle.validation";
 import { validate } from "../../middleware/validation.middleware";
 
@@ -13,7 +13,7 @@ router.post(
   "/",
   auth,
   roleGuard([Role.Driver]),
-  cloudUploadFiles({ types: FileType }).array("documents", 3),
+  cloudUploadAnyFiles().any(),
   validate(vehicleValidation.createVehicle),
   vehicleController.createVehicle,
 );

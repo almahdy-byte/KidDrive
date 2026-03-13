@@ -2,7 +2,7 @@ import { Router } from "express";
 import { auth, roleGuard } from "../../middleware/auth.middleware";
 import vehicleRoutes from "../../modules/vehicle/vehicle.routes";
 import * as driverController from "./driver.controller";
-import { cloudUploadFiles, ImageType, Role } from "../../common";
+import { cloudUploadFiles, cloudUploadAnyFiles, ImageType, Role, cloudUploadFile } from "../../common";
 import { validate } from "../../middleware/validation.middleware";
 import * as driverValidation from "./diver.validation";
 
@@ -11,11 +11,7 @@ router.use("/:driverId/vehicle", vehicleRoutes);
 
 router.post(
   "/apply",
-  cloudUploadFiles({ types: ImageType }).fields([
-    { name: "licenseImage", maxCount: 1 },
-    { name: "carImage", maxCount: 1 },
-    { name: "nationalIdImage", maxCount: 1 },
-  ]),
+  cloudUploadAnyFiles().any(),
   validate(driverValidation.apply),
   driverController.apply,
 );
@@ -24,6 +20,7 @@ router.patch(
   "/application/:applicationId/approve",
   auth,
   roleGuard([Role.Admin]),
+
   validate(driverValidation.approveApplication),
   driverController.approveApplication,
 );
@@ -53,9 +50,7 @@ router.patch(
   "/vehicle",
   auth,
   roleGuard([Role.Driver]),
-  cloudUploadFiles({ types: ImageType }).fields([
-    { name: "governmentDocuments", maxCount: 1 },
-  ]),
+  cloudUploadAnyFiles().any(),
   validate(driverValidation.updateVehicle),
   driverController.updateVehicle,
 );

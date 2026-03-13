@@ -6,9 +6,13 @@ export class VehicleRepo extends DBServices<TDocument> {
   constructor(protected override readonly model: Model<TDocument>) {
     super(model);
   }
- 
-  async create(data: Partial<IVehicle>): Promise<IVehicle> {
+
+  async create(data: Partial<IVehicle>): Promise<IVehicle | null> {
     return await VehicleModel.create(data);
+  }
+
+  async findByPlateNumber(plateNumber: string): Promise<IVehicle | null> {
+    return await VehicleModel.findOne({ plateNumber } as any).exec();
   }
 }
 

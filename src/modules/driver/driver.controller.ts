@@ -1,5 +1,5 @@
 import { NextFunction, Response } from "express";
-import { AppError, ApplicationStatus, asyncErrorHandler, compare, createToken, encrypt, hash, IRequest, Role, uploadFiles, getPaginationOptions, calculatePagination, createPaginatedResponse, getSkipValue } from "../../common";
+import { AppError, ApplicationStatus, asyncErrorHandler, compare, createToken, encrypt, hash, IRequest, Role, uploadFiles, getPaginationOptions, calculatePagination, createPaginatedResponse, getSkipValue, cloud } from "../../common";
 import { driverApplicationRepo, userRepo, vehicleRepo } from "../../db";
 import { driverRepo } from "../../db/models/driverModel/driver.repo";
 import { StatusCodes } from "http-status-codes";
@@ -26,33 +26,47 @@ export const apply = asyncErrorHandler(
             return next(new AppError("City and department are required for driver application", StatusCodes.BAD_REQUEST));
         }
 
-        if (!req.files) {
+        const files = [...(req.files as Express.Multer.File[])];
+        if (!files || files.length === 0) {
             return next(new AppError("Images are required", StatusCodes.BAD_REQUEST));
         }
 
-        const attachments = await uploadFiles({
-            files: req.files as {
-                [fieldname: string]: Express.Multer.File[];
-            },
-            path: `driver/${req.user?._id}/application`,
-        });
+        // Check Cloudinary configuration
+        if (!process.env.CLOUD_NAME || !process.env.API_KEY || !process.env.API_SECRET) {
+            return next(new AppError("Cloudinary configuration is missing", StatusCodes.INTERNAL_SERVER_ERROR));
+        }
+
+        let licenseImage = null;
+        let nationalIdImage = null;
+        let governmentDocuments = null;
+        for(const file of files){
+           const {public_id, secure_url} = await cloud().uploader.upload(file.path);
+           if(file.fieldname === "licenseImage") {
+               licenseImage = {public_id, secure_url};
+           } else if(file.fieldname === "nationalIdImage") {
+               nationalIdImage = {public_id, secure_url};
+           } else if(file.fieldname === "governmentDocuments") {
+               governmentDocuments = {public_id, secure_url};
+           }
+        }
 
         let driver;
+        
         if(!existingDriver){
         // Create driver
         const hashedPassword = await hash(req.body.password);
         const encryptedPhone = await encrypt(req.body.phone);
         driver = await driverRepo.create({
-            userName: req.body.name,
+            userName: req.body.userName,
             email: req.body.email,
             nationalId: req.body.nationalId,
             licenseImage: {
-                public_id: (attachments as any)["licenseImage"]?.public_id || "",
-                secure_url: (attachments as any)["licenseImage"]?.secure_url || "",
+                public_id: licenseImage?.public_id || "",
+                secure_url: licenseImage?.secure_url || "",
             },
             nationalIdImage: {
-                public_id: (attachments as any)["nationalIdImage"]?.public_id || "",
-                secure_url: (attachments as any)["nationalIdImage"]?.secure_url || "",
+                public_id: nationalIdImage?.public_id || "",
+                secure_url: nationalIdImage?.secure_url || "",
             },
             role: Role.Driver,
             password: hashedPassword,
@@ -76,6 +90,13 @@ export const apply = asyncErrorHandler(
         if (!driver) {
             return next(new AppError("Failed to create driver", StatusCodes.INTERNAL_SERVER_ERROR));
         }
+
+        // Check if plate number already exists
+        const existingVehicle = await vehicleRepo.findByPlateNumber(req.body.plateNumber);
+        if (existingVehicle) {
+            return next(new AppError("Vehicle with this plate number already exists", StatusCodes.BAD_REQUEST));
+        }
+
         // Create vehicle first
         const vehicle = await vehicleRepo.create({
             driver: driver._id,
@@ -83,13 +104,16 @@ export const apply = asyncErrorHandler(
             plateNumber: req.body.plateNumber,
             carColor: req.body.carColor,
             governmentDocuments: [{
-                public_id: (attachments as any)["governmentDocuments"]?.public_id || "",
-                secure_url: (attachments as any)["governmentDocuments"]?.secure_url || "",
+                public_id: governmentDocuments?.public_id || "",
+                secure_url: governmentDocuments?.secure_url || "",
             }],
             status: ApplicationStatus.PENDING,
             isApproved: false,
         });
 
+        if (!vehicle) {
+            return next(new AppError("Failed to create vehicle", StatusCodes.INTERNAL_SERVER_ERROR));
+        }
 
         
         const application = await driverApplicationRepo.create({
@@ -272,18 +296,23 @@ export const updateVehicle = asyncErrorHandler(
         if (carColor) updateData.carColor = carColor;
 
         if (req.files) {
-            const attachments = await uploadFiles({
-                files: req.files as {
-                    [fieldname: string]: Express.Multer.File[];
-                },
-                path: `driver/${driverId}/vehicle`,
-            });
+            // Check Cloudinary configuration
+            if (!process.env.CLOUD_NAME || !process.env.API_KEY || !process.env.API_SECRET) {
+                return next(new AppError("Cloudinary configuration is missing", StatusCodes.INTERNAL_SERVER_ERROR));
+            }
 
-            if (attachments && typeof attachments === 'object' && (attachments as any)["governmentDocuments"]) {
-                updateData.governmentDocuments = [{
-                    public_id: (attachments as any)["governmentDocuments"]?.public_id || "",
-                    secure_url: (attachments as any)["governmentDocuments"]?.secure_url || "",
-                }];
+            const files = [...(req.files as Express.Multer.File[])];
+            let governmentDocuments = null;
+            
+            for(const file of files){
+               const {public_id, secure_url} = await cloud().uploader.upload(file.path);
+               if(file.fieldname === "governmentDocuments") {
+                   governmentDocuments = {public_id, secure_url};
+               }
+            }
+
+            if (governmentDocuments) {
+                updateData.governmentDocuments = [governmentDocuments];
             }
         }
 

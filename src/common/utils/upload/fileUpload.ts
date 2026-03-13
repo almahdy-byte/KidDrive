@@ -37,6 +37,7 @@ export const cloudUploadFile = ({ type=[] } : {type: string[]}) => {
   const storage = multer.diskStorage({
   });
 
+  
   const fileFilter = (req: IRequest, file: any, cb: CallableFunction) => {
     if (type.includes(file.mimetype)) {
       return cb(null, true)
@@ -57,11 +58,27 @@ export const cloudUploadFiles = ({ types = [] }: { types: string[] }) => {
     file: Express.Multer.File,
     cb: FileFilterCallback,
   ) => {
-    if (types.includes(file.mimetype)) {
+    if (types.length === 0 || types.includes(file.mimetype)) {
       return cb(null, true);
     }
 
     cb(new AppError("invalid file type", StatusCodes.BAD_REQUEST));
+  };
+
+  return multer({ storage, fileFilter });
+};
+
+// New function to accept any file type
+export const cloudUploadAnyFiles = () => {
+  const storage = multer.diskStorage({});
+
+  const fileFilter = (
+    req: IRequest,
+    file: Express.Multer.File,
+    cb: FileFilterCallback,
+  ) => {
+    // Accept any file type
+    cb(null, true);
   };
 
   return multer({ storage, fileFilter });

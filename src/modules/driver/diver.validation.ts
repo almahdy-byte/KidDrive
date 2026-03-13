@@ -30,24 +30,24 @@ export const fileSchema = function ({
     .required();
 };
 export const apply = Joi.object({
-  licenseImage: Joi.array()
-    .items(fileSchema({ fieldname: "licenseImage", fileType: ImageType }))
-    .min(1)
-    .required(),
-  carImage: Joi.array()
-    .items(fileSchema({ fieldname: "carImage", fileType: ImageType }))
-    .min(1)
-    .required(),
-  nationalIdImage: Joi.array()
-    .items(fileSchema({ fieldname: "nationalIdImage", fileType: ImageType }))
-    .min(1)
-    .required(),
+  // licenseImage: Joi.array()
+  //   .items(fileSchema({ fieldname: "licenseImage", fileType: ImageType }))
+  //   .min(1)
+  //   .required(),
+  // carImage: Joi.array()
+  //   .items(fileSchema({ fieldname: "carImage", fileType: ImageType }))
+  //   .min(1)
+  //   .required(),
+  // nationalIdImage: Joi.array()
+  //   .items(fileSchema({ fieldname: "nationalIdImage", fileType: ImageType }))
+  //   .min(1)
+  //   .required(),
   carModel: Joi.string().required(),
   plateNumber: Joi.string().required(),
   carColor: Joi.string().required(),
-  governmentDocuments: Joi.array().items(
-    fileSchema({ fieldname: "governmentDocuments", fileType: FileType })
-  ).min(1).required(),
+  // governmentDocuments: Joi.array().items(
+  //   fileSchema({ fieldname: "governmentDocuments", fileType: FileType })
+  // ).min(1).required(),
   nationalId: Joi.string().required(),
   userName: Joi.string().required(),
   email: Joi.string().email().required(),
@@ -55,7 +55,7 @@ export const apply = Joi.object({
   password: Joi.string().required(),
   city: Joi.string().required(),
   department: Joi.string().required(),
-});
+}).unknown(true); // Allow unknown fields to prevent validation errors
 
 export const approveApplication = Joi.object({
     applicationId: Joi.string().custom(objectId).required(),

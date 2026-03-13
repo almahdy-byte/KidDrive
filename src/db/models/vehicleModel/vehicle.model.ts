@@ -7,7 +7,7 @@ export interface IVehicle {
   carModel: string;
   plateNumber: string;
   carColor: string;
-  governmentDocuments: [{ public_id: string; secure_url: string }];
+  governmentDocuments: { public_id: string; secure_url: string }[];
   status: ApplicationStatus;
   isApproved: boolean;
   createdAt: Date;

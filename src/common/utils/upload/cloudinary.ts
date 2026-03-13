@@ -3,12 +3,20 @@ import { v2 as cloudinary} from 'cloudinary';
 import * as dotenv from 'dotenv'
 
 dotenv.config()
+
+// Initialize cloudinary configuration immediately
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME || "",
+  api_key: process.env.API_KEY || "",
+  api_secret: process.env.API_SECRET || "",
+});
+
 export const cloud = () => {
+  // Ensure configuration is set each time
   cloudinary.config({
     cloud_name: process.env.CLOUD_NAME || "",
     api_key: process.env.API_KEY || "",
     api_secret: process.env.API_SECRET || "",
-    secure: true,
   });
   return cloudinary;
 };

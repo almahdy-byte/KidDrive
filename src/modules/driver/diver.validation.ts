@@ -78,7 +78,7 @@ export const updateVehicle = Joi.object({
     governmentDocuments: Joi.array().items(
         fileSchema({ fieldname: "governmentDocuments", fileType: FileType })
     ).optional(),
-}).min(1);
+}).min(1).unknown(true);
 
 export const getAllDrivers = Joi.object({
     city: Joi.string().optional(),
@@ -89,6 +89,8 @@ export const getDriversNearParent = paginationValidation.query;
 
 export const rateDriver = Joi.object({
     rating: Joi.number().min(1).max(5).required(),
+    driverId: Joi.string().custom(objectId).required(),
+
 });
 
 export const getDriverById = Joi.object({

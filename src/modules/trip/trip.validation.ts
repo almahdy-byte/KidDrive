@@ -36,6 +36,8 @@ export const getTripsByDriver = Joi.object({
     .optional(),
 }).concat(paginationValidation.query);
 
+
+
 export const getTripsByParent = Joi.object({
   parentId: generalValidationSchema.id.required(),
   status: Joi.string()

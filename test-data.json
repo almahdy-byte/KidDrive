@@ -1,0 +1,429 @@
+{
+  "parents": [
+    {
+      "firstName": "Ahmed",
+      "lastName": "Ali",
+      "email": "ahmed.ali@example.com",
+      "password": "password123",
+      "phone": "01001234567",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "123 Main Street, Cairo",
+        "city": "Cairo",
+        "department": "Giza"
+      }
+    },
+    {
+      "firstName": "Sarah",
+      "lastName": "Mohamed",
+      "email": "sarah.mohamed@example.com",
+      "password": "password123",
+      "phone": "01001234568",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "456 Nile Street, Cairo",
+        "city": "Cairo",
+        "department": "Cairo"
+      }
+    },
+    {
+      "firstName": "Mona",
+      "lastName": "Ibrahim",
+      "email": "mona.ibrahim@example.com",
+      "password": "password123",
+      "phone": "01001234570",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "789 Garden Street, Cairo",
+        "city": "Cairo",
+        "department": "Giza"
+      }
+    },
+    {
+      "firstName": "Ali",
+      "lastName": "Soliman",
+      "email": "ali.soliman@example.com",
+      "password": "password123",
+      "phone": "01001234571",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0220,
+        "longitude": 31.2500,
+        "address": "321 Ring Road, Cairo",
+        "city": "Cairo",
+        "department": "Cairo"
+      }
+    },
+    {
+      "firstName": "Hana",
+      "lastName": "Youssef",
+      "email": "hana.youssef@example.com",
+      "password": "password123",
+      "phone": "01001234572",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "555 Maadi Road, Cairo",
+        "city": "Cairo",
+        "department": "Maadi"
+      }
+    }
+  ],
+  "drivers": [
+    {
+      "userName": "Omar Driver",
+      "email": "omar.driver@example.com",
+      "password": "password123",
+      "phone": "01001234569",
+      "nationalId": "12345678901234",
+      "isApproved": true,
+      "location": {
+        "city": "Cairo",
+        "department": "Giza",
+        "latitude": 30.0330,
+        "longitude": 31.2230,
+        "address": "789 Driver Street, Cairo"
+      },
+      "rating": { "average": 4.5, "count": 10 }
+    },
+    {
+      "userName": "Karim Driver",
+      "email": "karim.driver@example.com",
+      "password": "password123",
+      "phone": "01001234573",
+      "nationalId": "12345678901235",
+      "isApproved": true,
+      "location": {
+        "city": "Cairo",
+        "department": "Cairo",
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "111 Downtown, Cairo"
+      },
+      "rating": { "average": 4.8, "count": 25 }
+    },
+    {
+      "userName": "Tarek Driver",
+      "email": "tarek.driver@example.com",
+      "password": "password123",
+      "phone": "01001234574",
+      "nationalId": "12345678901236",
+      "isApproved": true,
+      "location": {
+        "city": "Cairo",
+        "department": "Maadi",
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "222 Maadi Street, Cairo"
+      },
+      "rating": { "average": 4.2, "count": 8 }
+    },
+    {
+      "userName": "Hossam Driver",
+      "email": "hossam.driver@example.com",
+      "password": "password123",
+      "phone": "01001234575",
+      "nationalId": "12345678901237",
+      "isApproved": true,
+      "location": {
+        "city": "Cairo",
+        "department": "Giza",
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "333 Pyramid Street, Cairo"
+      },
+      "rating": { "average": 4.9, "count": 50 }
+    },
+    {
+      "userName": "Waleed Driver",
+      "email": "waleed.driver@example.com",
+      "password": "password123",
+      "phone": "01001234576",
+      "nationalId": "12345678901238",
+      "isApproved": false,
+      "location": {
+        "city": "Cairo",
+        "department": "Cairo",
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "444 Heliopolis, Cairo"
+      },
+      "rating": { "average": 0, "count": 0 }
+    }
+  ],
+  "vehicles": [
+    {
+      "driver": "omar.driver@example.com",
+      "carModel": "Toyota Camry",
+      "plateNumber": "ABC 1234",
+      "carColor": "Silver",
+      "isApproved": true,
+      "location": {
+        "latitude": 30.0330,
+        "longitude": 31.2230,
+        "address": "789 Driver Street, Cairo"
+      }
+    },
+    {
+      "driver": "karim.driver@example.com",
+      "carModel": "Honda Accord",
+      "plateNumber": "XYZ 5678",
+      "carColor": "Black",
+      "isApproved": true,
+      "location": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "111 Downtown, Cairo"
+      }
+    },
+    {
+      "driver": "tarek.driver@example.com",
+      "carModel": "Nissan Altima",
+      "plateNumber": "DEF 9012",
+      "carColor": "White",
+      "isApproved": true,
+      "location": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "222 Maadi Street, Cairo"
+      }
+    },
+    {
+      "driver": "hossam.driver@example.com",
+      "carModel": "Hyundai Elantra",
+      "plateNumber": "GHI 3456",
+      "carColor": "Blue",
+      "isApproved": true,
+      "location": {
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "333 Pyramid Street, Cairo"
+      }
+    },
+    {
+      "driver": "waleed.driver@example.com",
+      "carModel": "Kia Optima",
+      "plateNumber": "JKL 7890",
+      "carColor": "Red",
+      "isApproved": false,
+      "location": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "444 Heliopolis, Cairo"
+      }
+    }
+  ],
+  "children": [
+    {
+      "name": "Youssef Ahmed",
+      "age": 8,
+      "gender": "male",
+      "parentEmail": "ahmed.ali@example.com"
+    },
+    {
+      "name": "Layla Ahmed",
+      "age": 6,
+      "gender": "female",
+      "parentEmail": "ahmed.ali@example.com"
+    },
+    {
+      "name": "Omar Sarah",
+      "age": 7,
+      "gender": "male",
+      "parentEmail": "sarah.mohamed@example.com"
+    },
+    {
+      "name": "Mariam Mona",
+      "age": 9,
+      "gender": "female",
+      "parentEmail": "mona.ibrahim@example.com"
+    },
+    {
+      "name": "Ali Hana",
+      "age": 5,
+      "gender": "male",
+      "parentEmail": "hana.youssef@example.com"
+    },
+    {
+      "name": "Fatima Ali",
+      "age": 10,
+      "gender": "female",
+      "parentEmail": "ali.soliman@example.com"
+    }
+  ],
+  "subscriptions": [
+    {
+      "parentEmail": "ahmed.ali@example.com",
+      "driverEmail": "omar.driver@example.com",
+      "childName": "Youssef Ahmed",
+      "expiryDate": "2026-06-01",
+      "status": "accepted subscription",
+      "subscriptionType": "monthly"
+    },
+    {
+      "parentEmail": "ahmed.ali@example.com",
+      "driverEmail": "omar.driver@example.com",
+      "childName": "Layla Ahmed",
+      "expiryDate": "2026-06-01",
+      "status": "accepted subscription",
+      "subscriptionType": "monthly"
+    },
+    {
+      "parentEmail": "sarah.mohamed@example.com",
+      "driverEmail": "karim.driver@example.com",
+      "childName": "Omar Sarah",
+      "expiryDate": "2026-05-15",
+      "status": "accepted subscription",
+      "subscriptionType": "term"
+    },
+    {
+      "parentEmail": "mona.ibrahim@example.com",
+      "driverEmail": "hossam.driver@example.com",
+      "childName": "Mariam Mona",
+      "expiryDate": "2026-07-01",
+      "status": "waiting for confirmation",
+      "subscriptionType": "monthly"
+    },
+    {
+      "parentEmail": "hana.youssef@example.com",
+      "driverEmail": "tarek.driver@example.com",
+      "childName": "Ali Hana",
+      "expiryDate": "2026-08-01",
+      "status": "accepted subscription",
+      "subscriptionType": "monthly"
+    },
+    {
+      "parentEmail": "ali.soliman@example.com",
+      "driverEmail": "hossam.driver@example.com",
+      "childName": "Fatima Ali",
+      "expiryDate": "2026-04-30",
+      "status": "canceled",
+      "subscriptionType": "monthly"
+    }
+  ],
+  "trips": [
+    {
+      "driverEmail": "omar.driver@example.com",
+      "parentEmail": "ahmed.ali@example.com",
+      "childName": "Youssef Ahmed",
+      "origin": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "123 Main Street, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "456 Nile Street, Cairo"
+      },
+      "status": "trip_started",
+      "startTime": "2026-04-05T07:30:00Z"
+    },
+    {
+      "driverEmail": "karim.driver@example.com",
+      "parentEmail": "sarah.mohamed@example.com",
+      "childName": "Omar Sarah",
+      "origin": {
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "456 Nile Street, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "123 Main Street, Cairo"
+      },
+      "status": "child_dropped_off",
+      "startTime": "2026-04-05T08:00:00Z",
+      "endTime": "2026-04-05T08:45:00Z"
+    },
+    {
+      "driverEmail": "tarek.driver@example.com",
+      "parentEmail": "hana.youssef@example.com",
+      "childName": "Ali Hana",
+      "origin": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "555 Maadi Road, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "789 School Street, Cairo"
+      },
+      "status": "trip_finished",
+      "startTime": "2026-04-05T07:00:00Z",
+      "endTime": "2026-04-05T07:30:00Z"
+    }
+  ],
+  "chats": [
+    {
+      "parentEmail": "ahmed.ali@example.com",
+      "driverEmail": "omar.driver@example.com",
+      "lastMessage": {
+        "text": "Your child has been picked up safely",
+        "senderEmail": "omar.driver@example.com"
+      }
+    },
+    {
+      "parentEmail": "sarah.mohamed@example.com",
+      "driverEmail": "karim.driver@example.com",
+      "lastMessage": {
+        "text": "Thank you for the update!",
+        "senderEmail": "sarah.mohamed@example.com"
+      }
+    },
+    {
+      "parentEmail": "mona.ibrahim@example.com",
+      "driverEmail": "hossam.driver@example.com",
+      "lastMessage": {
+        "text": "Can we schedule a pickup time?",
+        "senderEmail": "mona.ibrahim@example.com"
+      }
+    }
+  ],
+  "messages": [
+    {
+      "chatIndex": 0,
+      "senderEmail": "ahmed.ali@example.com",
+      "text": "Hello, I'd like to discuss the pickup schedule"
+    },
+    {
+      "chatIndex": 0,
+      "senderEmail": "omar.driver@example.com",
+      "text": "Sure, what time works for you?"
+    },
+    {
+      "chatIndex": 0,
+      "senderEmail": "ahmed.ali@example.com",
+      "text": "Can you pick up at 7:30 AM?"
+    },
+    {
+      "chatIndex": 0,
+      "senderEmail": "omar.driver@example.com",
+      "text": "Your child has been picked up safely"
+    },
+    {
+      "chatIndex": 1,
+      "senderEmail": "sarah.mohamed@example.com",
+      "text": "Hi, is the trip confirmed for tomorrow?"
+    },
+    {
+      "chatIndex": 1,
+      "senderEmail": "karim.driver@example.com",
+      "text": "Yes, I'll be there at 8 AM"
+    },
+    {
+      "chatIndex": 1,
+      "senderEmail": "sarah.mohamed@example.com",
+      "text": "Thank you for the update!"
+    }
+  ]
+}

@@ -75,6 +75,8 @@ export const apply = asyncErrorHandler(
             location: {
                 city: req.body.city,
                 department: req.body.department,
+                latitude: req.body.latitude,
+                longitude: req.body.longitude,
             },
             rating: {
                 average: 0,

@@ -25,8 +25,11 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
   isApprovedDriver?: boolean,
   vehicles?: Types.ObjectId[],
   location?: {
-    city: string;
-    department: string;
+    latitude: number;
+    longitude: number;
+    address: string;
+    city?: string;
+    department?: string;
   };
 }
 
@@ -110,18 +113,11 @@ const userSchema = new Schema<IUser>(
       },
     ],
     location: {
-      city: { 
-        type: String, 
-        required: function(this: any) {
-          return this.role === 'parent' || this.role === undefined;
-        }
-      },
-      department: { 
-        type: String, 
-        required: function(this: any) {
-          return this.role === 'parent' || this.role === undefined;
-        }
-      },
+      latitude: { type: Number },
+      longitude: { type: Number },
+      address: { type: String },
+      city: { type: String },
+      department: { type: String },
     },
   },
   {

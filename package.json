@@ -11,7 +11,8 @@
     "start": "node dist/api/index.js",
     "start:dev": "concurrently \"npm run build:watch\" \"nodemon ./dist/api/index.js\"",
     "prod": "concurrently \"npm run build:watch\" \"node ./dist/api/index.js\"",
-    "vercel-build": "echo hello"
+    "vercel-build": "echo hello",
+    "seed": "ts-node seed.ts"
   },
   "repository": {
     "type": "git",
@@ -26,7 +27,7 @@
   },
   "homepage": "https://github.com/almahdy-byte/KidDrive#readme",
   "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
+    "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/crypto-js": "^4.2.2",
@@ -36,6 +37,7 @@
     "@types/multer": "^2.0.0",
     "@types/node": "^25.0.2",
     "concurrently": "^9.2.1",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   },

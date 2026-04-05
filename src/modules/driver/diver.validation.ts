@@ -55,6 +55,9 @@ export const apply = Joi.object({
   password: Joi.string().required(),
   city: Joi.string().required(),
   department: Joi.string().required(),
+  latitude: Joi.number().optional(),
+  longitude: Joi.number().optional(),
+  address: Joi.string().optional(),
 }).unknown(true); // Allow unknown fields to prevent validation errors
 
 export const approveApplication = Joi.object({

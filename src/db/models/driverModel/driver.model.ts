@@ -20,6 +20,9 @@ export interface IDriver {
   location: {
     city: string;
     department: string;
+    latitude?: number;
+    longitude?: number;
+    address?: string;
   };
   createdAt: Date;
   updatedAt: Date;
@@ -54,6 +57,9 @@ const driverSchema = new Schema<IDriver>(
     location: {
       city: { type: String, required: true },
       department: { type: String, required: true },
+      latitude: { type: Number },
+      longitude: { type: Number },
+      address: { type: String },
     },
   },
 

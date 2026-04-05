@@ -10,6 +10,11 @@ export interface IVehicle {
   governmentDocuments: { public_id: string; secure_url: string }[];
   status: ApplicationStatus;
   isApproved: boolean;
+  location?: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +43,11 @@ const vehicleSchema = new Schema<IVehicle>(
     isApproved: {
       type: Boolean,
       default: false,
+    },
+    location: {
+      latitude: { type: Number },
+      longitude: { type: Number },
+      address: { type: String },
     },
   },
   {

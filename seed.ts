@@ -11,6 +11,7 @@ import { ChatModel, MessageModel } from './src/db/models/chatModel/chat.model';
 import { hash } from './src/common';
 
 interface TestData {
+  admins?: any[];
   parents: any[];
   drivers: any[];
   vehicles: any[];
@@ -39,6 +40,24 @@ async function seedDatabase() {
     await ChatModel.deleteMany({});
     await MessageModel.deleteMany({});
     console.log('Cleared existing data');
+
+    // Create Admins
+    if (testData.admins) {
+      for (const admin of testData.admins) {
+        const adminData = {
+          firstName: admin.firstName,
+          lastName: admin.lastName,
+          email: admin.email,
+          password: hash(admin.password),
+          phone: admin.phone,
+          fullName: `${admin.firstName} ${admin.lastName}`,
+          isVerified: admin.isVerified,
+          role: admin.role || 'admin',
+        };
+        await userModel.create(adminData);
+        console.log(`Created admin: ${admin.email}`);
+      }
+    }
 
     // Create Parents
     const userMap = new Map<string, any>();

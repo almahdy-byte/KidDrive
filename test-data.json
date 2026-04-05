@@ -1,4 +1,15 @@
 {
+  "admins": [
+    {
+      "firstName": "Admin",
+      "lastName": "KidDrive",
+      "email": "admin@kiddrive.com",
+      "password": "Admin@123",
+      "phone": "01000000000",
+      "isVerified": true,
+      "role": "admin"
+    }
+  ],
   "parents": [
     {
       "firstName": "Ahmed",

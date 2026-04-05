@@ -29,23 +29,29 @@ export const getSubscriptionById = Joi.object({
   id: generalValidationSchema.id.required(),
 });
 
+import { paginationValidation } from "../../common";
+
 export const getSubscriptionsByDriver = Joi.object({
   driverId: generalValidationSchema.id.required(),
   status: Joi.string()
     .valid(...Object.values(Status))
     .optional(),
-});
+}).concat(paginationValidation.query);
 
 export const getSubscriptionsByParent = Joi.object({
   parentId: generalValidationSchema.id.required(),
   status: Joi.string()
     .valid(...Object.values(Status))
     .optional(),
-});
+}).concat(paginationValidation.query);
 
 export const getSubscriptionsByChild = Joi.object({
   childId: generalValidationSchema.id.required(),
   status: Joi.string()
     .valid(...Object.values(Status))
     .optional(),
-});
+}).concat(paginationValidation.query);
+
+export const getAllSubscriptions = paginationValidation.query;
+export const getPendingSubscriptions = paginationValidation.query;
+export const getMySubscriptions = paginationValidation.query;

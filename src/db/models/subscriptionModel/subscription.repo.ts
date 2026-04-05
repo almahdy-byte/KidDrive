@@ -27,22 +27,58 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     });
   }
 
-  async findByDriver(driverId: string): Promise<ISubscription[]> {
-    return await SubscriptionModel.find({ driverId } as any)
+  async findByDriverPaginated(driverId: string, page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+    const filter: any = { driverId };
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { subscriptionType: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const subscriptions = await SubscriptionModel.find(filter)
       .populate('driverId parentId childId')
+      .skip(skip)
+      .limit(limit)
       .exec() as any;
+    const total = await SubscriptionModel.countDocuments(filter);
+    return { subscriptions, total };
   }
 
-  async findByParent(parentId: string): Promise<ISubscription[]> {
-    return await SubscriptionModel.find({ parentId } as any)
+  async findByParentPaginated(parentId: string, page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+    const filter: any = { parentId };
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { subscriptionType: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const subscriptions = await SubscriptionModel.find(filter)
       .populate('driverId parentId childId')
+      .skip(skip)
+      .limit(limit)
       .exec() as any;
+    const total = await SubscriptionModel.countDocuments(filter);
+    return { subscriptions, total };
   }
 
-  async findByChild(childId: string): Promise<ISubscription[]> {
-    return await SubscriptionModel.find({ childId } as any)
+  async findByChildPaginated(childId: string, page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+    const filter: any = { childId };
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { subscriptionType: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const subscriptions = await SubscriptionModel.find(filter)
       .populate('driverId parentId childId')
+      .skip(skip)
+      .limit(limit)
       .exec() as any;
+    const total = await SubscriptionModel.countDocuments(filter);
+    return { subscriptions, total };
   }
 
   async updateStatus(id: string, status: Status): Promise<ISubscription | null> {
@@ -64,10 +100,25 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     return null;
   }
 
-  async findPendingSubscriptions(): Promise<ISubscription[]> {
-    return await SubscriptionModel.find({ status: Status.PENDING } as any)
+  async findPendingSubscriptionsPaginated(page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+    const filter: any = { status: Status.PENDING };
+    if (search) {
+      filter.$and = [
+        {
+          $or: [
+            { subscriptionType: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const subscriptions = await SubscriptionModel.find(filter)
       .populate('driverId parentId childId')
+      .skip(skip)
+      .limit(limit)
       .exec() as any;
+    const total = await SubscriptionModel.countDocuments(filter);
+    return { subscriptions, total };
   }
 
   async findExpiringSoon(days: number = 7): Promise<ISubscription[]> {
@@ -82,10 +133,22 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .exec() as any;
   }
 
-  async findAll(): Promise<ISubscription[]> {
-    return await SubscriptionModel.find({} as any)
+  async findAllPaginated(page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+    const filter: any = {};
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { subscriptionType: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const subscriptions = await SubscriptionModel.find(filter)
       .populate('driverId parentId childId')
+      .skip(skip)
+      .limit(limit)
       .exec() as any;
+    const total = await SubscriptionModel.countDocuments(filter);
+    return { subscriptions, total };
   }
 }
 

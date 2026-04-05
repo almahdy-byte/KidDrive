@@ -55,7 +55,7 @@ export const getTripsBySubscription = Joi.object({
   status: Joi.string()
     .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .optional(),
-});
+}).concat(paginationValidation.query);
 
 export const getAllTrips = Joi.object({
   status: Joi.string()

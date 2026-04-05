@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncErrorHandler, AppError,  IRequest, Role, hash } from "../../common";
+import { asyncErrorHandler, AppError,  IRequest, Role, hash, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
 import { childRepo, userRepo } from "../../db";
 import { Types } from "mongoose";
 
@@ -50,18 +50,28 @@ export const addChild = asyncErrorHandler(
 export const getAllChildren = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const parentId = req.user?._id as Types.ObjectId;
-
-
+    const pagination = getPaginationOptions(req.query);
+    
+    const filter: any = { parentId: parentId, isDeleted: false };
+    
+    if (pagination.search) {
+      filter.name = { $regex: pagination.search, $options: "i" };
+    }
     
     const children = await childRepo.findAll({
-      filter: { parentId: parentId},
+      filter,
+      page: pagination.page,
+      limit: pagination.limit
     });
+
+    const total = await childRepo.countDocuments(filter);
+    const paginationResult = calculatePagination(pagination.page!, pagination.limit!, total, "children");
+    const paginatedResponse = createPaginatedResponse(children, paginationResult);
 
     return res.status(StatusCodes.OK).json({
       success: true,
       status: "success",
-      results: children.length,
-      data: children,
+      ...paginatedResponse
     });
   },
 );

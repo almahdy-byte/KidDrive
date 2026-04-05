@@ -11,5 +11,9 @@
       "src": "/(.*)",
       "dest": "api/index.ts"
     }
-  ]
+  ],
+  "install": {
+    "runtime": "nodejs20.x",
+    "cache": false
+  }
 }

@@ -29,10 +29,18 @@ export class TripRepo extends DBServices<TDocument> {
       .exec() as any;
   }
 
-  async findByDriverPaginated(driverId: string, page = 1, limit = 10, status?: ITrip['status']): Promise<{ trips: ITrip[], total: number }> {
+  async findByDriverPaginated(driverId: string, page = 1, limit = 10, status?: ITrip['status'], search = ""): Promise<{ trips: ITrip[], total: number }> {
     const filter: any = { driverId };
     if (status) {
       filter.status = status;
+    }
+    
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { origin: { $regex: search, $options: 'i' } },
+        { destination: { $regex: search, $options: 'i' } }
+      ];
     }
     
     const skip = (page - 1) * limit;
@@ -58,10 +66,18 @@ export class TripRepo extends DBServices<TDocument> {
       .exec() as any;
   }
 
-  async findByParentPaginated(parentId: string, page = 1, limit = 10, status?: ITrip['status']): Promise<{ trips: ITrip[], total: number }> {
+  async findByParentPaginated(parentId: string, page = 1, limit = 10, status?: ITrip['status'], search = ""): Promise<{ trips: ITrip[], total: number }> {
     const filter: any = { parentId };
     if (status) {
       filter.status = status;
+    }
+    
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { origin: { $regex: search, $options: 'i' } },
+        { destination: { $regex: search, $options: 'i' } }
+      ];
     }
     
     const skip = (page - 1) * limit;
@@ -87,10 +103,18 @@ export class TripRepo extends DBServices<TDocument> {
       .exec() as any;
   }
 
-  async findByChildPaginated(childId: string, page = 1, limit = 10, status?: ITrip['status']): Promise<{ trips: ITrip[], total: number }> {
+  async findByChildPaginated(childId: string, page = 1, limit = 10, status?: ITrip['status'], search = ""): Promise<{ trips: ITrip[], total: number }> {
     const filter: any = { childId };
     if (status) {
       filter.status = status;
+    }
+    
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { origin: { $regex: search, $options: 'i' } },
+        { destination: { $regex: search, $options: 'i' } }
+      ];
     }
     
     const skip = (page - 1) * limit;
@@ -137,13 +161,25 @@ export class TripRepo extends DBServices<TDocument> {
       .exec() as any;
   }
 
-  async findActiveTripsPaginated(page = 1, limit = 10, driverId?: string): Promise<{ trips: ITrip[], total: number }> {
+  async findActiveTripsPaginated(page = 1, limit = 10, driverId?: string, search = ""): Promise<{ trips: ITrip[], total: number }> {
     const filter: any = {
       status: { $in: ['child_boarded', 'trip_started'] }
     };
     
     if (driverId) {
       filter.driverId = driverId;
+    }
+    
+    if (search) {
+      filter.$and = [
+        {
+          $or: [
+            { status: { $regex: search, $options: 'i' } },
+            { origin: { $regex: search, $options: 'i' } },
+            { destination: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
     }
     
     const skip = (page - 1) * limit;
@@ -184,10 +220,18 @@ export class TripRepo extends DBServices<TDocument> {
       .exec() as any;
   }
 
-  async findAllTripsPaginated(page = 1, limit = 10, status?: ITrip['status']): Promise<{ trips: ITrip[], total: number }> {
+  async findAllTripsPaginated(page = 1, limit = 10, status?: ITrip['status'], search = ""): Promise<{ trips: ITrip[], total: number }> {
     const filter: any = {};
     if (status) {
       filter.status = status;
+    }
+    
+    if (search) {
+      filter.$or = [
+        { status: { $regex: search, $options: 'i' } },
+        { origin: { $regex: search, $options: 'i' } },
+        { destination: { $regex: search, $options: 'i' } }
+      ];
     }
     
     const skip = (page - 1) * limit;

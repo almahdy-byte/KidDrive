@@ -351,12 +351,14 @@ export const getAllDrivers = asyncErrorHandler(
                 city as string,
                 department as string,
                 pagination.page,
-                pagination.limit
+                pagination.limit,
+                pagination.search
             );
         } else {
             result = await driverRepo.findAllSortedByRatingPaginated(
                 pagination.page,
-                pagination.limit
+                pagination.limit,
+                pagination.search
             );
         }
 
@@ -397,7 +399,8 @@ export const getDriversNearParent = asyncErrorHandler(
         const result = await driverRepo.findDriversNearParentPaginated(
             parent.location,
             pagination.page,
-            pagination.limit
+            pagination.limit,
+            pagination.search
         );
 
         const paginationResult = calculatePagination(

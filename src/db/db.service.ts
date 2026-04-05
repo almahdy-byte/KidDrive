@@ -180,4 +180,8 @@ export abstract class DBServices<TDoc> {
       options,
     );
   }
+
+  async countDocuments(filter: QueryFilter<TDoc> = {}): Promise<number> {
+    return await this.model.countDocuments(filter as any);
+  }
 }

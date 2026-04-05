@@ -52,11 +52,20 @@ export class DriverRepo extends DBServices<TDocument> {
     return await this.model.find(filter).sort({ 'rating.average': -1 });
   }
 
-  async findByLocationPaginated(city?: string, department?: string, page = 1, limit = 10): Promise<{ drivers: IDriver[], total: number }> {
+  async findByLocationPaginated(city?: string, department?: string, page = 1, limit = 10, search = ""): Promise<{ drivers: IDriver[], total: number }> {
     const filter: any = { isApproved: true };
     
     if (city) filter['location.city'] = city;
     if (department) filter['location.department'] = department;
+    
+    if (search) {
+      filter.$or = [
+        { userName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { nationalId: { $regex: search, $options: 'i' } }
+      ];
+    }
 
     const skip = (page - 1) * limit;
     const drivers = await this.model.find(filter)
@@ -73,8 +82,17 @@ export class DriverRepo extends DBServices<TDocument> {
     return await this.model.find({ isApproved: true }).sort({ 'rating.average': -1 });
   }
 
-  async findAllSortedByRatingPaginated(page = 1, limit = 10): Promise<{ drivers: IDriver[], total: number }> {
-    const filter = { isApproved: true };
+  async findAllSortedByRatingPaginated(page = 1, limit = 10, search = ""): Promise<{ drivers: IDriver[], total: number }> {
+    const filter: any = { isApproved: true };
+    
+    if (search) {
+      filter.$or = [
+        { userName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } },
+        { nationalId: { $regex: search, $options: 'i' } }
+      ];
+    }
     const skip = (page - 1) * limit;
     
     const drivers = await this.model.find(filter)
@@ -87,24 +105,60 @@ export class DriverRepo extends DBServices<TDocument> {
     return { drivers, total };
   }
 
-  async findDriversNearParent(parentLocation: { city: string; department: string }): Promise<IDriver[]> {
-    return await this.model.find({
-      isApproved: true,
-      $or: [
-        { 'location.city': parentLocation.city },
-        { 'location.department': parentLocation.department }
-      ]
-    }).sort({ 'rating.average': -1 });
-  }
-
-  async findDriversNearParentPaginated(parentLocation: { city: string; department: string }, page = 1, limit = 10): Promise<{ drivers: IDriver[], total: number }> {
-    const filter = {
+  async findDriversNearParent(parentLocation: { city?: string; department?: string }, search = ""): Promise<IDriver[]> {
+    const filter: any = {
       isApproved: true,
       $or: [
         { 'location.city': parentLocation.city },
         { 'location.department': parentLocation.department }
       ]
     };
+
+    if (search) {
+      filter.$and = [
+        {
+          $or: [
+            { userName: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+            { phone: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
+    }
+
+    return await this.model.find(filter).sort({ 'rating.average': -1 });
+  }
+
+  async findDriversNearParentPaginated(parentLocation: { city?: string; department?: string }, page = 1, limit = 10, search = ""): Promise<{ drivers: IDriver[], total: number }> {
+    const queryParts: any[] = [];
+    
+    if (parentLocation.city) {
+      queryParts.push({ 'location.city': parentLocation.city });
+    }
+    if (parentLocation.department) {
+      queryParts.push({ 'location.department': parentLocation.department });
+    }
+    
+    const filter: any = {
+      isApproved: true,
+    };
+    
+    if (queryParts.length > 0) {
+      filter.$or = queryParts;
+    }
+
+    if (search) {
+      filter.$and = [
+        {
+          $or: [
+            { userName: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+            { phone: { $regex: search, $options: 'i' } },
+            { nationalId: { $regex: search, $options: 'i' } }
+          ]
+        }
+      ];
+    }
     
     const skip = (page - 1) * limit;
     

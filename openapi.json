@@ -3,7 +3,7 @@
   "info": {
     "title": "KidDrive API",
     "version": "1.0.0",
-    "description": "Complete API documentation for KidDrive - a school transportation management system"
+    "description": "Complete API documentation for KidDrive. Run `npm run seed` to populate test data. Test login: admin `admin@kiddrive.com` / `Admin@123`, parent `ahmed.ali@example.com` / `password123`, driver `omar.driver@example.com` / `password123`"
   },
   "servers": [
     {
@@ -132,6 +132,7 @@
     "/auth/login": {
       "post": {
         "summary": "User login",
+        "description": "Login with email and password. Use seeded test data: parent `ahmed.ali@example.com` / `password123` or driver `omar.driver@example.com` / `password123`",
         "tags": ["Authentication"],
         "requestBody": {
           "required": true,
@@ -142,10 +143,12 @@
                 "properties": {
                   "email": {
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "example": "ahmed.ali@example.com"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "password123"
                   }
                 },
                 "required": ["email", "password"]
@@ -506,6 +509,7 @@
     "/driver/login": {
       "post": {
         "summary": "Driver login",
+        "description": "Login with driver credentials. Use seeded test data: `omar.driver@example.com` / `password123`",
         "tags": ["Driver"],
         "requestBody": {
           "required": true,
@@ -516,10 +520,12 @@
                 "properties": {
                   "email": {
                     "type": "string",
-                    "format": "email"
+                    "format": "email",
+                    "example": "omar.driver@example.com"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "password123"
                   }
                 },
                 "required": ["email", "password"]
@@ -1930,10 +1936,24 @@
             "type": "object",
             "properties": {
               "city": {
-                "type": "string"
+                "type": "string",
+                "example": "Cairo"
               },
               "department": {
-                "type": "string"
+                "type": "string",
+                "example": "Giza"
+              },
+              "latitude": {
+                "type": "number",
+                "example": 30.0444
+              },
+              "longitude": {
+                "type": "number",
+                "example": 31.2357
+              },
+              "address": {
+                "type": "string",
+                "example": "123 Main Street, Cairo"
               }
             }
           }
@@ -2009,13 +2029,26 @@
             "type": "object",
             "properties": {
               "city": {
-                "type": "string"
+                "type": "string",
+                "example": "Cairo"
               },
               "department": {
-                "type": "string"
+                "type": "string",
+                "example": "Giza"
+              },
+              "latitude": {
+                "type": "number",
+                "example": 30.0444
+              },
+              "longitude": {
+                "type": "number",
+                "example": 31.2357
+              },
+              "address": {
+                "type": "string",
+                "example": "123 Main Street, Cairo"
               }
-            },
-            "required": ["city", "department"]
+            }
           },
           "createdAt": {
             "type": "string",
@@ -2100,6 +2133,23 @@
           },
           "isApproved": {
             "type": "boolean"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "latitude": {
+                "type": "number",
+                "example": 30.0444
+              },
+              "longitude": {
+                "type": "number",
+                "example": 31.2357
+              },
+              "address": {
+                "type": "string",
+                "example": "123 Main Street, Cairo"
+              }
+            }
           },
           "createdAt": {
             "type": "string",

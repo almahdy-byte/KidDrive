@@ -26,7 +26,7 @@ router.get('/dashboard/stats', getDashboardStats);
 
 // Get driver applications with pagination and filtering
 router.get('/applications', 
-    validate(getApplicationsValidation.query),
+    validate(getApplicationsValidation),
     getDriverApplications
 );
 
@@ -35,13 +35,13 @@ router.get('/applications/:id', getDriverApplicationById);
 
 // Approve driver application
 router.patch('/applications/:id/approve', 
-    validate(approveApplicationValidation.body),
+    validate(approveApplicationValidation),
     approveDriverApplication
 );
 
 // Reject driver application
 router.patch('/applications/:id/reject', 
-    validate(rejectApplicationValidation.body),
+    validate(rejectApplicationValidation),
     rejectDriverApplication
 );
 

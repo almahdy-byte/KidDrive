@@ -7,11 +7,32 @@ import mongoose, { Types } from "mongoose";
 
 export const getDriverApplications = asyncErrorHandler(
     async (req: IRequest, res: Response, next: NextFunction) => {
-        const { page = 1, limit = 10, status } = req.query;
+        const { page = 1, limit = 10, status, search } = req.query;
         
         const filter: any = {};
         if (status && Object.values(ApplicationStatus).includes(status as ApplicationStatus)) {
             filter.status = status;
+        }
+
+        if (search) {
+            // Search in status directly
+            const directSearch: any = { status: { $regex: search, $options: 'i' } };
+            
+            // Search in driver details (requires finding matching drivers first)
+            const matchingDrivers = await mongoose.model('Driver').find({
+                $or: [
+                    { userName: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                    { nationalId: { $regex: search, $options: 'i' } }
+                ]
+            }).select('_id');
+            
+            const driverIds = matchingDrivers.map(d => d._id);
+            
+            filter.$or = [
+                directSearch,
+                { driver: { $in: driverIds } }
+            ];
         }
 
         const parsedPage = Number(page);
@@ -20,8 +41,8 @@ export const getDriverApplications = asyncErrorHandler(
         
         const applications = await DriverApplicationModel
             .find(filter)
-            .populate('driver', 'firstName lastName email nationalId phone')
-            .populate('vehicle', 'make model year licensePlate')
+            .populate('driver', 'userName email nationalId phone')
+            .populate('vehicle', 'carModel plateNumber carColor')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parsedLimit);
@@ -79,7 +100,7 @@ export const approveDriverApplication = asyncErrorHandler(
             return next(new AppError("Application not found", StatusCodes.NOT_FOUND));
         }
 
-        if (application.status !== ApplicationStatus.PENDING) {
+        if (application.status !== ApplicationStatus.PENDING ) {
             return next(new AppError("Application has already been processed", StatusCodes.BAD_REQUEST));
         }
 

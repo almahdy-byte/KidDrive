@@ -141,7 +141,8 @@ export class TripController {
         driverId as string,
         pagination.page,
         pagination.limit,
-        status as ITrip['status']
+        status as ITrip['status'],
+        pagination.search
       );
 
       const paginationResult = calculatePagination(
@@ -179,7 +180,8 @@ export class TripController {
         parentId as string,
         pagination.page,
         pagination.limit,
-        status as ITrip['status']
+        status as ITrip['status'],
+        pagination.search
       );
 
       const paginationResult = calculatePagination(
@@ -212,7 +214,8 @@ export class TripController {
         childId as string,
         pagination.page,
         pagination.limit,
-        status as ITrip['status']
+        status as ITrip['status'],
+        pagination.search
       );
 
       const paginationResult = calculatePagination(
@@ -244,13 +247,15 @@ export class TripController {
         result = await tripRepo.findActiveTripsPaginated(
           pagination.page,
           pagination.limit,
-          req.user?._id.toString()
+          req.user?._id.toString(),
+          pagination.search
         );
       } else {
-        // Admin sees all active trips
         result = await tripRepo.findActiveTripsPaginated(
           pagination.page,
-          pagination.limit
+          pagination.limit,
+          undefined,
+          pagination.search
         );
       }
 
@@ -286,7 +291,8 @@ export class TripController {
       const result = await tripRepo.findAllTripsPaginated(
         pagination.page,
         pagination.limit,
-        status as ITrip['status']
+        status as ITrip['status'],
+        pagination.search
       );
 
       const paginationResult = calculatePagination(

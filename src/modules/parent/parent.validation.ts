@@ -16,9 +16,11 @@ export const addChildSchema = Joi.object({
   photo: Joi.string().uri().optional()
 });
 
+import { paginationValidation } from "../../common";
+
 export const getChildrenSchema = Joi.object({
   parentId: Joi.string().custom(objectId).optional(),
-});
+}).concat(paginationValidation.query);
 
 export const getSingleChildSchema = Joi.object({
   childId: Joi.string().custom(objectId).required(),

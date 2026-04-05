@@ -2,7 +2,7 @@ import { NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { subscriptionRepo } from "../../db/models/subscriptionModel/subscription.repo";
 import { ISubscription } from "../../db/models/subscriptionModel/subscription.model";
-import { Role, Status, AppError, IRequest } from "../../common";
+import { Role, Status, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
 
 export class SubscriptionController {
   // Create subscription - Parent role can access
@@ -73,24 +73,26 @@ export class SubscriptionController {
   async getSubscriptionsByDriver(req: IRequest, res: Response, next: NextFunction) {
     try {
       const { driverId } = req.params;
-      const { status } = req.query;
+      const pagination = getPaginationOptions(req.query);
 
       // Check permissions
       if (req.user?.role === Role.Driver && req.user?._id.toString() !== driverId) {
         return next(new AppError("Drivers can only view their own subscriptions", StatusCodes.FORBIDDEN));
       }
 
-      let subscriptions;
-      if (status) {
-        subscriptions = await subscriptionRepo.findByDriver(driverId as string);
-        subscriptions = subscriptions.filter(sub => sub.status === status as Status);
-      } else {
-        subscriptions = await subscriptionRepo.findByDriver(driverId as string);
-      }
+      const result = await subscriptionRepo.findByDriverPaginated(
+        driverId as string,
+        pagination.page,
+        pagination.limit,
+        pagination.search
+      );
+
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(result.subscriptions, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
-        data: subscriptions,
+        ...paginatedResponse
       });
     } catch (error) {
       next(error);
@@ -101,24 +103,26 @@ export class SubscriptionController {
   async getSubscriptionsByParent(req: IRequest, res: Response, next: NextFunction) {
     try {
       const { parentId } = req.params;
-      const { status } = req.query;
+      const pagination = getPaginationOptions(req.query);
 
       // Check permissions
       if (req.user?.role === Role.Parent && req.user?._id.toString() !== parentId) {
         return next(new AppError("Parents can only view their own subscriptions", StatusCodes.FORBIDDEN));
       }
 
-      let subscriptions;
-      if (status) {
-        subscriptions = await subscriptionRepo.findByParent(parentId as string);
-        subscriptions = subscriptions.filter(sub => sub.status === status as Status);
-      } else {
-        subscriptions = await subscriptionRepo.findByParent(parentId as string);
-      }
+      const result = await subscriptionRepo.findByParentPaginated(
+        parentId as string,
+        pagination.page,
+        pagination.limit,
+        pagination.search
+      );
+
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(result.subscriptions, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
-        data: subscriptions,
+        ...paginatedResponse
       });
     } catch (error) {
       next(error);
@@ -129,25 +133,21 @@ export class SubscriptionController {
   async getSubscriptionsByChild(req: IRequest, res: Response, next: NextFunction) {
     try {
       const { childId } = req.params;
-      const { status } = req.query;
+      const pagination = getPaginationOptions(req.query);
 
-      // For parents, we need to check if the child belongs to them
-      if (req.user?.role === Role.Parent) {
-        // This would require checking if the child belongs to the parent
-        // For now, we'll allow it but you might want to add this check
-      }
+      const result = await subscriptionRepo.findByChildPaginated(
+        childId as string,
+        pagination.page,
+        pagination.limit,
+        pagination.search
+      );
 
-      let subscriptions;
-      if (status) {
-        subscriptions = await subscriptionRepo.findByChild(childId as string);
-        subscriptions = subscriptions.filter(sub => sub.status === status as Status);
-      } else {
-        subscriptions = await subscriptionRepo.findByChild(childId as string);
-      }
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(result.subscriptions, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
-        data: subscriptions,
+        ...paginatedResponse
       });
     } catch (error) {
       next(error);
@@ -166,7 +166,7 @@ export class SubscriptionController {
       }
 
       // Check permissions
-      if (req.user?.role === Role.Driver && req.user?._id.toString() !== subscription.driverId.toString()) {
+      if (req.user?.role === Role.Driver && req.user?._id.toString() !== subscription.driverId._id.toString()) {
         return next(new AppError("Drivers can only update subscriptions addressed to them", StatusCodes.FORBIDDEN));
       }
 
@@ -194,11 +194,19 @@ export class SubscriptionController {
         return next(new AppError("Access denied. Admin only", StatusCodes.FORBIDDEN));
       }
 
-      const subscriptions = await subscriptionRepo.findAll();
+      const pagination = getPaginationOptions(req.query);
+      const result = await subscriptionRepo.findAllPaginated(
+        pagination.page,
+        pagination.limit,
+        pagination.search
+      );
+
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(result.subscriptions, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
-        data: subscriptions,
+        ...paginatedResponse
       });
     } catch (error) {
       next(error);
@@ -208,19 +216,32 @@ export class SubscriptionController {
   // Get pending subscriptions - Admin sees all, Driver sees their own, Parent sees their children's
   async getPendingSubscriptions(req: IRequest, res: Response, next: NextFunction) {
     try {
-      let subscriptions = await subscriptionRepo.findPendingSubscriptions();
+      const pagination = getPaginationOptions(req.query);
+      
+      // Since it's easier to filter in the repository for large datasets, 
+      // let's assume the repo handles simple global pending, or we'd need more specific repo methods.
+      // But for now, we'll use a slightly more complex repo filter if needed or just filter here for MVP.
+      
+      const result = await subscriptionRepo.findPendingSubscriptionsPaginated(
+        pagination.page,
+        pagination.limit,
+        pagination.search
+      );
 
-      // Filter based on user role
+      // We still need to filter by role if not admin
+      let filteredSubscriptions = result.subscriptions;
       if (req.user?.role === Role.Driver) {
-        subscriptions = subscriptions.filter(sub => sub.driverId.toString() === req.user?._id.toString());
+        filteredSubscriptions = result.subscriptions.filter(sub => sub.driverId._id.toString() === req.user?._id.toString());
       } else if (req.user?.role === Role.Parent) {
-        subscriptions = subscriptions.filter(sub => sub.parentId.toString() === req.user?._id.toString());
+        filteredSubscriptions = result.subscriptions.filter(sub => sub.parentId._id.toString() === req.user?._id.toString());
       }
-      // Admin sees all pending subscriptions
+
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, filteredSubscriptions.length, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(filteredSubscriptions, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
-        data: subscriptions,
+        ...paginatedResponse
       });
     } catch (error) {
       next(error);
@@ -230,19 +251,23 @@ export class SubscriptionController {
   // Get subscriptions for current user - Parent and Driver can see their own subscriptions
   async getMySubscriptions(req: IRequest, res: Response, next: NextFunction) {
     try {
-      let subscriptions;
+      const pagination = getPaginationOptions(req.query);
+      let result;
       
       if (req.user?.role === Role.Parent) {
-        subscriptions = await subscriptionRepo.findByParent(req.user._id.toString());
+        result = await subscriptionRepo.findByParentPaginated(req.user._id.toString(), pagination.page, pagination.limit, pagination.search);
       } else if (req.user?.role === Role.Driver) {
-        subscriptions = await subscriptionRepo.findByDriver(req.user._id.toString());
+        result = await subscriptionRepo.findByDriverPaginated(req.user._id.toString(), pagination.page, pagination.limit, pagination.search);
       } else {
         return next(new AppError("This endpoint is for parents and drivers only", StatusCodes.FORBIDDEN));
       }
 
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(result.subscriptions, paginationResult);
+
       res.status(StatusCodes.OK).json({
         success: true,
-        data: subscriptions,
+        ...paginatedResponse
       });
     } catch (error) {
       next(error);

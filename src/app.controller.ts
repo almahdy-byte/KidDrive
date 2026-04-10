@@ -14,6 +14,7 @@ import adminRoutes from "./modules/admin/admin.routes";
 import cors from 'cors'
 
 
+
 export const bootstrap = async (app: Application) => {
     // CORS configuration for cookie-based authentication
     app.use(cors({}))

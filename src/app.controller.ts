@@ -21,20 +21,21 @@ export const bootstrap = async (app: Application) => {
 
     app.use(json())
 
+
+    await connectDB()
+
     app.get('/', (req: Request, res: Response) => {
         res.send('KidDrive APIs')
     })
     app.use('/auth', authRoutes)
     app.use('/user', userRoutes)
     app.use('/parent', parentRoutes)
-    app.use('/driver', driverRoutes)
+     app.use('/driver', driverRoutes)
     app.use('/subscription', subscriptionRoutes)
     app.use('/trip', tripRoutes)
     app.use('/admin', adminRoutes)
     app.use(notFoundHandler)
     app.use(globalErrorHandler)
-
-    await connectDB()
 }
 
 //class

@@ -7,8 +7,7 @@
       "use": "@vercel/node@3",
       "config": {
         "includeFiles": [
-          "src/**/*",
-          "seed.ts"
+          "src/**/*"
         ]
       }
     }

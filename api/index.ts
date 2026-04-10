@@ -13,11 +13,7 @@ async function initializeApp() {
     }
 }
 
-// Initialize before handling requests
-initializeApp().catch(console.error);
-
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
-});
-
-export default app;
+export default async function handler(req: Request, res: Response) {
+    await initializeApp();
+    return app(req, res);
+}

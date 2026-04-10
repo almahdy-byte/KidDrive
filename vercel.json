@@ -3,12 +3,7 @@
   "builds": [
     {
       "src": "api/index.ts",
-      "use": "@vercel/node@3",
-      "config": {
-        "includeFiles": [
-          "src/**/*"
-        ]
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -16,8 +11,5 @@
       "src": "/(.*)",
       "dest": "api/index.ts"
     }
-  ],
-  "regions": [
-    "iad1"
   ]
 }

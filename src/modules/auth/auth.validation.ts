@@ -8,9 +8,9 @@ export const registerSchema = Joi.object({
   role: generalValidationSchema.role.optional(),
   phone: generalValidationSchema.phone.required(),
   location: Joi.object({
-    city: Joi.string().required(),
-    department: Joi.string().required(),
-  }).required(),
+    city: Joi.string().optional(),
+    department: Joi.string().optional(),
+  }).optional(),
 });
 
 export const verifyOTPSchema = Joi.object({

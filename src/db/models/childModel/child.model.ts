@@ -9,6 +9,10 @@ export interface IChild {
   isDeleted: boolean;
   gender: Gender;
   photo: string;
+  schedule?: {
+    arriveTime: string;
+    backHome: string;
+  };
 }
 
 const childSchema = new Schema<IChild>(
@@ -23,6 +27,10 @@ const childSchema = new Schema<IChild>(
     gender: { type: String, default: Gender.Male, required: true },
     isDeleted: { type: Boolean, required: false , default:false },
     photo: { type: String, required: false },
+    schedule: {
+      arriveTime: { type: String, required: false },
+      backHome: { type: String, required: false },
+    },
   },
   {
     timestamps: true,

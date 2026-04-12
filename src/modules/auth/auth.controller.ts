@@ -28,10 +28,6 @@ export const register = asyncErrorHandler(
             return next(new AppError("Invalid register", StatusCodes.BAD_REQUEST));
         }
 
-        if (!location || !location.city || !location.department) {
-            return next(new AppError("Location (city and department) is required", StatusCodes.BAD_REQUEST));
-        }
-
         const exist = await userRepo.findByEmail({ email });
 
         if (exist){
@@ -57,11 +53,15 @@ export const register = asyncErrorHandler(
             phone,
             otp,
             isVerified: false,
-            location: {
+        };
+
+        // Add location only if provided
+        if (location && (location.city || location.department)) {
+            userData.location = {
                 city: location.city,
                 department: location.department,
-            },
-        };
+            };
+        }
 
         const html = template(
             code,

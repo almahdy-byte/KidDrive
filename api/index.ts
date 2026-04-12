@@ -14,6 +14,15 @@ async function initializeApp() {
 }
 
 export default async function handler(req: Request, res: Response) {
-    await initializeApp();
+    try {
+        await initializeApp();
+    } catch (err: any) {
+        console.error("Failed to initialize app:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Database connection or initialization failed",
+            error: err.message || err.toString()
+        });
+    }
     return app(req, res);
 }

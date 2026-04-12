@@ -13,7 +13,11 @@ export const addChildSchema = Joi.object({
   name: Joi.string().trim().min(2).max(50).required(),
   age: Joi.number().integer().min(0).max(18).required(),
   gender: Joi.string().valid("male", "female").optional(),
-  photo: Joi.string().uri().optional()
+  photo: Joi.string().uri().optional(),
+  schedule: Joi.object({
+    arriveTime: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+    backHome: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+  }).optional(),
 });
 
 import { paginationValidation } from "../../common";
@@ -34,6 +38,10 @@ export const updateChildSchema =
     age: Joi.number().integer().min(0).max(18).required(),
     gender: Joi.string().valid("male", "female").optional(),
     photo: Joi.string().uri().optional(),
+    schedule: Joi.object({
+      arriveTime: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+      backHome: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+    }).optional(),
   });
 
 export const updateParentProfileSchema = Joi.object({

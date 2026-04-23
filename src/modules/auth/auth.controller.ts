@@ -178,7 +178,7 @@ export const resetPassword = asyncErrorHandler(
 
 export const verifyOTP =asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const { email, code } = req.body;
+        const { email, otp } = req.body;
 
 
         const user = await userRepo.findByEmail({ email });
@@ -189,7 +189,7 @@ export const verifyOTP =asyncErrorHandler(
         if (user.isVerified) {
             return next(new AppError("User already verified", StatusCodes.BAD_REQUEST));
         }
-        const isCodeValid = await compare(code, user.otp?.code || "");
+        const isCodeValid = await compare(otp, user.otp?.code || "");
         if (!isCodeValid || !user.otp?.expiresAt || user.otp?.expiresAt < new Date() || user.otp?.code === "") {
             return next(new AppError("Invalid or expired OTP", StatusCodes.BAD_REQUEST));
         }

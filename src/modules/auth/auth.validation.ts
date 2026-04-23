@@ -15,7 +15,7 @@ export const registerSchema = Joi.object({
 
 export const verifyOTPSchema = Joi.object({
   email: generalValidationSchema.email.required(),
-  code: generalValidationSchema.code.required(),
+  otp: generalValidationSchema.code.required(),
 });
 
 export const loginSchema = Joi.object({

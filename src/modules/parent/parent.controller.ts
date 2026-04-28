@@ -4,6 +4,79 @@ import { asyncErrorHandler, AppError,  IRequest, Role, hash, getPaginationOption
 import { childRepo, userRepo } from "../../db";
 import { Types } from "mongoose";
 
+export const getParentById = asyncErrorHandler(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    if (!id || typeof id !== 'string') {
+      return next(new AppError("Invalid parent ID", StatusCodes.BAD_REQUEST));
+    }
+
+    const parent = await userRepo.findUserByIdWithChildren(id);
+
+    if (!parent || parent.isDeleted || parent.role !== Role.Parent) {
+      return next(new AppError("Parent not found", StatusCodes.NOT_FOUND));
+    }
+
+    // Check permissions
+    const userId = req.user?._id?.toString();
+    const userRole = req.user?.role;
+
+    // Allow access if user is admin, the parent themselves, or a driver
+    const isSelf = parent._id.toString() === userId;
+    const isAdmin = userRole === Role.Admin;
+    const isDriver = userRole === Role.Driver;
+
+    if (!isSelf && !isAdmin && !isDriver) {
+      return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Parent retrieved successfully",
+      data: {
+        _id: parent._id,
+        firstName: parent.firstName,
+        lastName: parent.lastName,
+        fullName: parent.fullName,
+        email: parent.email,
+        phone: parent.phone,
+        location: parent.location,
+        children: parent.children,
+      },
+    });
+  }
+);
+
+export const getParentBasicInfo = asyncErrorHandler(
+  async (req: IRequest, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+
+    if (!id || typeof id !== 'string') {
+      return next(new AppError("Invalid parent ID", StatusCodes.BAD_REQUEST));
+    }
+
+    const parent = await userRepo.findUserById(id, "firstName lastName fullName email phone");
+
+    if (!parent || parent.isDeleted || parent.role !== Role.Parent) {
+      return next(new AppError("Parent not found", StatusCodes.NOT_FOUND));
+    }
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Parent basic info retrieved successfully",
+      data: {
+        _id: parent._id,
+        firstName: parent.firstName,
+        lastName: parent.lastName,
+        fullName: parent.fullName,
+        email: parent.email,
+        phone: parent.phone,
+      },
+    });
+  }
+);
+
 
 export const addChild = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {

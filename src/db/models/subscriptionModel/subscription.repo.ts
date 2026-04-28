@@ -21,14 +21,17 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       id,
       populate: [
         { path: 'driverId' },
-        { path: 'parentId' },
-        { path: 'childId' }
+        { path: 'parentId', select: 'firstName lastName fullName email phone' },
+        { path: 'childId', select: 'name age gender photo school' }
       ]
     });
   }
 
-  async findByDriverPaginated(driverId: string, page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+  async findByDriverPaginated(driverId: string, page = 1, limit = 10, search = "", status?: Status): Promise<{ subscriptions: ISubscription[], total: number }> {
     const filter: any = { driverId };
+    if (status) {
+      filter.status = status;
+    }
     if (search) {
       filter.$or = [
         { status: { $regex: search, $options: 'i' } },
@@ -37,7 +40,9 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     }
     const skip = (page - 1) * limit;
     const subscriptions = await SubscriptionModel.find(filter)
-      .populate('driverId parentId childId')
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -45,8 +50,11 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     return { subscriptions, total };
   }
 
-  async findByParentPaginated(parentId: string, page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+  async findByParentPaginated(parentId: string, page = 1, limit = 10, search = "", status?: Status): Promise<{ subscriptions: ISubscription[], total: number }> {
     const filter: any = { parentId };
+    if (status) {
+      filter.status = status;
+    }
     if (search) {
       filter.$or = [
         { status: { $regex: search, $options: 'i' } },
@@ -55,7 +63,9 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     }
     const skip = (page - 1) * limit;
     const subscriptions = await SubscriptionModel.find(filter)
-      .populate('driverId parentId childId')
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -63,8 +73,11 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     return { subscriptions, total };
   }
 
-  async findByChildPaginated(childId: string, page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+  async findByChildPaginated(childId: string, page = 1, limit = 10, search = "", status?: Status): Promise<{ subscriptions: ISubscription[], total: number }> {
     const filter: any = { childId };
+    if (status) {
+      filter.status = status;
+    }
     if (search) {
       filter.$or = [
         { status: { $regex: search, $options: 'i' } },
@@ -73,7 +86,9 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     }
     const skip = (page - 1) * limit;
     const subscriptions = await SubscriptionModel.find(filter)
-      .populate('driverId parentId childId')
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -92,16 +107,19 @@ export class SubscriptionRepo extends DBServices<TDocument> {
         id,
         populate: [
           { path: 'driverId' },
-          { path: 'parentId' },
-          { path: 'childId' }
+          { path: 'parentId', select: 'firstName lastName fullName email phone' },
+          { path: 'childId', select: 'name age gender photo school' }
         ]
       });
     }
     return null;
   }
 
-  async findPendingSubscriptionsPaginated(page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+  async findPendingSubscriptionsPaginated(page = 1, limit = 10, search = "", driverId?: string): Promise<{ subscriptions: ISubscription[], total: number }> {
     const filter: any = { status: Status.PENDING };
+    if (driverId) {
+      filter.driverId = driverId;
+    }
     if (search) {
       filter.$and = [
         {
@@ -113,7 +131,34 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     }
     const skip = (page - 1) * limit;
     const subscriptions = await SubscriptionModel.find(filter)
-      .populate('driverId parentId childId')
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
+      .skip(skip)
+      .limit(limit)
+      .exec() as any;
+    const total = await SubscriptionModel.countDocuments(filter);
+    return { subscriptions, total };
+  }
+
+  async findActiveSubscriptionsPaginated(page = 1, limit = 10, search = "", driverId?: string, parentId?: string): Promise<{ subscriptions: ISubscription[], total: number }> {
+    const filter: any = { status: Status.ACCEPTED };
+    if (driverId) {
+      filter.driverId = driverId;
+    }
+    if (parentId) {
+      filter.parentId = parentId;
+    }
+    if (search) {
+      filter.$or = [
+        { subscriptionType: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const skip = (page - 1) * limit;
+    const subscriptions = await SubscriptionModel.find(filter)
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -129,12 +174,17 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       expiryDate: { $lte: expiryDate },
       status: Status.ACCEPTED
     } as any)
-      .populate('driverId parentId childId')
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
       .exec() as any;
   }
 
-  async findAllPaginated(page = 1, limit = 10, search = ""): Promise<{ subscriptions: ISubscription[], total: number }> {
+  async findAllPaginated(page = 1, limit = 10, search = "", status?: Status): Promise<{ subscriptions: ISubscription[], total: number }> {
     const filter: any = {};
+    if (status) {
+      filter.status = status;
+    }
     if (search) {
       filter.$or = [
         { status: { $regex: search, $options: 'i' } },
@@ -143,7 +193,9 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     }
     const skip = (page - 1) * limit;
     const subscriptions = await SubscriptionModel.find(filter)
-      .populate('driverId parentId childId')
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
       .skip(skip)
       .limit(limit)
       .exec() as any;

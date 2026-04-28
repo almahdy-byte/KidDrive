@@ -10,6 +10,16 @@ export class ChildRepo extends DBServices<TDocument> {
   async create(data: Partial<IChild>): Promise<IChild> {
     return await ChildModel.create(data);
   }
+
+  async findChildById(id: string): Promise<IChild | null> {
+    return await ChildModel.findById(id).exec();
+  }
+
+  async findChildByIdWithParent(id: string): Promise<IChild | null> {
+    return await ChildModel.findById(id)
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .exec() as any;
+  }
 }
 
-  export const childRepo = new ChildRepo(ChildModel);
+export const childRepo = new ChildRepo(ChildModel);

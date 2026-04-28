@@ -7,6 +7,21 @@ import { Role } from "../../common";
 
 const router = Router();
 
+// Public endpoint - get parent basic info
+router.get(
+  "/:id/basic",
+  validate(parentValidation.getParentById),
+  parentService.getParentBasicInfo
+);
+
+// Get parent by ID - auth required
+router.get(
+  "/:id",
+  auth,
+  validate(parentValidation.getParentById),
+  parentService.getParentById
+);
+
 router.use(auth);
 
 // Add Child

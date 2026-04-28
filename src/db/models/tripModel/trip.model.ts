@@ -17,6 +17,11 @@ export interface ITrip {
     address: string;
   };
   status: 'child_boarded' | 'child_dropped_off' | 'trip_started' | 'trip_finished';
+  // New fields for scheduled trips
+  tripType: 'pickup' | 'dropoff';
+  scheduledDate: Date;
+  scheduledTime: string; // HH:MM format
+  // Original timing fields
   startTime?: Date;
   endTime?: Date;
   createdAt: Date;
@@ -78,6 +83,20 @@ const tripSchema = new Schema<ITrip>(
       enum: ['child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished'],
       default: 'trip_started',
     },
+    tripType: {
+      type: String,
+      enum: ['pickup', 'dropoff'],
+      required: true,
+    },
+    scheduledDate: {
+      type: Date,
+      required: true,
+    },
+    scheduledTime: {
+      type: String,
+      required: true,
+      match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, // HH:MM format
+    },
     startTime: {
       type: Date,
     },
@@ -89,6 +108,11 @@ const tripSchema = new Schema<ITrip>(
     timestamps: true,
   }
 );
+
+// Index for efficient querying by date
+tripSchema.index({ scheduledDate: 1, driverId: 1 });
+tripSchema.index({ scheduledDate: 1, parentId: 1 });
+tripSchema.index({ subscriptionId: 1, scheduledDate: 1 });
 
 export const TripModel =
   models.Trip || model<ITrip>("Trip", tripSchema);

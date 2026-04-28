@@ -1,14 +1,16 @@
 import { NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { tripRepo } from "../../db/models/tripModel/trip.repo";
+import { subscriptionRepo } from "../../db/models/subscriptionModel/subscription.repo";
 import { ITrip } from "../../db/models/tripModel/trip.model";
-import { Role, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
+import { tripGeneratorService } from "./services/tripGenerator.service";
+import { Role, Status, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
 
 export class TripController {
   // Start trip - Driver or Parent can start
   async startTrip(req: IRequest, res: Response, next: NextFunction) {
     try {
-      const { driverId, parentId, childId, subscriptionId, origin, destination } = req.body;
+      const { driverId, parentId, childId, subscriptionId, origin, destination, tripType, scheduledDate, scheduledTime } = req.body;
 
       // Check permissions
       if (req.user?.role === Role.Driver && req.user?._id.toString() !== driverId) {
@@ -27,6 +29,9 @@ export class TripController {
         origin,
         destination,
         status: 'trip_started',
+        tripType: tripType || 'pickup',
+        scheduledDate: scheduledDate ? new Date(scheduledDate) : new Date(),
+        scheduledTime: scheduledTime || new Date().toTimeString().slice(0, 5),
         startTime: new Date(),
       };
 
@@ -308,6 +313,337 @@ export class TripController {
         success: true,
         message: "All trips retrieved successfully",
         ...paginatedResponse
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get trips by subscription - Driver, Parent, or Admin can access
+  async getTripsBySubscription(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { subscriptionId } = req.params;
+      const { status } = req.query;
+      const pagination = getPaginationOptions(req.query);
+
+      // Get subscription to check permissions
+      const subscription = await subscriptionRepo.findByIdWithPopulate(subscriptionId as string);
+      if (!subscription) {
+        return next(new AppError("Subscription not found", StatusCodes.NOT_FOUND));
+      }
+
+      // Check permissions
+      if (req.user?.role === Role.Admin) {
+        // Admin can view all
+      } else if (req.user?.role === Role.Driver && req.user?._id.toString() !== subscription.driverId.toString()) {
+        return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
+      } else if (req.user?.role === Role.Parent && req.user?._id.toString() !== subscription.parentId.toString()) {
+        return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
+      }
+
+      const result = await tripRepo.findBySubscriptionPaginated(
+        subscriptionId as string,
+        pagination.page,
+        pagination.limit,
+        status as ITrip['status']
+      );
+
+      const paginationResult = calculatePagination(
+        pagination.page!,
+        pagination.limit!,
+        result.total,
+        'trips'
+      );
+
+      const paginatedResponse = createPaginatedResponse(result.trips, paginationResult);
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Trips retrieved successfully",
+        ...paginatedResponse
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get trips from driver's subscriptions - EP that drops trips for driver
+  async getDriverTripsFromSubscriptions(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { driverId } = req.params;
+      const { status, startDate, endDate } = req.query;
+      const pagination = getPaginationOptions(req.query);
+
+      // Check permissions
+      if (req.user?.role === Role.Driver && req.user?._id.toString() !== driverId) {
+        return next(new AppError("Drivers can only view their own trips", StatusCodes.FORBIDDEN));
+      }
+
+      // Get all subscriptions for this driver
+      const subscriptionsResult = await subscriptionRepo.findByDriverPaginated(
+        driverId as string,
+        1,
+        1000 // Get all subscriptions
+      );
+
+      const subscriptionIds = subscriptionsResult.subscriptions
+        .filter(sub => sub.status === Status.ACCEPTED) // Only accepted subscriptions
+        .map(sub => sub._id.toString());
+
+      if (subscriptionIds.length === 0) {
+        res.status(StatusCodes.OK).json({
+          success: true,
+          message: "No active subscriptions found for this driver",
+          data: [],
+          pagination: {
+            page: pagination.page,
+            limit: pagination.limit,
+            total: 0,
+          }
+        });
+        return;
+      }
+
+      // Get trips for these subscriptions
+      let trips;
+      let total;
+
+      if (startDate && endDate) {
+        // If date range specified, filter by date
+        const start = new Date(startDate as string);
+        const end = new Date(endDate as string);
+        
+        trips = await tripRepo.findByDriverAndDateRange(
+          driverId as string,
+          start,
+          end,
+          status as ITrip['status']
+        );
+        total = trips.length;
+        
+        // Apply pagination manually
+        const skip = ((pagination.page || 1) - 1) * (pagination.limit || 10);
+        trips = trips.slice(skip, skip + (pagination.limit || 10));
+      } else {
+        // Get trips by subscription IDs
+        const result = await tripRepo.findBySubscriptionsPaginated(
+          subscriptionIds,
+          pagination.page,
+          pagination.limit,
+          status as ITrip['status']
+        );
+        trips = result.trips;
+        total = result.total;
+      }
+
+      const paginationResult = calculatePagination(
+        pagination.page!,
+        pagination.limit!,
+        total,
+        'trips'
+      );
+
+      const paginatedResponse = createPaginatedResponse(trips, paginationResult);
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Trips from subscriptions retrieved successfully",
+        subscriptionsCount: subscriptionIds.length,
+        ...paginatedResponse
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get trips from parent's subscriptions - EP that drops trips for parent
+  async getParentTripsFromSubscriptions(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { parentId } = req.params;
+      const { status, startDate, endDate } = req.query;
+      const pagination = getPaginationOptions(req.query);
+
+      // Check permissions
+      if (req.user?.role === Role.Parent && req.user?._id.toString() !== parentId) {
+        return next(new AppError("Parents can only view their own trips", StatusCodes.FORBIDDEN));
+      }
+
+      // Get all subscriptions for this parent
+      const subscriptionsResult = await subscriptionRepo.findByParentPaginated(
+        parentId as string,
+        1,
+        1000 // Get all subscriptions
+      );
+
+      const subscriptionIds = subscriptionsResult.subscriptions
+        .filter(sub => sub.status === Status.ACCEPTED) // Only accepted subscriptions
+        .map(sub => sub._id.toString());
+
+      if (subscriptionIds.length === 0) {
+        res.status(StatusCodes.OK).json({
+          success: true,
+          message: "No active subscriptions found for this parent",
+          data: [],
+          pagination: {
+            page: pagination.page,
+            limit: pagination.limit,
+            total: 0,
+          }
+        });
+        return;
+      }
+
+      // Get trips for these subscriptions
+      let trips;
+      let total;
+
+      if (startDate && endDate) {
+        // If date range specified, filter by date
+        const start = new Date(startDate as string);
+        const end = new Date(endDate as string);
+        
+        trips = await tripRepo.findByParentAndDateRange(
+          parentId as string,
+          start,
+          end,
+          status as ITrip['status']
+        );
+        total = trips.length;
+        
+        // Apply pagination manually
+        const skip = ((pagination.page || 1) - 1) * (pagination.limit || 10);
+        trips = trips.slice(skip, skip + (pagination.limit || 10));
+      } else {
+        // Get trips by subscription IDs
+        const result = await tripRepo.findBySubscriptionsPaginated(
+          subscriptionIds,
+          pagination.page,
+          pagination.limit,
+          status as ITrip['status']
+        );
+        trips = result.trips;
+        total = result.total;
+      }
+
+      const paginationResult = calculatePagination(
+        pagination.page!,
+        pagination.limit!,
+        total,
+        'trips'
+      );
+
+      const paginatedResponse = createPaginatedResponse(trips, paginationResult);
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Trips from subscriptions retrieved successfully",
+        subscriptionsCount: subscriptionIds.length,
+        ...paginatedResponse
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Generate trips from subscription manually
+  async generateTripsFromSubscription(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { subscriptionId } = req.params;
+      const { daysAhead = 30 } = req.body;
+
+      const subscription = await subscriptionRepo.findByIdWithPopulate(subscriptionId as string);
+      if (!subscription) {
+        return next(new AppError("Subscription not found", StatusCodes.NOT_FOUND));
+      }
+
+      // Check permissions
+      if (req.user?.role === Role.Admin) {
+        // Admin can generate trips for any subscription
+      } else if (req.user?.role === Role.Driver && req.user?._id.toString() !== subscription.driverId.toString()) {
+        return next(new AppError("Drivers can only generate trips for their own subscriptions", StatusCodes.FORBIDDEN));
+      } else if (req.user?.role === Role.Parent && req.user?._id.toString() !== subscription.parentId.toString()) {
+        return next(new AppError("Parents can only generate trips for their own subscriptions", StatusCodes.FORBIDDEN));
+      }
+
+      // Only generate trips for accepted subscriptions
+      if (subscription.status !== Status.ACCEPTED) {
+        return next(new AppError("Can only generate trips for accepted subscriptions", StatusCodes.BAD_REQUEST));
+      }
+
+      const generatedTrips = await tripGeneratorService.generateTripsForDateRange(
+        subscription,
+        daysAhead
+      );
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: `Generated ${generatedTrips.length} trips successfully`,
+        data: {
+          generatedTripsCount: generatedTrips.length,
+          trips: generatedTrips,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get today's trips for driver
+  async getDriverTodayTrips(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { driverId } = req.params;
+
+      // Check permissions
+      if (req.user?.role === Role.Driver && req.user?._id.toString() !== driverId) {
+        return next(new AppError("Drivers can only view their own trips", StatusCodes.FORBIDDEN));
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const trips = await tripRepo.findByDriverAndDateRange(
+        driverId as string,
+        today,
+        tomorrow
+      );
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Today's trips retrieved successfully",
+        data: trips,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get today's trips for parent
+  async getParentTodayTrips(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { parentId } = req.params;
+
+      // Check permissions
+      if (req.user?.role === Role.Parent && req.user?._id.toString() !== parentId) {
+        return next(new AppError("Parents can only view their own trips", StatusCodes.FORBIDDEN));
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const trips = await tripRepo.findByParentAndDateRange(
+        parentId as string,
+        today,
+        tomorrow
+      );
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Today's trips retrieved successfully",
+        data: trips,
       });
     } catch (error) {
       next(error);

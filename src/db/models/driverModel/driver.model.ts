@@ -6,8 +6,10 @@ export interface IDriver {
   userName: string;
   email: string;
   nationalId: string;
+  licenseNumber?: string;
   licenseImage: { public_id: string; secure_url: string };
   nationalIdImage: { public_id: string; secure_url: string };
+  profilePhoto?: { public_id: string; secure_url: string };
   role: Role;
   password: string;
   phone: string;
@@ -43,8 +45,10 @@ const driverSchema = new Schema<IDriver>(
       required: true,
       unique: true,
     },
+    licenseNumber: { type: String, required: false },
     licenseImage: { secure_url: String, public_id: String },
     nationalIdImage: { secure_url: String, public_id: String },
+    profilePhoto: { secure_url: String, public_id: String },
     role: { type: String, default: Role.Driver },
     password: { type: String, required: true },
     phone: { type: String, required: true },

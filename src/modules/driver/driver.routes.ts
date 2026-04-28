@@ -79,7 +79,16 @@ router.post(
   auth,
   roleGuard([Role.Parent]),
   validate(driverValidation.rateDriver),
-  driverController.rateDriver,
+  driverController.rateDriver
+);
+
+// Update driver documents - Driver only
+router.patch(
+  "/documents",
+  auth,
+  roleGuard([Role.Driver]),
+  cloudUploadAnyFiles().any(),
+  driverController.updateDriverDocuments
 );
 
 export default router;

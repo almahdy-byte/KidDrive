@@ -503,3 +503,74 @@ export const rateDriver = asyncErrorHandler(
     }
 );
 
+export const updateDriverDocuments = asyncErrorHandler(
+    async (req: IRequest, res: Response, next: NextFunction) => {
+        const driverId = req.user?._id;
+
+        if (!driverId) {
+            return next(new AppError("Driver not authenticated", StatusCodes.UNAUTHORIZED));
+        }
+
+        const { nationalId, licenseNumber } = req.body;
+
+        // Check Cloudinary configuration if files are provided
+        if (req.files && (!process.env.CLOUD_NAME || !process.env.API_KEY || !process.env.API_SECRET)) {
+            return next(new AppError("Cloudinary configuration is missing", StatusCodes.INTERNAL_SERVER_ERROR));
+        }
+
+        const updateData: any = {};
+        
+        // Update text fields
+        if (nationalId) updateData.nationalId = nationalId;
+        if (licenseNumber) updateData.licenseNumber = licenseNumber;
+
+        // Handle file uploads
+        if (req.files) {
+            const files = [...(req.files as Express.Multer.File[])];
+            
+            for(const file of files) {
+                const {public_id, secure_url} = await cloud().uploader.upload(file.path);
+                if(file.fieldname === "licenseImage") {
+                    updateData.licenseImage = {public_id, secure_url};
+                } else if(file.fieldname === "nationalIdImage") {
+                    updateData.nationalIdImage = {public_id, secure_url};
+                } else if(file.fieldname === "profilePhoto") {
+                    updateData.profilePhoto = {public_id, secure_url};
+                }
+            }
+        }
+
+        // Only update if there's something to update
+        if (Object.keys(updateData).length === 0) {
+            return next(new AppError("No data provided for update", StatusCodes.BAD_REQUEST));
+        }
+
+        const updatedDriver = await driverRepo.updateOne({
+            filter: { _id: driverId },
+            update: updateData
+        });
+
+        if (!updatedDriver.matchedCount) {
+            return next(new AppError("Driver not found", StatusCodes.NOT_FOUND));
+        }
+
+        const driver = await driverRepo.findOne({
+            filter: { _id: driverId }
+        });
+
+        return res.status(StatusCodes.OK).json({
+            message: "Driver documents updated successfully",
+            success: true,
+            status: "success",
+            data: {
+                driverId: driver?._id,
+                nationalId: driver?.nationalId,
+                licenseNumber: driver?.licenseNumber,
+                licenseImage: driver?.licenseImage,
+                nationalIdImage: driver?.nationalIdImage,
+                profilePhoto: driver?.profilePhoto,
+            }
+        });
+    }
+);
+

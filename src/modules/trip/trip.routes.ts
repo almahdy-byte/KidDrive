@@ -8,8 +8,12 @@ import {
   getTripsByDriver,
   getTripsByParent,
   getTripsByChild,
+  getTripsBySubscription,
   getAllTrips,
   getActiveTrips,
+  getDriverTripsFromSubscriptions,
+  getParentTripsFromSubscriptions,
+  generateTripsFromSubscription,
 } from "./trip.validation";
 import { auth } from "../../middleware/auth.middleware";
 import { Role, IRequest } from "../../common";
@@ -70,6 +74,54 @@ router.get(
   auth,
   validate(getTripsByChild),
   tripController.getTripsByChild
+);
+
+// Get trips by subscription - Driver, Parent, or Admin can access
+router.get(
+  "/subscription/:subscriptionId",
+  auth,
+  validate(getTripsBySubscription),
+  tripController.getTripsBySubscription
+);
+
+// Get trips from driver's subscriptions (EP that drops trips for driver)
+router.get(
+  "/driver/:driverId/from-subscriptions",
+  auth,
+  validate(getDriverTripsFromSubscriptions),
+  tripController.getDriverTripsFromSubscriptions
+);
+
+// Get trips from parent's subscriptions (EP that drops trips for parent)
+router.get(
+  "/parent/:parentId/from-subscriptions",
+  auth,
+  validate(getParentTripsFromSubscriptions),
+  tripController.getParentTripsFromSubscriptions
+);
+
+// Get today's trips for driver
+router.get(
+  "/driver/:driverId/today",
+  auth,
+  validate(getTripsByDriver),
+  tripController.getDriverTodayTrips
+);
+
+// Get today's trips for parent
+router.get(
+  "/parent/:parentId/today",
+  auth,
+  validate(getTripsByParent),
+  tripController.getParentTodayTrips
+);
+
+// Generate trips from subscription manually
+router.post(
+  "/subscription/:subscriptionId/generate",
+  auth,
+  validate(generateTripsFromSubscription),
+  tripController.generateTripsFromSubscription
 );
 
 // Get active trips - Driver sees their active, Admin sees all

@@ -47,6 +47,7 @@ export class TripRepo extends DBServices<TDocument> {
     
     const trips = await TripModel.find(filter)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -84,6 +85,7 @@ export class TripRepo extends DBServices<TDocument> {
     
     const trips = await TripModel.find(filter)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -121,6 +123,7 @@ export class TripRepo extends DBServices<TDocument> {
     
     const trips = await TripModel.find(filter)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -133,7 +136,33 @@ export class TripRepo extends DBServices<TDocument> {
   async findBySubscription(subscriptionId: string): Promise<ITrip[]> {
     return await TripModel.find({ subscriptionId } as any)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .exec() as any;
+  }
+
+  async findBySubscriptionPaginated(
+    subscriptionId: string, 
+    page = 1, 
+    limit = 10, 
+    status?: ITrip['status']
+  ): Promise<{ trips: ITrip[], total: number }> {
+    const filter: any = { subscriptionId };
+    if (status) {
+      filter.status = status;
+    }
+    
+    const skip = (page - 1) * limit;
+    
+    const trips = await TripModel.find(filter)
+      .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
+      .skip(skip)
+      .limit(limit)
+      .exec() as any;
+    
+    const total = await TripModel.countDocuments(filter);
+    
+    return { trips, total };
   }
 
   async updateStatus(id: string, status: ITrip['status']): Promise<ITrip | null> {
@@ -186,6 +215,7 @@ export class TripRepo extends DBServices<TDocument> {
     
     const trips = await TripModel.find(filter)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -217,6 +247,7 @@ export class TripRepo extends DBServices<TDocument> {
     }
     return await TripModel.find(filter)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .exec() as any;
   }
 
@@ -238,6 +269,92 @@ export class TripRepo extends DBServices<TDocument> {
     
     const trips = await TripModel.find(filter)
       .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
+      .skip(skip)
+      .limit(limit)
+      .exec() as any;
+    
+    const total = await TripModel.countDocuments(filter);
+    
+    return { trips, total };
+  }
+
+  /**
+   * Find trips by driver within a date range (for subscription-based trips)
+   */
+  async findByDriverAndDateRange(
+    driverId: string,
+    startDate: Date,
+    endDate: Date,
+    status?: ITrip['status']
+  ): Promise<ITrip[]> {
+    const filter: any = {
+      driverId,
+      scheduledDate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+    
+    if (status) {
+      filter.status = status;
+    }
+    
+    return await TripModel.find(filter)
+      .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: 1, scheduledTime: 1 })
+      .exec() as any;
+  }
+
+  /**
+   * Find trips by parent within a date range (for subscription-based trips)
+   */
+  async findByParentAndDateRange(
+    parentId: string,
+    startDate: Date,
+    endDate: Date,
+    status?: ITrip['status']
+  ): Promise<ITrip[]> {
+    const filter: any = {
+      parentId,
+      scheduledDate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+    
+    if (status) {
+      filter.status = status;
+    }
+    
+    return await TripModel.find(filter)
+      .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: 1, scheduledTime: 1 })
+      .exec() as any;
+  }
+
+  /**
+   * Find trips by multiple subscription IDs
+   */
+  async findBySubscriptionsPaginated(
+    subscriptionIds: string[],
+    page = 1,
+    limit = 10,
+    status?: ITrip['status']
+  ): Promise<{ trips: ITrip[], total: number }> {
+    const filter: any = {
+      subscriptionId: { $in: subscriptionIds },
+    };
+    
+    if (status) {
+      filter.status = status;
+    }
+    
+    const skip = (page - 1) * limit;
+    
+    const trips = await TripModel.find(filter)
+      .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledDate: -1, scheduledTime: 1 })
       .skip(skip)
       .limit(limit)
       .exec() as any;

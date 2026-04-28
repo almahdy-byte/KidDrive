@@ -2,13 +2,14 @@ import { NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { subscriptionRepo } from "../../db/models/subscriptionModel/subscription.repo";
 import { ISubscription } from "../../db/models/subscriptionModel/subscription.model";
+import { tripGeneratorService } from "../trip/services/tripGenerator.service";
 import { Role, Status, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
 
 export class SubscriptionController {
   // Create subscription - Parent role can access
   async createSubscription(req: IRequest, res: Response, next: NextFunction) {
     try {
-      const { driverId, parentId, childId, expiryDate, subscriptionType } = req.body;
+      const { driverId, parentId, childId, expiryDate, subscriptionType, schedule, origin, destination } = req.body;
 
       // Check if parent is creating subscription for their child
       if (req.user?.role === Role.Parent && req.user?._id.toString() !== parentId) {
@@ -27,6 +28,9 @@ export class SubscriptionController {
         expiryDate: new Date(expiryDate),
         subscriptionType,
         status: Status.PENDING,
+        schedule,
+        origin,
+        destination,
       };
 
       const subscription = await subscriptionRepo.create(subscriptionData);
@@ -177,6 +181,36 @@ export class SubscriptionController {
 
       const updatedSubscription = await subscriptionRepo.updateStatus(id as string, status);
 
+      // If subscription is accepted, generate trips automatically
+      if (status === Status.ACCEPTED && updatedSubscription) {
+        try {
+          // Generate trips for the next 30 days
+          const generatedTrips = await tripGeneratorService.generateTripsForDateRange(
+            updatedSubscription,
+            30
+          );
+          
+          res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Subscription accepted and trips generated successfully",
+            data: {
+              subscription: updatedSubscription,
+              generatedTripsCount: generatedTrips.length,
+            },
+          });
+          return;
+        } catch (tripError) {
+          console.error("Error generating trips:", tripError);
+          // Still return success for subscription update, but note trip generation failure
+          res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Subscription status updated, but trip generation failed",
+            data: updatedSubscription,
+          });
+          return;
+        }
+      }
+
       res.status(StatusCodes.OK).json({
         success: true,
         message: "Subscription status updated successfully",
@@ -218,10 +252,6 @@ export class SubscriptionController {
     try {
       const pagination = getPaginationOptions(req.query);
       
-      // Since it's easier to filter in the repository for large datasets, 
-      // let's assume the repo handles simple global pending, or we'd need more specific repo methods.
-      // But for now, we'll use a slightly more complex repo filter if needed or just filter here for MVP.
-      
       const result = await subscriptionRepo.findPendingSubscriptionsPaginated(
         pagination.page,
         pagination.limit,
@@ -259,7 +289,7 @@ export class SubscriptionController {
       } else if (req.user?.role === Role.Driver) {
         result = await subscriptionRepo.findByDriverPaginated(req.user._id.toString(), pagination.page, pagination.limit, pagination.search);
       } else {
-        return next(new AppError("This endpoint is for parents and drivers only", StatusCodes.FORBIDDEN));
+        return next(new AppError("This endpoint is parents and drivers only", StatusCodes.FORBIDDEN));
       }
 
       const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
@@ -268,6 +298,101 @@ export class SubscriptionController {
       res.status(StatusCodes.OK).json({
         success: true,
         ...paginatedResponse
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Get driver subscriptions with status filter
+  async getDriverSubscriptions(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { driverId } = req.params;
+      const { status } = req.query;
+      const pagination = getPaginationOptions(req.query);
+
+      // Check permissions
+      if (req.user?.role === Role.Driver && req.user?._id.toString() !== driverId) {
+        return next(new AppError("Drivers can only view their own subscriptions", StatusCodes.FORBIDDEN));
+      }
+
+      let result;
+      
+      // If status is 'active' or 'accepted', use the active subscriptions method
+      if (status === 'active' || status === Status.ACCEPTED) {
+        result = await subscriptionRepo.findActiveSubscriptionsPaginated(
+          pagination.page,
+          pagination.limit,
+          pagination.search,
+          driverId as string
+        );
+      } else if (status === 'pending') {
+        result = await subscriptionRepo.findPendingSubscriptionsPaginated(
+          pagination.page,
+          pagination.limit,
+          pagination.search,
+          driverId as string
+        );
+      } else {
+        // Get all subscriptions for driver
+        result = await subscriptionRepo.findByDriverPaginated(
+          driverId as string,
+          pagination.page,
+          pagination.limit,
+          pagination.search,
+          status as Status
+        );
+      }
+
+      const paginationResult = calculatePagination(pagination.page!, pagination.limit!, result.total, "subscriptions");
+      const paginatedResponse = createPaginatedResponse(result.subscriptions, paginationResult);
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        ...paginatedResponse
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Generate trips from subscription - Admin, Driver (own), or Parent (own) can trigger
+  async generateTripsFromSubscription(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const { daysAhead = 30 } = req.body;
+
+      const subscription = await subscriptionRepo.findByIdWithPopulate(id as string);
+      if (!subscription) {
+        return next(new AppError("Subscription not found", StatusCodes.NOT_FOUND));
+      }
+
+      // Check permissions
+      if (req.user?.role === Role.Admin) {
+        // Admin can generate trips for any subscription
+      } else if (req.user?.role === Role.Driver && req.user?._id.toString() !== subscription.driverId.toString()) {
+        return next(new AppError("Drivers can only generate trips for their own subscriptions", StatusCodes.FORBIDDEN));
+      } else if (req.user?.role === Role.Parent && req.user?._id.toString() !== subscription.parentId.toString()) {
+        return next(new AppError("Parents can only generate trips for their own subscriptions", StatusCodes.FORBIDDEN));
+      }
+
+      // Only generate trips for accepted subscriptions
+      if (subscription.status !== Status.ACCEPTED) {
+        return next(new AppError("Can only generate trips for accepted subscriptions", StatusCodes.BAD_REQUEST));
+      }
+
+      const generatedTrips = await tripGeneratorService.generateTripsForDateRange(
+        subscription,
+        daysAhead
+      );
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: `Generated ${generatedTrips.length} trips successfully`,
+        data: {
+          generatedTripsCount: generatedTrips.length,
+          trips: generatedTrips,
+        },
       });
     } catch (error) {
       next(error);

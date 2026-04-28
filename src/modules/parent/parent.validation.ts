@@ -55,4 +55,7 @@ export const updateParentProfileSchema = Joi.object({
   }).optional(),
 }).min(1);
 
+export const getParentById = Joi.object({
+  id: Joi.string().custom(objectId).required(),
+});
 

@@ -8,6 +8,7 @@ import {
   getSubscriptionsByDriver,
   getSubscriptionsByParent,
   getSubscriptionsByChild,
+  generateTripsFromSubscription,
 } from "./subscription.validation";
 import { auth } from "../../middleware/auth.middleware";
 import { Role, IRequest } from "../../common";
@@ -45,6 +46,14 @@ router.get(
   subscriptionController.getSubscriptionsByDriver
 );
 
+// Get driver subscriptions with status filter (for DriverLoaded cubit)
+router.get(
+  "/driver/:driverId/subscriptions",
+  auth,
+  validate(getSubscriptionsByDriver),
+  subscriptionController.getDriverSubscriptions
+);
+
 // Get subscriptions by parent - Parent can access their own, Admin can access all
 router.get(
   "/parent/:parentId",
@@ -59,6 +68,15 @@ router.get(
   auth,
   validate(getSubscriptionsByChild),
   subscriptionController.getSubscriptionsByChild
+);
+
+// Generate trips from subscription - Admin, Driver (own), or Parent (own) can trigger
+router.post(
+  "/:id/generate-trips",
+  auth,
+  validate(getSubscriptionById),
+  validate(generateTripsFromSubscription),
+  subscriptionController.generateTripsFromSubscription
 );
 
 // Update subscription status - Driver can accept/reject, Admin can update any

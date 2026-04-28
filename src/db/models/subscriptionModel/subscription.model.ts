@@ -1,6 +1,18 @@
 import mongoose, { HydratedDocument, model, models, Schema, Types } from "mongoose";
 import { Status, SubscriptionType } from "../../../common";
 
+export interface ILocation {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
+export interface IScheduleItem {
+  dayOfWeek: number;      // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  pickupTime: string;     // Format: "HH:MM" (24-hour format)
+  dropoffTime: string;    // Format: "HH:MM" (24-hour format)
+}
+
 export interface ISubscription {
   _id: Types.ObjectId;
   driverId: Types.ObjectId;
@@ -9,9 +21,54 @@ export interface ISubscription {
   expiryDate: Date;
   status: Status;
   subscriptionType: SubscriptionType;
+  // Schedule - array of days with pickup/dropoff times
+  schedule: IScheduleItem[];
+  // Locations
+  origin: ILocation;      // Pickup location (home)
+  destination: ILocation; // Dropoff location (school)
   createdAt: Date;
   updatedAt: Date;
 }
+
+const locationSchema = new Schema<ILocation>(
+  {
+    latitude: {
+      type: Number,
+      required: true,
+    },
+    longitude: {
+      type: Number,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
+const scheduleItemSchema = new Schema<IScheduleItem>(
+  {
+    dayOfWeek: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 6,
+    },
+    pickupTime: {
+      type: String,
+      required: true,
+      match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, // HH:MM format
+    },
+    dropoffTime: {
+      type: String,
+      required: true,
+      match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, // HH:MM format
+    },
+  },
+  { _id: false }
+);
 
 const subscriptionSchema = new Schema<ISubscription>(
   {
@@ -42,6 +99,24 @@ const subscriptionSchema = new Schema<ISubscription>(
     subscriptionType: {
       type: String,
       enum: Object.values(SubscriptionType),
+      required: true,
+    },
+    schedule: {
+      type: [scheduleItemSchema],
+      required: true,
+      validate: {
+        validator: function (v: IScheduleItem[]) {
+          return v.length > 0;
+        },
+        message: "At least one schedule day is required",
+      },
+    },
+    origin: {
+      type: locationSchema,
+      required: true,
+    },
+    destination: {
+      type: locationSchema,
       required: true,
     },
   },

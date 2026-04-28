@@ -18,6 +18,16 @@ class UserRepo extends DBServices<IUser> {
     async create(data: Partial<IUser>): Promise<IUser> {
     return await userModel.create(data);
   }
+
+  async findUserById(id: string, select: string = ""): Promise<IUser | null> {
+    return await userModel.findById(id).select(select).exec();
+  }
+
+  async findUserByIdWithChildren(id: string): Promise<IUser | null> {
+    return await userModel.findById(id)
+      .populate('children', 'name age gender photo school')
+      .exec();
+  }
 }
 
 export const userRepo = new UserRepo();

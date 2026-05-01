@@ -91,4 +91,13 @@ router.patch(
   driverController.updateDriverDocuments
 );
 
+// Get driver by ID with vehicle info - Admin and Parent can access
+router.get(
+  "/:driverId",
+  auth,
+  roleGuard([Role.Admin, Role.Parent]),
+  validate(driverValidation.getDriverById),
+  driverController.getDriverById
+);
+
 export default router;

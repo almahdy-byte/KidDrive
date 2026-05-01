@@ -362,6 +362,43 @@ export const getAllDrivers = asyncErrorHandler(
             );
         }
 
+        // Fetch vehicle information for each driver
+        const driversWithVehicles = await Promise.all(
+            result.drivers.map(async (driver: any) => {
+                const vehicle = await vehicleRepo.findOne({
+                    filter: { driver: driver._id }
+                });
+
+                return {
+                    driver: {
+                        _id: driver._id,
+                        userName: driver.userName,
+                        email: driver.email,
+                        phone: driver.phone,
+                        nationalId: driver.nationalId,
+                        isApproved: driver.isApproved,
+                        rating: driver.rating,
+                        location: driver.location,
+                        licenseImage: driver.licenseImage,
+                        nationalIdImage: driver.nationalIdImage,
+                        createdAt: driver.createdAt,
+                        updatedAt: driver.updatedAt
+                    },
+                    vehicle: vehicle ? {
+                        _id: vehicle._id,
+                        carModel: vehicle.carModel,
+                        plateNumber: vehicle.plateNumber,
+                        carColor: vehicle.carColor,
+                        governmentDocuments: vehicle.governmentDocuments,
+                        status: vehicle.status,
+                        isApproved: vehicle.isApproved,
+                        createdAt: vehicle.createdAt,
+                        updatedAt: vehicle.updatedAt
+                    } : null
+                };
+            })
+        );
+
         const paginationResult = calculatePagination(
             pagination.page!,
             pagination.limit!,
@@ -369,7 +406,7 @@ export const getAllDrivers = asyncErrorHandler(
             'drivers'
         );
 
-        const paginatedResponse = createPaginatedResponse(result.drivers, paginationResult);
+        const paginatedResponse = createPaginatedResponse(driversWithVehicles, paginationResult);
 
         return res.status(StatusCodes.OK).json({
             message: "Drivers retrieved successfully",
@@ -403,6 +440,43 @@ export const getDriversNearParent = asyncErrorHandler(
             pagination.search
         );
 
+        // Fetch vehicle information for each driver
+        const driversWithVehicles = await Promise.all(
+            result.drivers.map(async (driver: any) => {
+                const vehicle = await vehicleRepo.findOne({
+                    filter: { driver: driver._id }
+                });
+
+                return {
+                    driver: {
+                        _id: driver._id,
+                        userName: driver.userName,
+                        email: driver.email,
+                        phone: driver.phone,
+                        nationalId: driver.nationalId,
+                        isApproved: driver.isApproved,
+                        rating: driver.rating,
+                        location: driver.location,
+                        licenseImage: driver.licenseImage,
+                        nationalIdImage: driver.nationalIdImage,
+                        createdAt: driver.createdAt,
+                        updatedAt: driver.updatedAt
+                    },
+                    vehicle: vehicle ? {
+                        _id: vehicle._id,
+                        carModel: vehicle.carModel,
+                        plateNumber: vehicle.plateNumber,
+                        carColor: vehicle.carColor,
+                        governmentDocuments: vehicle.governmentDocuments,
+                        status: vehicle.status,
+                        isApproved: vehicle.isApproved,
+                        createdAt: vehicle.createdAt,
+                        updatedAt: vehicle.updatedAt
+                    } : null
+                };
+            })
+        );
+
         const paginationResult = calculatePagination(
             pagination.page!,
             pagination.limit!,
@@ -410,7 +484,7 @@ export const getDriversNearParent = asyncErrorHandler(
             'drivers'
         );
 
-        const paginatedResponse = createPaginatedResponse(result.drivers, paginationResult);
+        const paginatedResponse = createPaginatedResponse(driversWithVehicles, paginationResult);
 
         return res.status(StatusCodes.OK).json({
             message: "Nearby drivers retrieved successfully",
@@ -499,6 +573,62 @@ export const rateDriver = asyncErrorHandler(
                 newRating: updatedDriver.rating.average,
                 totalRatings: updatedDriver.rating.count,
             },
+        });
+    }
+);
+
+export const getDriverById = asyncErrorHandler(
+    async (req: IRequest, res: Response, next: NextFunction) => {
+        const { driverId } = req.params;
+
+        if (!driverId || Array.isArray(driverId)) {
+            return next(new AppError("Invalid driver ID", StatusCodes.BAD_REQUEST));
+        }
+
+        const driver = await driverRepo.findOne({
+            filter: { _id: driverId as string }
+        });
+
+        if (!driver) {
+            return next(new AppError("Driver not found", StatusCodes.NOT_FOUND));
+        }
+
+        // Get driver's vehicle information
+        const vehicle = await vehicleRepo.findOne({
+            filter: { driver: driverId as string }
+        });
+
+        return res.status(StatusCodes.OK).json({
+            message: "Driver retrieved successfully",
+            success: true,
+            status: "success",
+            data: {
+                driver: {
+                    _id: driver._id,
+                    userName: driver.userName,
+                    email: driver.email,
+                    phone: driver.phone,
+                    nationalId: driver.nationalId,
+                    isApproved: driver.isApproved,
+                    rating: driver.rating,
+                    location: driver.location,
+                    licenseImage: driver.licenseImage,
+                    nationalIdImage: driver.nationalIdImage,
+                    createdAt: driver.createdAt,
+                    updatedAt: driver.updatedAt
+                },
+                vehicle: vehicle ? {
+                    _id: vehicle._id,
+                    carModel: vehicle.carModel,
+                    plateNumber: vehicle.plateNumber,
+                    carColor: vehicle.carColor,
+                    governmentDocuments: vehicle.governmentDocuments,
+                    status: vehicle.status,
+                    isApproved: vehicle.isApproved,
+                    createdAt: vehicle.createdAt,
+                    updatedAt: vehicle.updatedAt
+                } : null
+            }
         });
     }
 );

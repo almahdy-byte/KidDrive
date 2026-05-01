@@ -21,9 +21,9 @@
       "location": {
         "latitude": 30.0444,
         "longitude": 31.2357,
-        "address": "123 Main Street, Cairo",
+        "address": "123 Main Street, Nasr City, Cairo",
         "city": "Cairo",
-        "department": "Giza"
+        "department": "Nasr City"
       }
     },
     {
@@ -36,9 +36,9 @@
       "location": {
         "latitude": 30.0131,
         "longitude": 31.2089,
-        "address": "456 Nile Street, Cairo",
+        "address": "456 Nile Street, Maadi, Cairo",
         "city": "Cairo",
-        "department": "Cairo"
+        "department": "Maadi"
       }
     },
     {
@@ -51,9 +51,9 @@
       "location": {
         "latitude": 30.0590,
         "longitude": 31.2234,
-        "address": "789 Garden Street, Cairo",
+        "address": "789 Garden Street, Heliopolis, Cairo",
         "city": "Cairo",
-        "department": "Giza"
+        "department": "Heliopolis"
       }
     },
     {
@@ -66,9 +66,9 @@
       "location": {
         "latitude": 30.0220,
         "longitude": 31.2500,
-        "address": "321 Ring Road, Cairo",
+        "address": "321 Ring Road, New Cairo",
         "city": "Cairo",
-        "department": "Cairo"
+        "department": "New Cairo"
       }
     },
     {
@@ -81,7 +81,52 @@
       "location": {
         "latitude": 30.0770,
         "longitude": 31.2430,
-        "address": "555 Maadi Road, Cairo",
+        "address": "555 Maadi Road, Maadi",
+        "city": "Cairo",
+        "department": "Maadi"
+      }
+    },
+    {
+      "firstName": "Khaled",
+      "lastName": "Mahmoud",
+      "email": "khaled.mahmoud@example.com",
+      "password": "password123",
+      "phone": "01001234580",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0345,
+        "longitude": 31.2156,
+        "address": "888 Zamalek Street, Zamalek",
+        "city": "Cairo",
+        "department": "Zamalek"
+      }
+    },
+    {
+      "firstName": "Nour",
+      "lastName": "Hassan",
+      "email": "nour.hassan@example.com",
+      "password": "password123",
+      "phone": "01001234581",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "999 Rehab City, New Cairo",
+        "city": "Cairo",
+        "department": "Rehab City"
+      }
+    },
+    {
+      "firstName": "Omar",
+      "lastName": "Farouk",
+      "email": "omar.farouk@example.com",
+      "password": "password123",
+      "phone": "01001234582",
+      "isVerified": true,
+      "location": {
+        "latitude": 30.0156,
+        "longitude": 31.2312,
+        "address": "777 Degla Street, Maadi",
         "city": "Cairo",
         "department": "Maadi"
       }
@@ -94,15 +139,28 @@
       "password": "password123",
       "phone": "01001234569",
       "nationalId": "12345678901234",
+      "licenseNumber": "DL123456789",
       "isApproved": true,
       "location": {
         "city": "Cairo",
-        "department": "Giza",
+        "department": "Nasr City",
         "latitude": 30.0330,
         "longitude": 31.2230,
-        "address": "789 Driver Street, Cairo"
+        "address": "789 Driver Street, Nasr City"
       },
-      "rating": { "average": 4.5, "count": 10 }
+      "rating": { "average": 4.5, "count": 10 },
+      "licenseImage": {
+        "public_id": "license_omar_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/license_omar_001.jpg"
+      },
+      "nationalIdImage": {
+        "public_id": "nationalid_omar_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/nationalid_omar_001.jpg"
+      },
+      "profilePhoto": {
+        "public_id": "profile_omar_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/profile_omar_001.jpg"
+      }
     },
     {
       "userName": "Karim Driver",
@@ -110,15 +168,28 @@
       "password": "password123",
       "phone": "01001234573",
       "nationalId": "12345678901235",
+      "licenseNumber": "DL987654321",
       "isApproved": true,
       "location": {
         "city": "Cairo",
-        "department": "Cairo",
+        "department": "Maadi",
         "latitude": 30.0444,
         "longitude": 31.2357,
-        "address": "111 Downtown, Cairo"
+        "address": "111 Downtown, Maadi"
       },
-      "rating": { "average": 4.8, "count": 25 }
+      "rating": { "average": 4.8, "count": 25 },
+      "licenseImage": {
+        "public_id": "license_karim_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/license_karim_001.jpg"
+      },
+      "nationalIdImage": {
+        "public_id": "nationalid_karim_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/nationalid_karim_001.jpg"
+      },
+      "profilePhoto": {
+        "public_id": "profile_karim_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/profile_karim_001.jpg"
+      }
     },
     {
       "userName": "Tarek Driver",
@@ -126,15 +197,28 @@
       "password": "password123",
       "phone": "01001234574",
       "nationalId": "12345678901236",
+      "licenseNumber": "DL456789123",
       "isApproved": true,
       "location": {
         "city": "Cairo",
-        "department": "Maadi",
+        "department": "Heliopolis",
         "latitude": 30.0770,
         "longitude": 31.2430,
-        "address": "222 Maadi Street, Cairo"
+        "address": "222 Maadi Street, Heliopolis"
       },
-      "rating": { "average": 4.2, "count": 8 }
+      "rating": { "average": 4.2, "count": 8 },
+      "licenseImage": {
+        "public_id": "license_tarek_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/license_tarek_001.jpg"
+      },
+      "nationalIdImage": {
+        "public_id": "nationalid_tarek_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/nationalid_tarek_001.jpg"
+      },
+      "profilePhoto": {
+        "public_id": "profile_tarek_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/profile_tarek_001.jpg"
+      }
     },
     {
       "userName": "Hossam Driver",
@@ -142,15 +226,28 @@
       "password": "password123",
       "phone": "01001234575",
       "nationalId": "12345678901237",
+      "licenseNumber": "DL789123456",
       "isApproved": true,
       "location": {
         "city": "Cairo",
-        "department": "Giza",
+        "department": "New Cairo",
         "latitude": 30.0131,
         "longitude": 31.2089,
-        "address": "333 Pyramid Street, Cairo"
+        "address": "333 Pyramid Street, New Cairo"
       },
-      "rating": { "average": 4.9, "count": 50 }
+      "rating": { "average": 4.9, "count": 50 },
+      "licenseImage": {
+        "public_id": "license_hossam_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/license_hossam_001.jpg"
+      },
+      "nationalIdImage": {
+        "public_id": "nationalid_hossam_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/nationalid_hossam_001.jpg"
+      },
+      "profilePhoto": {
+        "public_id": "profile_hossam_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/profile_hossam_001.jpg"
+      }
     },
     {
       "userName": "Waleed Driver",
@@ -158,76 +255,130 @@
       "password": "password123",
       "phone": "01001234576",
       "nationalId": "12345678901238",
+      "licenseNumber": "DL321654987",
       "isApproved": false,
       "location": {
         "city": "Cairo",
-        "department": "Cairo",
+        "department": "Zamalek",
         "latitude": 30.0590,
         "longitude": 31.2234,
-        "address": "444 Heliopolis, Cairo"
+        "address": "444 Heliopolis, Zamalek"
       },
-      "rating": { "average": 0, "count": 0 }
+      "rating": { "average": 0, "count": 0 },
+      "licenseImage": {
+        "public_id": "license_waleed_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/license_waleed_001.jpg"
+      },
+      "nationalIdImage": {
+        "public_id": "nationalid_waleed_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/nationalid_waleed_001.jpg"
+      },
+      "profilePhoto": {
+        "public_id": "profile_waleed_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/profile_waleed_001.jpg"
+      }
+    },
+    {
+      "userName": "Mahmoud Driver",
+      "email": "mahmoud.driver@example.com",
+      "password": "password123",
+      "phone": "01001234583",
+      "nationalId": "12345678901239",
+      "licenseNumber": "DL147258369",
+      "isApproved": true,
+      "location": {
+        "city": "Cairo",
+        "department": "Rehab City",
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "555 Rehab Street, Rehab City"
+      },
+      "rating": { "average": 4.6, "count": 15 },
+      "licenseImage": {
+        "public_id": "license_mahmoud_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/license_mahmoud_001.jpg"
+      },
+      "nationalIdImage": {
+        "public_id": "nationalid_mahmoud_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/nationalid_mahmoud_001.jpg"
+      },
+      "profilePhoto": {
+        "public_id": "profile_mahmoud_001",
+        "secure_url": "https://res.cloudinary.com/demo/image/upload/profile_mahmoud_001.jpg"
+      }
     }
   ],
   "vehicles": [
     {
       "driver": "omar.driver@example.com",
-      "carModel": "Toyota Camry",
+      "carModel": "Toyota Camry 2022",
       "plateNumber": "ABC 1234",
       "carColor": "Silver",
       "isApproved": true,
       "location": {
         "latitude": 30.0330,
         "longitude": 31.2230,
-        "address": "789 Driver Street, Cairo"
+        "address": "789 Driver Street, Nasr City"
       }
     },
     {
       "driver": "karim.driver@example.com",
-      "carModel": "Honda Accord",
+      "carModel": "Honda Accord 2021",
       "plateNumber": "XYZ 5678",
       "carColor": "Black",
       "isApproved": true,
       "location": {
         "latitude": 30.0444,
         "longitude": 31.2357,
-        "address": "111 Downtown, Cairo"
+        "address": "111 Downtown, Maadi"
       }
     },
     {
       "driver": "tarek.driver@example.com",
-      "carModel": "Nissan Altima",
+      "carModel": "Nissan Altima 2023",
       "plateNumber": "DEF 9012",
       "carColor": "White",
       "isApproved": true,
       "location": {
         "latitude": 30.0770,
         "longitude": 31.2430,
-        "address": "222 Maadi Street, Cairo"
+        "address": "222 Maadi Street, Heliopolis"
       }
     },
     {
       "driver": "hossam.driver@example.com",
-      "carModel": "Hyundai Elantra",
+      "carModel": "Hyundai Elantra 2022",
       "plateNumber": "GHI 3456",
       "carColor": "Blue",
       "isApproved": true,
       "location": {
         "latitude": 30.0131,
         "longitude": 31.2089,
-        "address": "333 Pyramid Street, Cairo"
+        "address": "333 Pyramid Street, New Cairo"
       }
     },
     {
       "driver": "waleed.driver@example.com",
-      "carModel": "Kia Optima",
+      "carModel": "Kia Optima 2021",
       "plateNumber": "JKL 7890",
       "carColor": "Red",
       "isApproved": false,
       "location": {
         "latitude": 30.0590,
         "longitude": 31.2234,
-        "address": "444 Heliopolis, Cairo"
+        "address": "444 Heliopolis, Zamalek"
+      }
+    },
+    {
+      "driver": "mahmoud.driver@example.com",
+      "carModel": "BMW 320i 2023",
+      "plateNumber": "MNO 2468",
+      "carColor": "Gray",
+      "isApproved": true,
+      "location": {
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "555 Rehab Street, Rehab City"
       }
     }
   ],
@@ -236,37 +387,131 @@
       "name": "Youssef Ahmed",
       "age": 8,
       "gender": "male",
+      "photo": "https://example.com/photos/youssef.jpg",
+      "school": "Cairo American College",
+      "schoolLocation": {
+        "latitude": 30.0456,
+        "longitude": 31.2367,
+        "address": "Casablanca Street, Maadi, Cairo"
+      },
       "parentEmail": "ahmed.ali@example.com"
     },
     {
       "name": "Layla Ahmed",
       "age": 6,
       "gender": "female",
+      "photo": "https://example.com/photos/layla.jpg",
+      "school": "British International School Cairo",
+      "schoolLocation": {
+        "latitude": 30.0345,
+        "longitude": 31.2156,
+        "address": "Zamalek, Cairo"
+      },
       "parentEmail": "ahmed.ali@example.com"
     },
     {
       "name": "Omar Sarah",
       "age": 7,
       "gender": "male",
+      "photo": "https://example.com/photos/omar.jpg",
+      "school": "Modern English School Cairo",
+      "schoolLocation": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "New Cairo"
+      },
       "parentEmail": "sarah.mohamed@example.com"
     },
     {
       "name": "Mariam Mona",
       "age": 9,
       "gender": "female",
+      "photo": "https://example.com/photos/mariam.jpg",
+      "school": "New Generation International School",
+      "schoolLocation": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "Heliopolis, Cairo"
+      },
       "parentEmail": "mona.ibrahim@example.com"
     },
     {
       "name": "Ali Hana",
       "age": 5,
       "gender": "male",
+      "photo": "https://example.com/photos/ali.jpg",
+      "school": "Maadi British International School",
+      "schoolLocation": {
+        "latitude": 30.0220,
+        "longitude": 31.2500,
+        "address": "Maadi, Cairo"
+      },
       "parentEmail": "hana.youssef@example.com"
     },
     {
       "name": "Fatima Ali",
       "age": 10,
       "gender": "female",
+      "photo": "https://example.com/photos/fatima.jpg",
+      "school": "Cairo English School",
+      "schoolLocation": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "New Cairo"
+      },
       "parentEmail": "ali.soliman@example.com"
+    },
+    {
+      "name": "Ahmed Khaled",
+      "age": 7,
+      "gender": "male",
+      "photo": "https://example.com/photos/ahmed_k.jpg",
+      "school": "El Alsson School",
+      "schoolLocation": {
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "Giza"
+      },
+      "parentEmail": "khaled.mahmoud@example.com"
+    },
+    {
+      "name": "Lina Nour",
+      "age": 8,
+      "gender": "female",
+      "photo": "https://example.com/photos/lina.jpg",
+      "school": "Rehab International School",
+      "schoolLocation": {
+        "latitude": 30.0895,
+        "longitude": 31.3240,
+        "address": "Rehab City"
+      },
+      "parentEmail": "nour.hassan@example.com"
+    },
+    {
+      "name": "Ziad Omar",
+      "age": 6,
+      "gender": "male",
+      "photo": "https://example.com/photos/ziad.jpg",
+      "school": "Victory College",
+      "schoolLocation": {
+        "latitude": 30.0156,
+        "longitude": 31.2312,
+        "address": "Heliopolis"
+      },
+      "parentEmail": "omar.farouk@example.com"
+    },
+    {
+      "name": "Sami Khaled",
+      "age": 9,
+      "gender": "male",
+      "photo": "https://example.com/photos/sami.jpg",
+      "school": "Pakistan International School",
+      "schoolLocation": {
+        "latitude": 30.0340,
+        "longitude": 31.2150,
+        "address": "Zamalek"
+      },
+      "parentEmail": "khaled.mahmoud@example.com"
     }
   ],
   "subscriptions": [
@@ -276,7 +521,34 @@
       "childName": "Youssef Ahmed",
       "expiryDate": "2026-06-01",
       "status": "accepted subscription",
-      "subscriptionType": "monthly"
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 0,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 2,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 4,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "123 Main Street, Nasr City, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0456,
+        "longitude": 31.2367,
+        "address": "Casablanca Street, Maadi, Cairo"
+      }
     },
     {
       "parentEmail": "ahmed.ali@example.com",
@@ -284,7 +556,29 @@
       "childName": "Layla Ahmed",
       "expiryDate": "2026-06-01",
       "status": "accepted subscription",
-      "subscriptionType": "monthly"
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 1,
+          "pickupTime": "07:30",
+          "dropoffTime": "14:30"
+        },
+        {
+          "dayOfWeek": 3,
+          "pickupTime": "07:30",
+          "dropoffTime": "14:30"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "123 Main Street, Nasr City, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0345,
+        "longitude": 31.2156,
+        "address": "Zamalek, Cairo"
+      }
     },
     {
       "parentEmail": "sarah.mohamed@example.com",
@@ -292,7 +586,44 @@
       "childName": "Omar Sarah",
       "expiryDate": "2026-05-15",
       "status": "accepted subscription",
-      "subscriptionType": "term"
+      "subscriptionType": "term",
+      "schedule": [
+        {
+          "dayOfWeek": 0,
+          "pickupTime": "06:45",
+          "dropoffTime": "15:15"
+        },
+        {
+          "dayOfWeek": 1,
+          "pickupTime": "06:45",
+          "dropoffTime": "15:15"
+        },
+        {
+          "dayOfWeek": 2,
+          "pickupTime": "06:45",
+          "dropoffTime": "15:15"
+        },
+        {
+          "dayOfWeek": 3,
+          "pickupTime": "06:45",
+          "dropoffTime": "15:15"
+        },
+        {
+          "dayOfWeek": 4,
+          "pickupTime": "06:45",
+          "dropoffTime": "15:15"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "456 Nile Street, Maadi, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "New Cairo"
+      }
     },
     {
       "parentEmail": "mona.ibrahim@example.com",
@@ -300,7 +631,34 @@
       "childName": "Mariam Mona",
       "expiryDate": "2026-07-01",
       "status": "waiting for confirmation",
-      "subscriptionType": "monthly"
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 1,
+          "pickupTime": "07:15",
+          "dropoffTime": "14:45"
+        },
+        {
+          "dayOfWeek": 3,
+          "pickupTime": "07:15",
+          "dropoffTime": "14:45"
+        },
+        {
+          "dayOfWeek": 5,
+          "pickupTime": "07:15",
+          "dropoffTime": "14:45"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "789 Garden Street, Heliopolis, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "Heliopolis, Cairo"
+      }
     },
     {
       "parentEmail": "hana.youssef@example.com",
@@ -308,7 +666,34 @@
       "childName": "Ali Hana",
       "expiryDate": "2026-08-01",
       "status": "accepted subscription",
-      "subscriptionType": "monthly"
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 0,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 2,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 4,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "555 Maadi Road, Maadi"
+      },
+      "destination": {
+        "latitude": 30.0220,
+        "longitude": 31.2500,
+        "address": "Maadi, Cairo"
+      }
     },
     {
       "parentEmail": "ali.soliman@example.com",
@@ -316,7 +701,159 @@
       "childName": "Fatima Ali",
       "expiryDate": "2026-04-30",
       "status": "canceled",
-      "subscriptionType": "monthly"
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 1,
+          "pickupTime": "06:30",
+          "dropoffTime": "15:30"
+        },
+        {
+          "dayOfWeek": 3,
+          "pickupTime": "06:30",
+          "dropoffTime": "15:30"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0220,
+        "longitude": 31.2500,
+        "address": "321 Ring Road, New Cairo"
+      },
+      "destination": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "New Cairo"
+      }
+    },
+    {
+      "parentEmail": "khaled.mahmoud@example.com",
+      "driverEmail": "mahmoud.driver@example.com",
+      "childName": "Ahmed Khaled",
+      "expiryDate": "2026-09-01",
+      "status": "accepted subscription",
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 0,
+          "pickupTime": "06:30",
+          "dropoffTime": "14:30"
+        },
+        {
+          "dayOfWeek": 2,
+          "pickupTime": "06:30",
+          "dropoffTime": "14:30"
+        },
+        {
+          "dayOfWeek": 4,
+          "pickupTime": "06:30",
+          "dropoffTime": "14:30"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0345,
+        "longitude": 31.2156,
+        "address": "888 Zamalek Street, Zamalek"
+      },
+      "destination": {
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "Giza"
+      }
+    },
+    {
+      "parentEmail": "nour.hassan@example.com",
+      "driverEmail": "karim.driver@example.com",
+      "childName": "Lina Nour",
+      "expiryDate": "2026-10-01",
+      "status": "waiting for confirmation",
+      "subscriptionType": "term",
+      "schedule": [
+        {
+          "dayOfWeek": 1,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 4,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "999 Rehab City, New Cairo"
+      },
+      "destination": {
+        "latitude": 30.0895,
+        "longitude": 31.3240,
+        "address": "Rehab City"
+      }
+    },
+    {
+      "parentEmail": "omar.farouk@example.com",
+      "driverEmail": "tarek.driver@example.com",
+      "childName": "Ziad Omar",
+      "expiryDate": "2026-06-15",
+      "status": "rejected subscription",
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 0,
+          "pickupTime": "07:30",
+          "dropoffTime": "14:00"
+        },
+        {
+          "dayOfWeek": 3,
+          "pickupTime": "07:30",
+          "dropoffTime": "14:00"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0156,
+        "longitude": 31.2312,
+        "address": "777 Degla Street, Maadi"
+      },
+      "destination": {
+        "latitude": 30.0156,
+        "longitude": 31.2312,
+        "address": "Heliopolis"
+      }
+    },
+    {
+      "parentEmail": "khaled.mahmoud@example.com",
+      "driverEmail": "omar.driver@example.com",
+      "childName": "Sami Khaled",
+      "expiryDate": "2026-12-01",
+      "status": "accepted subscription",
+      "subscriptionType": "monthly",
+      "schedule": [
+        {
+          "dayOfWeek": 1,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 3,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        },
+        {
+          "dayOfWeek": 5,
+          "pickupTime": "07:00",
+          "dropoffTime": "15:00"
+        }
+      ],
+      "origin": {
+        "latitude": 30.0345,
+        "longitude": 31.2156,
+        "address": "888 Zamalek Street, Zamalek"
+      },
+      "destination": {
+        "latitude": 30.0340,
+        "longitude": 31.2150,
+        "address": "Zamalek"
+      }
     }
   ],
   "trips": [
@@ -327,15 +864,38 @@
       "origin": {
         "latitude": 30.0444,
         "longitude": 31.2357,
-        "address": "123 Main Street, Cairo"
+        "address": "123 Main Street, Nasr City, Cairo"
       },
       "destination": {
-        "latitude": 30.0131,
-        "longitude": 31.2089,
-        "address": "456 Nile Street, Cairo"
+        "latitude": 30.0456,
+        "longitude": 31.2367,
+        "address": "Casablanca Street, Maadi, Cairo"
       },
       "status": "trip_started",
-      "startTime": "2026-04-05T07:30:00Z"
+      "tripType": "pickup",
+      "scheduledDate": "2026-04-28",
+      "scheduledTime": "07:00",
+      "startTime": "2026-04-28T07:05:00Z"
+    },
+    {
+      "driverEmail": "omar.driver@example.com",
+      "parentEmail": "ahmed.ali@example.com",
+      "childName": "Youssef Ahmed",
+      "origin": {
+        "latitude": 30.0456,
+        "longitude": 31.2367,
+        "address": "Casablanca Street, Maadi, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0444,
+        "longitude": 31.2357,
+        "address": "123 Main Street, Nasr City, Cairo"
+      },
+      "status": "trip_started",
+      "tripType": "dropoff",
+      "scheduledDate": "2026-04-28",
+      "scheduledTime": "15:00",
+      "startTime": "2026-04-28T15:00:00Z"
     },
     {
       "driverEmail": "karim.driver@example.com",
@@ -344,16 +904,38 @@
       "origin": {
         "latitude": 30.0131,
         "longitude": 31.2089,
-        "address": "456 Nile Street, Cairo"
+        "address": "456 Nile Street, Maadi, Cairo"
       },
       "destination": {
-        "latitude": 30.0444,
-        "longitude": 31.2357,
-        "address": "123 Main Street, Cairo"
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "New Cairo"
       },
-      "status": "child_dropped_off",
-      "startTime": "2026-04-05T08:00:00Z",
-      "endTime": "2026-04-05T08:45:00Z"
+      "status": "child_boarded",
+      "tripType": "pickup",
+      "scheduledDate": "2026-04-28",
+      "scheduledTime": "06:45",
+      "startTime": "2026-04-28T06:45:00Z"
+    },
+    {
+      "driverEmail": "karim.driver@example.com",
+      "parentEmail": "sarah.mohamed@example.com",
+      "childName": "Omar Sarah",
+      "origin": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "New Cairo"
+      },
+      "destination": {
+        "latitude": 30.0131,
+        "longitude": 31.2089,
+        "address": "456 Nile Street, Maadi, Cairo"
+      },
+      "status": "trip_started",
+      "tripType": "dropoff",
+      "scheduledDate": "2026-04-28",
+      "scheduledTime": "15:15",
+      "startTime": "2026-04-28T15:15:00Z"
     },
     {
       "driverEmail": "tarek.driver@example.com",
@@ -362,16 +944,81 @@
       "origin": {
         "latitude": 30.0770,
         "longitude": 31.2430,
-        "address": "555 Maadi Road, Cairo"
+        "address": "555 Maadi Road, Maadi"
+      },
+      "destination": {
+        "latitude": 30.0220,
+        "longitude": 31.2500,
+        "address": "Maadi, Cairo"
+      },
+      "status": "trip_finished",
+      "tripType": "pickup",
+      "scheduledDate": "2026-04-27",
+      "scheduledTime": "07:00",
+      "startTime": "2026-04-27T07:00:00Z",
+      "endTime": "2026-04-27T07:25:00Z"
+    },
+    {
+      "driverEmail": "tarek.driver@example.com",
+      "parentEmail": "hana.youssef@example.com",
+      "childName": "Ali Hana",
+      "origin": {
+        "latitude": 30.0220,
+        "longitude": 31.2500,
+        "address": "Maadi, Cairo"
+      },
+      "destination": {
+        "latitude": 30.0770,
+        "longitude": 31.2430,
+        "address": "555 Maadi Road, Maadi"
+      },
+      "status": "trip_finished",
+      "tripType": "dropoff",
+      "scheduledDate": "2026-04-27",
+      "scheduledTime": "15:00",
+      "startTime": "2026-04-27T15:00:00Z",
+      "endTime": "2026-04-27T15:30:00Z"
+    },
+    {
+      "driverEmail": "hossam.driver@example.com",
+      "parentEmail": "mona.ibrahim@example.com",
+      "childName": "Mariam Mona",
+      "origin": {
+        "latitude": 30.0590,
+        "longitude": 31.2234,
+        "address": "789 Garden Street, Heliopolis, Cairo"
       },
       "destination": {
         "latitude": 30.0590,
         "longitude": 31.2234,
-        "address": "789 School Street, Cairo"
+        "address": "Heliopolis, Cairo"
       },
-      "status": "trip_finished",
-      "startTime": "2026-04-05T07:00:00Z",
-      "endTime": "2026-04-05T07:30:00Z"
+      "status": "child_dropped_off",
+      "tripType": "pickup",
+      "scheduledDate": "2026-04-26",
+      "scheduledTime": "07:15",
+      "startTime": "2026-04-26T07:20:00Z",
+      "endTime": "2026-04-26T07:45:00Z"
+    },
+    {
+      "driverEmail": "mahmoud.driver@example.com",
+      "parentEmail": "khaled.mahmoud@example.com",
+      "childName": "Ahmed Khaled",
+      "origin": {
+        "latitude": 30.0345,
+        "longitude": 31.2156,
+        "address": "888 Zamalek Street, Zamalek"
+      },
+      "destination": {
+        "latitude": 30.0890,
+        "longitude": 31.3234,
+        "address": "Giza"
+      },
+      "status": "trip_started",
+      "tripType": "pickup",
+      "scheduledDate": "2026-04-28",
+      "scheduledTime": "06:30",
+      "startTime": "2026-04-28T06:30:00Z"
     }
   ],
   "chats": [
@@ -398,6 +1045,22 @@
         "text": "Can we schedule a pickup time?",
         "senderEmail": "mona.ibrahim@example.com"
       }
+    },
+    {
+      "parentEmail": "hana.youssef@example.com",
+      "driverEmail": "tarek.driver@example.com",
+      "lastMessage": {
+        "text": "Ali arrived safely at school",
+        "senderEmail": "tarek.driver@example.com"
+      }
+    },
+    {
+      "parentEmail": "khaled.mahmoud@example.com",
+      "driverEmail": "mahmoud.driver@example.com",
+      "lastMessage": {
+        "text": "See you tomorrow at 6:30 AM",
+        "senderEmail": "mahmoud.driver@example.com"
+      }
     }
   ],
   "messages": [
@@ -414,7 +1077,7 @@
     {
       "chatIndex": 0,
       "senderEmail": "ahmed.ali@example.com",
-      "text": "Can you pick up at 7:30 AM?"
+      "text": "Can you pick up at 7:00 AM?"
     },
     {
       "chatIndex": 0,
@@ -429,12 +1092,57 @@
     {
       "chatIndex": 1,
       "senderEmail": "karim.driver@example.com",
-      "text": "Yes, I'll be there at 8 AM"
+      "text": "Yes, I'll be there at 6:45 AM"
     },
     {
       "chatIndex": 1,
       "senderEmail": "sarah.mohamed@example.com",
       "text": "Thank you for the update!"
+    },
+    {
+      "chatIndex": 2,
+      "senderEmail": "mona.ibrahim@example.com",
+      "text": "Can we schedule a pickup time?"
+    },
+    {
+      "chatIndex": 2,
+      "senderEmail": "hossam.driver@example.com",
+      "text": "Yes, I can do 7:15 AM on Mon, Wed, Fri"
+    },
+    {
+      "chatIndex": 2,
+      "senderEmail": "mona.ibrahim@example.com",
+      "text": "Perfect, that works for us"
+    },
+    {
+      "chatIndex": 3,
+      "senderEmail": "tarek.driver@example.com",
+      "text": "Good morning! Ready for pickup"
+    },
+    {
+      "chatIndex": 3,
+      "senderEmail": "hana.youssef@example.com",
+      "text": "Yes, Ali is ready"
+    },
+    {
+      "chatIndex": 3,
+      "senderEmail": "tarek.driver@example.com",
+      "text": "Ali arrived safely at school"
+    },
+    {
+      "chatIndex": 4,
+      "senderEmail": "mahmoud.driver@example.com",
+      "text": "Hello, I'm your new driver"
+    },
+    {
+      "chatIndex": 4,
+      "senderEmail": "khaled.mahmoud@example.com",
+      "text": "Welcome! Nice to meet you"
+    },
+    {
+      "chatIndex": 4,
+      "senderEmail": "mahmoud.driver@example.com",
+      "text": "See you tomorrow at 6:30 AM"
     }
   ]
 }

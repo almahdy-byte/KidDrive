@@ -69,20 +69,22 @@ export const getTripsBySubscription = Joi.object({
 
 export const getDriverTripsFromSubscriptions = Joi.object({
   driverId: generalValidationSchema.id.required(),
-  status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
-    .optional(),
-  startDate: Joi.date().iso().optional(),
-  endDate: Joi.date().iso().optional(),
+  day: Joi.number().integer().min(0).max(6).optional()
+    .messages({
+      "number.min": "Day must be between 0 (Sunday) and 6 (Saturday)",
+      "number.max": "Day must be between 0 (Sunday) and 6 (Saturday)",
+    }),
+  date: Joi.date().iso().optional(),
 }).concat(paginationValidation.query);
 
 export const getParentTripsFromSubscriptions = Joi.object({
   parentId: generalValidationSchema.id.required(),
-  status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
-    .optional(),
-  startDate: Joi.date().iso().optional(),
-  endDate: Joi.date().iso().optional(),
+  day: Joi.number().integer().min(0).max(6).optional()
+    .messages({
+      "number.min": "Day must be between 0 (Sunday) and 6 (Saturday)",
+      "number.max": "Day must be between 0 (Sunday) and 6 (Saturday)",
+    }),
+  date: Joi.date().iso().optional(),
 }).concat(paginationValidation.query);
 
 export const generateTripsFromSubscription = Joi.object({

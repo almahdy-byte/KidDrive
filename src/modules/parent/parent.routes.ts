@@ -3,7 +3,7 @@ import * as parentService from "./parent.controller";
 import * as parentValidation from "./parent.validation";  
 import { validate } from "../../middleware/validation.middleware";
 import { auth, roleGuard } from "../../middleware/auth.middleware";
-import { Role } from "../../common";
+import { Role, cloudUploadAnyFiles } from "../../common";
 
 const router = Router();
 
@@ -24,10 +24,11 @@ router.get(
 
 router.use(auth);
 
-// Add Child
+// Add Child - accepts form-data with photo upload
 router.post(
   "/",
   roleGuard([Role.Parent , Role.Admin]),
+  cloudUploadAnyFiles().single("photo"),
   validate(parentValidation.addChildSchema),
   parentService.addChild,
 );

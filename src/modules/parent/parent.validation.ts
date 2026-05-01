@@ -11,14 +11,15 @@ export const objectId = (value: string, helpers: any) => {
 
 export const addChildSchema = Joi.object({
   name: Joi.string().trim().min(2).max(50).required(),
-  age: Joi.number().integer().min(0).max(18).required(),
-  gender: Joi.string().valid("male", "female").optional(),
-  photo: Joi.string().uri().optional(),
-  schedule: Joi.object({
-    arriveTime: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
-    backHome: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
-  }).optional(),
-});
+  age: Joi.number().integer().min(1).max(18).required(),
+  gender: Joi.string().valid("Male", "Female", "male", "female").optional(),
+  school: Joi.string().optional(),
+  schoolAddress: Joi.string().optional(),
+  schoolLatitude: Joi.number().optional(),
+  schoolLongitude: Joi.number().optional(),
+  arriveTime: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+  backHome: Joi.string().pattern(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/).optional(),
+}).unknown(true); // Allow unknown fields for file upload
 
 import { paginationValidation } from "../../common";
 

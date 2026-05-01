@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { asyncErrorHandler, AppError,  IRequest, Role, hash, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
+import { asyncErrorHandler, AppError,  IRequest, Role, hash, getPaginationOptions, calculatePagination, createPaginatedResponse, cloud, Gender } from "../../common";
 import { childRepo, userRepo } from "../../db";
 import { Types } from "mongoose";
 
@@ -82,11 +82,58 @@ export const addChild = asyncErrorHandler(
   async (req: IRequest, res: Response, next: NextFunction) => {
     const parentId = req.user?._id as Types.ObjectId;
 
+    const { name, age, gender, school, schoolAddress, schoolLatitude, schoolLongitude, arriveTime, backHome } = req.body;
+
+    // Handle photo upload to Cloudinary
+    let photoUrl = "";
+    const files = req.files as Express.Multer.File[];
     
-    const childData = {
-      ...req.body,
+    if (files && files.length > 0) {
+      // Check Cloudinary configuration
+      if (!process.env.CLOUD_NAME || !process.env.API_KEY || !process.env.API_SECRET) {
+        return next(new AppError("Cloudinary configuration is missing", StatusCodes.INTERNAL_SERVER_ERROR));
+      }
+
+      // Find the photo file
+      const photoFile = files.find(file => file.fieldname === "photo");
+      
+      if (photoFile) {
+        const { secure_url } = await cloud().uploader.upload(photoFile.path, {
+          folder: `${process.env.APPLICATION_NAME || "kidrive"}/children`,
+        });
+        photoUrl = secure_url;
+      }
+    }
+
+    // Build child data
+    const childData: any = {
+      name,
+      age: parseInt(age),
       parentId: parentId,
+      gender: gender || Gender.Male,
+      isDeleted: false,
+      photo: photoUrl,
     };
+
+    // Add optional fields if provided
+    if (school) {
+      childData.school = school;
+    }
+
+    if (schoolAddress || schoolLatitude || schoolLongitude) {
+      childData.schoolLocation = {
+        latitude: schoolLatitude ? parseFloat(schoolLatitude) : 0,
+        longitude: schoolLongitude ? parseFloat(schoolLongitude) : 0,
+        address: schoolAddress || "",
+      };
+    }
+
+    if (arriveTime || backHome) {
+      childData.schedule = {
+        arriveTime: arriveTime || "",
+        backHome: backHome || "",
+      };
+    }
 
     const existingChild = await childRepo.findOne({
       filter:{

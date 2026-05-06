@@ -162,7 +162,7 @@ export class SubscriptionController {
   async updateSubscriptionStatus(req: IRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const { status } = req.body;
+      let { status } = req.body;
 
       const subscription = await subscriptionRepo.findByIdWithPopulate(id as string);
       if (!subscription) {
@@ -179,6 +179,12 @@ export class SubscriptionController {
         return next(new AppError("Drivers can only accept or reject subscriptions", StatusCodes.FORBIDDEN));
       }
 
+      if(status == 'accepted' ){
+        status = Status.ACCEPTED;
+      }
+        else if(status == 'rejected'){
+          status = Status.REJECTED;
+        }
       const updatedSubscription = await subscriptionRepo.updateStatus(id as string, status);
 
       // If subscription is accepted, generate trips automatically

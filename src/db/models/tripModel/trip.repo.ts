@@ -168,7 +168,9 @@ export class TripRepo extends DBServices<TDocument> {
   async updateStatus(id: string, status: ITrip['status']): Promise<ITrip | null> {
     const updateData: Partial<ITrip> = { status };
     
-    if (status === 'child_boarded') {
+    if (status === 'trip_started') {
+      updateData.startTime = new Date();
+    } else if (status === 'child_boarded') {
       updateData.startTime = new Date();
     } else if (status === 'trip_finished') {
       updateData.endTime = new Date();

@@ -27,7 +27,7 @@ export const createTrip = Joi.object({
 
 export const updateTripStatus = Joi.object({
   status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
+    .valid('idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .required(),
 });
 
@@ -38,7 +38,7 @@ export const getTripById = Joi.object({
 export const getTripsByDriver = Joi.object({
   driverId: generalValidationSchema.id.required(),
   status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
+    .valid('idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .optional(),
   startDate: Joi.date().iso().optional(),
   endDate: Joi.date().iso().optional(),
@@ -47,7 +47,7 @@ export const getTripsByDriver = Joi.object({
 export const getTripsByParent = Joi.object({
   parentId: generalValidationSchema.id.required(),
   status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
+    .valid('idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .optional(),
   startDate: Joi.date().iso().optional(),
   endDate: Joi.date().iso().optional(),
@@ -56,14 +56,14 @@ export const getTripsByParent = Joi.object({
 export const getTripsByChild = Joi.object({
   childId: generalValidationSchema.id.required(),
   status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
+    .valid('idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .optional(),
 }).concat(paginationValidation.query);
 
 export const getTripsBySubscription = Joi.object({
   subscriptionId: generalValidationSchema.id.required(),
   status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
+    .valid('idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .optional(),
 }).concat(paginationValidation.query);
 
@@ -98,7 +98,7 @@ export const generateTripsFromSubscription = Joi.object({
 
 export const getAllTrips = Joi.object({
   status: Joi.string()
-    .valid('child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
+    .valid('idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished')
     .optional(),
 }).concat(paginationValidation.query);
 

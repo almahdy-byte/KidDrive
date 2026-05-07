@@ -83,6 +83,45 @@ export class TripController {
     }
   }
 
+  // Start existing trip - Driver or Parent can start an idle trip
+  async startExistingTrip(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+
+      const trip = await tripRepo.findByIdWithPopulate(id as string);
+      if (!trip) {
+        return next(new AppError("Trip not found", StatusCodes.NOT_FOUND));
+      }
+
+      // Only idle trips can be started
+      if (trip.status !== 'idle') {
+        return next(new AppError("Only idle trips can be started", StatusCodes.BAD_REQUEST));
+      }
+
+      // Drivers can start their own trips, Parents can start their children's trips
+      const tripDriverId3 = (trip.driverId?._id || trip.driverId)?.toString();
+      const tripParentId3 = (trip.parentId?._id || trip.parentId)?.toString();
+      
+      const isDriver3 = req.user?.role === Role.Driver && req.user?._id.toString() === tripDriverId3;
+      const isParent3 = req.user?.role === Role.Parent && req.user?._id.toString() === tripParentId3;
+      const isAdmin3 = req.user?.role === Role.Admin;
+      
+      if (!isDriver3 && !isParent3 && !isAdmin3) {
+        return next(new AppError("Only drivers or parents can start this trip", StatusCodes.FORBIDDEN));
+      }
+
+      const updatedTrip = await tripRepo.updateStatus(id as string, 'trip_started');
+
+      res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Trip started successfully",
+        data: updatedTrip,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // Update trip status - Driver or Parent can update status
   async updateTripStatus(req: IRequest, res: Response, next: NextFunction) {
     try {

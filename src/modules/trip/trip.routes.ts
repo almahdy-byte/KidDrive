@@ -28,7 +28,7 @@ router.post(
   tripController.startTrip
 );
 
-// End trip - Only Driver can end trips
+// End trip - Driver or Parent can end trips
 router.patch(
   "/:id/end",
   auth,
@@ -36,7 +36,15 @@ router.patch(
   tripController.endTrip
 );
 
-// Update trip status - Only Driver can use status updates
+// Start existing trip - Driver or Parent can start an idle trip
+router.patch(
+  "/:id/start",
+  auth,
+  validate(getTripById),
+  tripController.startExistingTrip
+);
+
+// Update trip status - Driver or Parent can update status
 router.patch(
   "/:id/status",
   auth,

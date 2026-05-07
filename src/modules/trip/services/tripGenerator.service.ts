@@ -116,7 +116,7 @@ export class TripGeneratorService {
         subscriptionId: subscription._id,
         origin,
         destination,
-        status: 'trip_started',
+        status: 'idle',
         tripType,
         scheduledDate: dateStart,
         scheduledTime,

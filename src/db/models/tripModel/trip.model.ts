@@ -16,7 +16,7 @@ export interface ITrip {
     longitude: number;
     address: string;
   };
-  status: 'child_boarded' | 'child_dropped_off' | 'trip_started' | 'trip_finished';
+  status: 'idle' | 'child_boarded' | 'child_dropped_off' | 'trip_started' | 'trip_finished';
   // New fields for scheduled trips
   tripType: 'pickup' | 'dropoff';
   scheduledDate: Date;
@@ -81,8 +81,8 @@ const tripSchema = new Schema<ITrip>(
     },
     status: {
       type: String,
-      enum: ['child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished'],
-      default: 'trip_started',
+      enum: ['idle', 'child_boarded', 'child_dropped_off', 'trip_started', 'trip_finished'],
+      default: 'idle',
     },
     tripType: {
       type: String,

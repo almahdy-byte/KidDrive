@@ -21,19 +21,43 @@ export class SubscriptionController {
         return next(new AppError("Only parents can create subscriptions", StatusCodes.FORBIDDEN));
       }
 
+      // Auto-set expiry date to 1 month from now if not provided
+      let finalExpiryDate: Date;
+      if (expiryDate) {
+        finalExpiryDate = new Date(expiryDate);
+      } else {
+        finalExpiryDate = new Date();
+        finalExpiryDate.setMonth(finalExpiryDate.getMonth() + 1);
+      }
+
       const subscriptionData: Partial<ISubscription> = {
         driverId,
         parentId,
         childId,
-        expiryDate: new Date(expiryDate),
+        expiryDate: finalExpiryDate,
         subscriptionType,
         status: Status.PENDING,
-        schedule,
+        schedulePattern: schedule,
+        schedule: [],
         origin,
         destination,
       };
 
-      const subscription = await subscriptionRepo.create(subscriptionData);
+      let subscription = await subscriptionRepo.create(subscriptionData);
+
+      // Automatically generate trips from schedule pattern
+      if (subscription) {
+        const generatedTrips = await tripGeneratorService.generateTripsForDateRange(
+          subscription,
+          30
+        );
+
+        // Update subscription schedule with generated trip IDs
+        if (generatedTrips.length > 0) {
+          const tripIds = generatedTrips.map(trip => trip._id);
+          subscription = await subscriptionRepo.addTripsToSchedule(subscription._id.toString(), tripIds);
+        }
+      }
       
       res.status(StatusCodes.CREATED).json({
         success: true,
@@ -195,12 +219,21 @@ export class SubscriptionController {
             updatedSubscription,
             30
           );
+
+          // Add newly generated trip IDs to subscription schedule
+          if (generatedTrips.length > 0) {
+            const tripIds = generatedTrips.map(trip => trip._id);
+            await subscriptionRepo.addTripsToSchedule(updatedSubscription._id.toString(), tripIds);
+          }
+
+          // Re-fetch subscription with populated schedule
+          const subscriptionWithTrips = await subscriptionRepo.findByIdWithPopulate(updatedSubscription._id.toString());
           
           res.status(StatusCodes.OK).json({
             success: true,
             message: "Subscription accepted and trips generated successfully",
             data: {
-              subscription: updatedSubscription,
+              subscription: subscriptionWithTrips,
               generatedTripsCount: generatedTrips.length,
             },
           });
@@ -391,6 +424,12 @@ export class SubscriptionController {
         subscription,
         daysAhead
       );
+
+      // Add newly generated trip IDs to subscription schedule
+      if (generatedTrips.length > 0) {
+        const tripIds = generatedTrips.map(trip => trip._id);
+        await subscriptionRepo.addTripsToSchedule(subscription._id.toString(), tripIds);
+      }
 
       res.status(StatusCodes.OK).json({
         success: true,

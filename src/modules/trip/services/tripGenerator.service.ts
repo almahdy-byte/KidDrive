@@ -24,8 +24,8 @@ export class TripGeneratorService {
     const end = endDate ? new Date(endDate) : new Date(subscription.expiryDate);
     end.setHours(23, 59, 59, 999);
     
-    // Get days from schedule
-    const scheduledDays = subscription.schedule.map((s) => s.dayOfWeek);
+    // Get days from schedule pattern
+    const scheduledDays = subscription.schedulePattern.map((s) => s.dayOfWeek);
     
     // Iterate through each day from start to end
     const currentDate = new Date(start);
@@ -33,9 +33,9 @@ export class TripGeneratorService {
     while (currentDate <= end) {
       const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
       
-      // Check if this day is in the schedule
+      // Check if this day is in the schedule pattern
       if (scheduledDays.includes(dayOfWeek)) {
-        const scheduleItem = subscription.schedule.find((s) => s.dayOfWeek === dayOfWeek);
+        const scheduleItem = subscription.schedulePattern.find((s) => s.dayOfWeek === dayOfWeek);
         
         if (scheduleItem) {
           // Generate pickup trip (home to school)
@@ -43,7 +43,8 @@ export class TripGeneratorService {
             subscription,
             currentDate,
             scheduleItem.pickupTime,
-            'pickup'
+            'pickup',
+            dayOfWeek
           );
           if (pickupTrip) {
             generatedTrips.push(pickupTrip);
@@ -54,7 +55,8 @@ export class TripGeneratorService {
             subscription,
             currentDate,
             scheduleItem.dropoffTime,
-            'dropoff'
+            'dropoff',
+            dayOfWeek
           );
           if (dropoffTrip) {
             generatedTrips.push(dropoffTrip);
@@ -76,15 +78,23 @@ export class TripGeneratorService {
     subscription: ISubscription,
     scheduledDate: Date,
     scheduledTime: string,
-    tripType: 'pickup' | 'dropoff'
+    tripType: 'pickup' | 'dropoff',
+    dayOfWeek: number
   ): Promise<ITrip | null> {
     try {
+      // Clone dates to avoid mutating the original
+      const dateStart = new Date(scheduledDate);
+      dateStart.setHours(0, 0, 0, 0);
+      
+      const dateEnd = new Date(scheduledDate);
+      dateEnd.setHours(23, 59, 59, 999);
+      
       // Check if trip already exists for this subscription, date, type, and time
       const existingTrip = await TripModel.findOne({
         subscriptionId: subscription._id,
         scheduledDate: {
-          $gte: new Date(scheduledDate.setHours(0, 0, 0, 0)),
-          $lt: new Date(scheduledDate.setHours(23, 59, 59, 999)),
+          $gte: dateStart,
+          $lt: dateEnd,
         },
         tripType,
         scheduledTime,
@@ -108,8 +118,9 @@ export class TripGeneratorService {
         destination,
         status: 'trip_started',
         tripType,
-        scheduledDate: new Date(scheduledDate),
+        scheduledDate: dateStart,
         scheduledTime,
+        dayOfWeek,
       };
       
       const trip = await TripModel.create(tripData);

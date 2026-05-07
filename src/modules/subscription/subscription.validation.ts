@@ -35,10 +35,9 @@ export const createSubscription = Joi.object({
   expiryDate: Joi.date()
     .iso()
     .greater("now")
-    .required()
+    .optional()
     .messages({
       "date.greater": "Expiry date must be in the future",
-      "any.required": "Expiry date is required",
     }),
   subscriptionType: Joi.string()
     .valid(...Object.values(SubscriptionType))

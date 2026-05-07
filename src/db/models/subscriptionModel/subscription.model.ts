@@ -21,8 +21,10 @@ export interface ISubscription {
   expiryDate: Date;
   status: Status;
   subscriptionType: SubscriptionType;
-  // Schedule - array of days with pickup/dropoff times
-  schedule: IScheduleItem[];
+  // Schedule pattern - array of days with pickup/dropoff times (used to generate trips)
+  schedulePattern: IScheduleItem[];
+  // Schedule - array of trip IDs generated from the schedule pattern
+  schedule: Types.ObjectId[];
   // Locations
   origin: ILocation;      // Pickup location (home)
   destination: ILocation; // Dropoff location (school)
@@ -89,7 +91,6 @@ const subscriptionSchema = new Schema<ISubscription>(
     },
     expiryDate: {
       type: Date,
-      required: true,
     },
     status: {
       type: String,
@@ -101,7 +102,7 @@ const subscriptionSchema = new Schema<ISubscription>(
       enum: Object.values(SubscriptionType),
       required: true,
     },
-    schedule: {
+    schedulePattern: {
       type: [scheduleItemSchema],
       required: true,
       validate: {
@@ -110,6 +111,13 @@ const subscriptionSchema = new Schema<ISubscription>(
         },
         message: "At least one schedule day is required",
       },
+    },
+    schedule: {
+      type: [{
+        type: Schema.Types.ObjectId,
+        ref: "Trip",
+      }],
+      default: [],
     },
     origin: {
       type: locationSchema,

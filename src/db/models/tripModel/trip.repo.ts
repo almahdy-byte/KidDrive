@@ -334,6 +334,38 @@ export class TripRepo extends DBServices<TDocument> {
   }
 
   /**
+   * Find trips by multiple subscription IDs within a date range (paginated)
+   */
+  async findBySubscriptionsAndDateRangePaginated(
+    subscriptionIds: string[],
+    startDate: Date,
+    endDate: Date,
+    page = 1,
+    limit = 10
+  ): Promise<{ trips: ITrip[], total: number }> {
+    const filter: any = {
+      subscriptionId: { $in: subscriptionIds },
+      scheduledDate: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    };
+    
+    const skip = (page - 1) * limit;
+    
+    const trips = await TripModel.find(filter)
+      .populate('driverId parentId childId subscriptionId')
+      .sort({ scheduledTime: 1 })
+      .skip(skip)
+      .limit(limit)
+      .exec() as any;
+    
+    const total = await TripModel.countDocuments(filter);
+    
+    return { trips, total };
+  }
+
+  /**
    * Find trips by multiple subscription IDs
    */
   async findBySubscriptionsPaginated(

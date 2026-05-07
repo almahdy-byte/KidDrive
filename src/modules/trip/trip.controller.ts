@@ -21,6 +21,7 @@ export class TripController {
         return next(new AppError("Parents can only start trips for their children", StatusCodes.FORBIDDEN));
       }
 
+      const tripScheduledDate = scheduledDate ? new Date(scheduledDate) : new Date();
       const tripData: Partial<ITrip> = {
         driverId,
         parentId,
@@ -30,8 +31,9 @@ export class TripController {
         destination,
         status: 'trip_started',
         tripType: tripType || 'pickup',
-        scheduledDate: scheduledDate ? new Date(scheduledDate) : new Date(),
+        scheduledDate: tripScheduledDate,
         scheduledTime: scheduledTime || new Date().toTimeString().slice(0, 5),
+        dayOfWeek: tripScheduledDate.getDay(),
         startTime: new Date(),
       };
 
@@ -47,7 +49,7 @@ export class TripController {
     }
   }
 
-  // End trip - Only Driver can end trips
+  // End trip - Driver or Parent can end trips
   async endTrip(req: IRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -57,9 +59,16 @@ export class TripController {
         return next(new AppError("Trip not found", StatusCodes.NOT_FOUND));
       }
 
-      // Only drivers can end trips
-      if (req.user?.role !== Role.Driver || req.user?._id.toString() !== trip.driverId.toString()) {
-        return next(new AppError("Only drivers can end their own trips", StatusCodes.FORBIDDEN));
+      // Drivers can end their own trips, Parents can end their children's trips
+      const tripDriverId = (trip.driverId?._id || trip.driverId)?.toString();
+      const tripParentId = (trip.parentId?._id || trip.parentId)?.toString();
+      
+      const isDriver = req.user?.role === Role.Driver && req.user?._id.toString() === tripDriverId;
+      const isParent = req.user?.role === Role.Parent && req.user?._id.toString() === tripParentId;
+      const isAdmin = req.user?.role === Role.Admin;
+      
+      if (!isDriver && !isParent && !isAdmin) {
+        return next(new AppError("Only drivers or parents can end this trip", StatusCodes.FORBIDDEN));
       }
 
       const updatedTrip = await tripRepo.updateStatus(id as string, 'trip_finished');
@@ -74,7 +83,7 @@ export class TripController {
     }
   }
 
-  // Update trip status - Only Driver can use status updates
+  // Update trip status - Driver or Parent can update status
   async updateTripStatus(req: IRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
@@ -85,9 +94,16 @@ export class TripController {
         return next(new AppError("Trip not found", StatusCodes.NOT_FOUND));
       }
 
-      // Only drivers can update trip status
-      if (req.user?.role !== Role.Driver || req.user?._id.toString() !== trip.driverId.toString()) {
-        return next(new AppError("Only drivers can update trip status", StatusCodes.FORBIDDEN));
+      // Drivers can update their own trips, Parents can update their children's trips
+      const tripDriverId2 = (trip.driverId?._id || trip.driverId)?.toString();
+      const tripParentId2 = (trip.parentId?._id || trip.parentId)?.toString();
+      
+      const isDriver2 = req.user?.role === Role.Driver && req.user?._id.toString() === tripDriverId2;
+      const isParent2 = req.user?.role === Role.Parent && req.user?._id.toString() === tripParentId2;
+      const isAdmin2 = req.user?.role === Role.Admin;
+      
+      if (!isDriver2 && !isParent2 && !isAdmin2) {
+        return next(new AppError("Only drivers or parents can update trip status", StatusCodes.FORBIDDEN));
       }
 
       const updatedTrip = await tripRepo.updateStatus(id as string, status);
@@ -115,9 +131,9 @@ export class TripController {
       // Check permissions
       if (req.user?.role === Role.Admin) {
         // Admin can view all
-      } else if (req.user?.role === Role.Driver && req.user?._id.toString() !== trip.driverId.toString()) {
+      } else if (req.user?.role === Role.Driver && req.user?._id.toString() !== (trip.driverId?._id || trip.driverId)?.toString()) {
         return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
-      } else if (req.user?.role === Role.Parent && req.user?._id.toString() !== trip.parentId.toString()) {
+      } else if (req.user?.role === Role.Parent && req.user?._id.toString() !== (trip.parentId?._id || trip.parentId)?.toString()) {
         return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
       }
 
@@ -422,52 +438,26 @@ export class TripController {
         targetDayOfWeek = targetDate.getDay();
       }
 
-      // Generate scheduled trips based on subscription schedules
-      const scheduledTrips: any[] = [];
+      // Get actual trips from subscription schedules for the target date
+      const targetDateStart = new Date(targetDate);
+      targetDateStart.setHours(0, 0, 0, 0);
+      const targetDateEnd = new Date(targetDate);
+      targetDateEnd.setHours(23, 59, 59, 999);
 
-      for (const subscription of activeSubscriptions) {
-        // Find the schedule for the target day
-        const scheduleForDay = subscription.schedule?.find(
-          (s: any) => s.dayOfWeek === targetDayOfWeek
-        );
+      // Get active subscription IDs
+      const subscriptionIds = activeSubscriptions.map(sub => sub._id.toString());
+      
+      // Query trips directly so they are fully populated
+      const tripsResult = await tripRepo.findBySubscriptionsAndDateRangePaginated(
+        subscriptionIds,
+        targetDateStart,
+        targetDateEnd,
+        pagination.page,
+        pagination.limit
+      );
 
-        if (scheduleForDay) {
-          // Create pickup trip (home to school)
-          scheduledTrips.push({
-            subscriptionId: subscription._id,
-            driverId: subscription.driverId,
-            parentId: subscription.parentId,
-            childId: subscription.childId,
-            tripType: 'pickup',
-            scheduledDate: targetDate,
-            scheduledTime: scheduleForDay.pickupTime,
-            origin: subscription.origin,
-            destination: subscription.destination,
-            status: 'scheduled',
-            dayOfWeek: targetDayOfWeek,
-          });
-
-          // Create dropoff trip (school to home)
-          scheduledTrips.push({
-            subscriptionId: subscription._id,
-            driverId: subscription.driverId,
-            parentId: subscription.parentId,
-            childId: subscription.childId,
-            tripType: 'dropoff',
-            scheduledDate: targetDate,
-            scheduledTime: scheduleForDay.dropoffTime,
-            origin: subscription.destination,
-            destination: subscription.origin,
-            status: 'scheduled',
-            dayOfWeek: targetDayOfWeek,
-          });
-        }
-      }
-
-      // Apply pagination
-      const total = scheduledTrips.length;
-      const skip = ((pagination.page || 1) - 1) * (pagination.limit || 10);
-      const paginatedTrips = scheduledTrips.slice(skip, skip + (pagination.limit || 10));
+      const scheduledTrips = tripsResult.trips;
+      const total = tripsResult.total;
 
       const paginationResult = calculatePagination(
         pagination.page!,
@@ -476,7 +466,7 @@ export class TripController {
         'trips'
       );
 
-      const paginatedResponse = createPaginatedResponse(paginatedTrips, paginationResult);
+      const paginatedResponse = createPaginatedResponse(scheduledTrips, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
@@ -546,52 +536,26 @@ export class TripController {
         targetDayOfWeek = targetDate.getDay();
       }
 
-      // Generate scheduled trips based on subscription schedules
-      const scheduledTrips: any[] = [];
+      // Get actual trips from subscription schedules for the target date
+      const targetDateStart = new Date(targetDate);
+      targetDateStart.setHours(0, 0, 0, 0);
+      const targetDateEnd = new Date(targetDate);
+      targetDateEnd.setHours(23, 59, 59, 999);
 
-      for (const subscription of activeSubscriptions) {
-        // Find the schedule for the target day
-        const scheduleForDay = subscription.schedule?.find(
-          (s: any) => s.dayOfWeek === targetDayOfWeek
-        );
+      // Get active subscription IDs
+      const subscriptionIds = activeSubscriptions.map(sub => sub._id.toString());
+      
+      // Query trips directly so they are fully populated
+      const tripsResult = await tripRepo.findBySubscriptionsAndDateRangePaginated(
+        subscriptionIds,
+        targetDateStart,
+        targetDateEnd,
+        pagination.page,
+        pagination.limit
+      );
 
-        if (scheduleForDay) {
-          // Create pickup trip (home to school)
-          scheduledTrips.push({
-            subscriptionId: subscription._id,
-            driverId: subscription.driverId,
-            parentId: subscription.parentId,
-            childId: subscription.childId,
-            tripType: 'pickup',
-            scheduledDate: targetDate,
-            scheduledTime: scheduleForDay.pickupTime,
-            origin: subscription.origin,
-            destination: subscription.destination,
-            status: 'scheduled',
-            dayOfWeek: targetDayOfWeek,
-          });
-
-          // Create dropoff trip (school to home)
-          scheduledTrips.push({
-            subscriptionId: subscription._id,
-            driverId: subscription.driverId,
-            parentId: subscription.parentId,
-            childId: subscription.childId,
-            tripType: 'dropoff',
-            scheduledDate: targetDate,
-            scheduledTime: scheduleForDay.dropoffTime,
-            origin: subscription.destination,
-            destination: subscription.origin,
-            status: 'scheduled',
-            dayOfWeek: targetDayOfWeek,
-          });
-        }
-      }
-
-      // Apply pagination
-      const total = scheduledTrips.length;
-      const skip = ((pagination.page || 1) - 1) * (pagination.limit || 10);
-      const paginatedTrips = scheduledTrips.slice(skip, skip + (pagination.limit || 10));
+      const scheduledTrips = tripsResult.trips;
+      const total = tripsResult.total;
 
       const paginationResult = calculatePagination(
         pagination.page!,
@@ -600,7 +564,7 @@ export class TripController {
         'trips'
       );
 
-      const paginatedResponse = createPaginatedResponse(paginatedTrips, paginationResult);
+      const paginatedResponse = createPaginatedResponse(scheduledTrips, paginationResult);
 
       res.status(StatusCodes.OK).json({
         success: true,
@@ -644,6 +608,12 @@ export class TripController {
         subscription,
         daysAhead
       );
+
+      // Add newly generated trip IDs to subscription schedule
+      if (generatedTrips.length > 0) {
+        const tripIds = generatedTrips.map(trip => trip._id);
+        await subscriptionRepo.addTripsToSchedule(subscription._id.toString(), tripIds);
+      }
 
       res.status(StatusCodes.OK).json({
         success: true,

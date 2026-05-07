@@ -21,6 +21,7 @@ export interface ITrip {
   tripType: 'pickup' | 'dropoff';
   scheduledDate: Date;
   scheduledTime: string; // HH:MM format
+  dayOfWeek: number; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   // Original timing fields
   startTime?: Date;
   endTime?: Date;
@@ -96,6 +97,12 @@ const tripSchema = new Schema<ITrip>(
       type: String,
       required: true,
       match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, // HH:MM format
+    },
+    dayOfWeek: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 6,
     },
     startTime: {
       type: Date,

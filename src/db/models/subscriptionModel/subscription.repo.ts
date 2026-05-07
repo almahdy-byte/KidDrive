@@ -16,13 +16,28 @@ export class SubscriptionRepo extends DBServices<TDocument> {
     return await SubscriptionModel.create(data);
   }
 
+  async addTripsToSchedule(id: string, tripIds: Types.ObjectId[]): Promise<ISubscription | null> {
+    return await SubscriptionModel.findByIdAndUpdate(
+      id,
+      { $addToSet: { schedule: { $each: tripIds } } },
+      { new: true }
+    )
+      .populate('driverId')
+      .populate('parentId', 'firstName lastName fullName email phone')
+      .populate('childId', 'name age gender photo school')
+      .populate('schedule')
+      .populate('schedule')
+      .exec() as any;
+  }
+
   async findByIdWithPopulate(id: string): Promise<ISubscription | null> {
     return await this.findById({
       id,
       populate: [
         { path: 'driverId' },
         { path: 'parentId', select: 'firstName lastName fullName email phone' },
-        { path: 'childId', select: 'name age gender photo school' }
+        { path: 'childId', select: 'name age gender photo school' },
+        { path: 'schedule' }
       ]
     });
   }
@@ -43,6 +58,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -66,6 +82,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -89,6 +106,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -108,7 +126,8 @@ export class SubscriptionRepo extends DBServices<TDocument> {
         populate: [
           { path: 'driverId' },
           { path: 'parentId', select: 'firstName lastName fullName email phone' },
-          { path: 'childId', select: 'name age gender photo school' }
+          { path: 'childId', select: 'name age gender photo school' },
+          { path: 'schedule' }
         ]
       });
     }
@@ -134,6 +153,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -159,6 +179,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .skip(skip)
       .limit(limit)
       .exec() as any;
@@ -177,6 +198,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .exec() as any;
   }
 
@@ -196,6 +218,7 @@ export class SubscriptionRepo extends DBServices<TDocument> {
       .populate('driverId')
       .populate('parentId', 'firstName lastName fullName email phone')
       .populate('childId', 'name age gender photo school')
+      .populate('schedule')
       .skip(skip)
       .limit(limit)
       .exec() as any;

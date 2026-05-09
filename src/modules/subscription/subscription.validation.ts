@@ -57,6 +57,7 @@ export const updateSubscriptionStatus = Joi.object({
   status: Joi.string()
     .valid(...Object.values(Status))
     .required(),
+  id: generalValidationSchema.id.required(),
 });
 
 export const generateTripsFromSubscription = Joi.object({

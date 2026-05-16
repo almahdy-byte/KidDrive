@@ -80,13 +80,6 @@ export class SubscriptionController {
       }
 
       // Check if user has permission to view this subscription
-      if (req.user?.role === Role.Admin) {
-        // Admin can view all
-      } else if (req.user?.role === Role.Driver && req.user?._id.toString() !== subscription.driverId.toString()) {
-        return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
-      } else if (req.user?.role === Role.Parent && req.user?._id.toString() !== subscription.parentId.toString()) {
-        return next(new AppError("Access denied", StatusCodes.FORBIDDEN));
-      }
 
       res.status(StatusCodes.OK).json({
         success: true,

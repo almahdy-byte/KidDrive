@@ -3,7 +3,11 @@ import { StatusCodes } from "http-status-codes";
 import { subscriptionRepo } from "../../db/models/subscriptionModel/subscription.repo";
 import { ISubscription } from "../../db/models/subscriptionModel/subscription.model";
 import { tripGeneratorService } from "../trip/services/tripGenerator.service";
-import { Role, Status, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
+import { sendSubscriptionNotification } from "../../services/notification.service";
+import { Role, Status, SubscriptionType, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
+import { userModel } from "../../db/models/userModel/user.model";
+import { ChildModel } from "../../db/models/childModel/child.model";
+import { DriverModel } from "../../db/models/driverModel/driver.model";
 
 export class SubscriptionController {
   // Create subscription - Parent role can access
@@ -59,6 +63,13 @@ export class SubscriptionController {
         }
       }
       
+      const populatedSub = subscription?._id
+        ? await subscriptionRepo.findByIdWithPopulate(subscription._id.toString())
+        : null;
+      if (populatedSub) {
+        sendSubscriptionNotification(populatedSub, Status.PENDING);
+      }
+
       res.status(StatusCodes.CREATED).json({
         success: true,
         message: "Subscription created successfully",
@@ -222,6 +233,8 @@ export class SubscriptionController {
           // Re-fetch subscription with populated schedule
           const subscriptionWithTrips = await subscriptionRepo.findByIdWithPopulate(updatedSubscription._id.toString());
           
+          sendSubscriptionNotification(subscriptionWithTrips || updatedSubscription, status);
+
           res.status(StatusCodes.OK).json({
             success: true,
             message: "Subscription accepted and trips generated successfully",
@@ -233,6 +246,7 @@ export class SubscriptionController {
           return;
         } catch (tripError) {
           console.error("Error generating trips:", tripError);
+          sendSubscriptionNotification(updatedSubscription, status);
           // Still return success for subscription update, but note trip generation failure
           res.status(StatusCodes.OK).json({
             success: true,
@@ -242,6 +256,8 @@ export class SubscriptionController {
           return;
         }
       }
+
+      sendSubscriptionNotification(updatedSubscription, status);
 
       res.status(StatusCodes.OK).json({
         success: true,
@@ -431,6 +447,86 @@ export class SubscriptionController {
           generatedTripsCount: generatedTrips.length,
           trips: generatedTrips,
         },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  // Seed subscriptions for all parents (dev utility)
+  async seedSubscriptions(req: IRequest, res: Response, next: NextFunction) {
+    try {
+      if (req.user?.role !== Role.Admin) {
+        return next(new AppError("Access denied. Admin only", StatusCodes.FORBIDDEN));
+      }
+
+      const parents = await userModel.find({ role: Role.Parent });
+      if (parents.length === 0) {
+        return next(new AppError("No parents found. Run seed first.", StatusCodes.NOT_FOUND));
+      }
+
+      const drivers = await DriverModel.find({ isApproved: true });
+      if (drivers.length === 0) {
+        return next(new AppError("No approved drivers found. Run seed first.", StatusCodes.NOT_FOUND));
+      }
+
+      let createdCount = 0;
+      let tripCount = 0;
+
+      for (const parent of parents) {
+        const children = await ChildModel.find({ parentId: parent._id, isDeleted: { $ne: true } });
+        if (children.length === 0) continue;
+
+        const driver = drivers[createdCount % drivers.length];
+        const child = children[0];
+
+        const expiryDate = new Date();
+        expiryDate.setMonth(expiryDate.getMonth() + 3);
+
+        const schedulePattern = [
+          { dayOfWeek: 0, pickupTime: "07:30", dropoffTime: "14:00" },
+          { dayOfWeek: 1, pickupTime: "07:30", dropoffTime: "14:00" },
+          { dayOfWeek: 2, pickupTime: "07:30", dropoffTime: "14:00" },
+          { dayOfWeek: 3, pickupTime: "07:30", dropoffTime: "14:00" },
+        ];
+
+        const subscriptionData: Partial<ISubscription> = {
+          driverId: driver._id,
+          parentId: parent._id,
+          childId: child._id,
+          expiryDate,
+          subscriptionType: SubscriptionType.MONTHLY,
+          status: Status.PENDING,
+          schedulePattern,
+          schedule: [],
+          origin: {
+            latitude: parent.location?.latitude || 30.0,
+            longitude: parent.location?.longitude || 31.2,
+            address: parent.location?.address || `${parent.location?.city || "Cairo"}, ${parent.location?.department || ""}`,
+          },
+          destination: {
+            latitude: child.schoolLocation?.latitude || 30.0,
+            longitude: child.schoolLocation?.longitude || 31.2,
+            address: child.school || "School",
+          },
+        };
+
+        let subscription = await subscriptionRepo.create(subscriptionData);
+
+        if (subscription) {
+          const generatedTrips = await tripGeneratorService.generateTripsForDateRange(subscription, 30);
+          if (generatedTrips.length > 0) {
+            const tripIds = generatedTrips.map(t => t._id);
+            subscription = await subscriptionRepo.addTripsToSchedule(subscription._id.toString(), tripIds);
+            tripCount += generatedTrips.length;
+          }
+          createdCount++;
+        }
+      }
+
+      res.status(StatusCodes.CREATED).json({
+        success: true,
+        message: `Created ${createdCount} subscriptions with ${tripCount} trips`,
+        data: { subscriptionsCount: createdCount, tripsCount: tripCount },
       });
     } catch (error) {
       next(error);

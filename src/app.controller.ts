@@ -11,6 +11,7 @@ import childRoutes from "./modules/child/child.routes";
 import { subscriptionRoutes } from "./modules/subscription";
 import { tripRoutes } from "./modules/trip";
 import adminRoutes from "./modules/admin/admin.routes";
+import notificationRoutes from "./routes/notification.routes";
 
 import cors from 'cors'
 
@@ -36,6 +37,7 @@ export const bootstrap = async (app: Application) => {
     app.use('/subscription', subscriptionRoutes)
     app.use('/trip', tripRoutes)
     app.use('/admin', adminRoutes)
+    app.use('/api/notifications', notificationRoutes)
     app.use(notFoundHandler)
     app.use(globalErrorHandler)
 }

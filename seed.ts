@@ -6,7 +6,10 @@ import { TripModel } from './src/db/models/tripModel/trip.model';
 import { DriverModel } from './src/db/models/driverModel/driver.model';
 import { ChildModel } from './src/db/models/childModel/child.model';
 import { SubscriptionModel } from './src/db/models/subscriptionModel/subscription.model';
+import { subscriptionRepo } from './src/db/models/subscriptionModel/subscription.repo';
 import { DriverApplicationModel } from './src/db/models/driverApplicationModel/driverApp.model';
+import { tripGeneratorService } from './src/modules/trip/services/tripGenerator.service';
+import { Status, SubscriptionType } from './src/common';
 
 const UNIFIED_PASSWORD = '123456';
 const SALT_ROUNDS = 10;
@@ -146,9 +149,9 @@ async function seedDatabase() {
   });
   console.log('Created admin: admin@kiddrive.com');
 
-  // --- 2. Parents (100) ---
+  // --- 2. Parents (5) ---
   const parents: any[] = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 5; i++) {
     const isMale = Math.random() > 0.5;
     const firstName = isMale ? randomItem(maleFirstNames) : randomItem(femaleFirstNames);
     const lastName = randomItem(lastNames);
@@ -176,7 +179,7 @@ async function seedDatabase() {
   }
   console.log(`Created ${parents.length} parents`);
 
-  // --- 3. Children (2 per parent = 200) ---
+  // --- 3. Children (2 per parent = 10) ---
   const children: any[] = [];
   for (const parent of parents) {
     for (let c = 0; c < 2; c++) {
@@ -205,9 +208,9 @@ async function seedDatabase() {
   }
   console.log(`Created ${children.length} children`);
 
-  // --- 4. Drivers (200) ---
+  // --- 4. Drivers (20) ---
   const drivers: any[] = [];
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 20; i++) {
     const firstName = randomItem(maleFirstNames);
     const lastName = randomItem(lastNames);
     const city = randomItem(cities);
@@ -274,121 +277,59 @@ async function seedDatabase() {
   }
   console.log(`Created ${appCount} driver applications`);
 
-  // --- 7. Subscriptions (~2 per child = ~400) ---
+  // --- 7. Subscriptions (1 per parent = 5) with trips ---
   const subscriptions: any[] = [];
-  for (const child of children) {
-    const parent = parents.find(p => p._id.toString() === child.parentId.toString());
-    if (!parent) continue;
-
-    const numSubs = randomInt(1, 2);
-    const usedDriverIds = new Set<string>();
-
-    for (let s = 0; s < numSubs; s++) {
-      let driver: any;
-      let attempts = 0;
-      do {
-        driver = randomItem(drivers);
-        attempts++;
-      } while (usedDriverIds.has(driver._id.toString()) && attempts < 100);
-      if (!driver) continue;
-      usedDriverIds.add(driver._id.toString());
-
-      const numDays = randomInt(3, 5);
-      const shuffledDays = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5).slice(0, numDays);
-      const schedulePattern = shuffledDays.map(day => ({
-        dayOfWeek: day,
-        pickupTime: `${randomInt(6, 8)}:${randomItem(['00', '15', '30', '45'])}`,
-        dropoffTime: `${randomInt(13, 16)}:${randomItem(['00', '15', '30', '45'])}`,
-      }));
-
-      const subType = Math.random() > 0.5 ? 'monthly' : 'term';
-      const r = Math.random();
-      const status = r < 0.7 ? 'accepted subscription'
-        : r < 0.85 ? 'waiting for confirmation'
-        : r < 0.95 ? 'canceled'
-        : 'rejected subscription';
-
-      const expiry = new Date();
-      expiry.setMonth(expiry.getMonth() + randomInt(1, 6));
-
-      const originLat = parent.location?.latitude || 30.0;
-      const originLng = parent.location?.longitude || 31.2;
-      const originAddr = parent.location?.address || 'Cairo';
-
-      const sub = await SubscriptionModel.create({
-        driverId: driver._id,
-        parentId: parent._id,
-        childId: child._id,
-        expiryDate: expiry,
-        status,
-        subscriptionType: subType,
-        schedulePattern,
-        schedule: [],
-        origin: { latitude: originLat, longitude: originLng, address: originAddr },
-        destination: {
-          latitude: (child.schoolLocation && child.schoolLocation.latitude) || 30.0,
-          longitude: (child.schoolLocation && child.schoolLocation.longitude) || 31.2,
-          address: child.school || 'School',
-        },
-      });
-      subscriptions.push(sub);
-    }
-  }
-  console.log(`Created ${subscriptions.length} subscriptions`);
-
-  // --- 8. Trips (from subscriptions, 2 weeks worth = many) ---
-  const today = new Date();
-  const todayDay = today.getDay();
   let tripCount = 0;
+  for (let i = 0; i < parents.length; i++) {
+    const parent = parents[i];
+    const child = children.filter(c => c.parentId.toString() === parent._id.toString())[0];
+    if (!child) continue;
 
-  for (const sub of subscriptions) {
-    if (!sub.schedulePattern || sub.schedulePattern.length === 0) continue;
+    const driver = drivers[i % drivers.length];
 
-    for (let week = 0; week < 2; week++) {
-      for (const pattern of sub.schedulePattern) {
-        let diff = pattern.dayOfWeek - todayDay;
-        if (diff < 0) diff += 7;
-        diff += week * 7;
+    const expiry = new Date();
+    expiry.setMonth(expiry.getMonth() + 3);
 
-        const date = new Date(today);
-        date.setDate(today.getDate() + diff);
-        date.setHours(0, 0, 0, 0);
+    const schedulePattern = [
+      { dayOfWeek: 0, pickupTime: "07:30", dropoffTime: "14:00" },
+      { dayOfWeek: 1, pickupTime: "07:30", dropoffTime: "14:00" },
+      { dayOfWeek: 2, pickupTime: "07:30", dropoffTime: "14:00" },
+      { dayOfWeek: 3, pickupTime: "07:30", dropoffTime: "14:00" },
+    ];
 
-        const isPast = date < today;
+    const sub = await subscriptionRepo.create({
+      driverId: driver._id,
+      parentId: parent._id,
+      childId: child._id,
+      expiryDate: expiry,
+      subscriptionType: SubscriptionType.MONTHLY,
+      status: Status.PENDING,
+      schedulePattern,
+      schedule: [],
+      origin: {
+        latitude: parent.location?.latitude || 30.0,
+        longitude: parent.location?.longitude || 31.2,
+        address: parent.location?.address || `${parent.location?.city || "Cairo"}, ${parent.location?.department || ""}`,
+      },
+      destination: {
+        latitude: child.schoolLocation?.latitude || 30.0,
+        longitude: child.schoolLocation?.longitude || 31.2,
+        address: child.school || "School",
+      },
+    });
 
-        for (const tripType of ['pickup', 'dropoff'] as const) {
-          const time = tripType === 'pickup' ? pattern.pickupTime : pattern.dropoffTime;
-
-          let status: string;
-          if (isPast) {
-            const s = Math.random();
-            status = s < 0.4 ? 'trip_finished'
-              : s < 0.65 ? 'trip_started'
-              : s < 0.8 ? 'child_dropped_off'
-              : s < 0.9 ? 'child_boarded'
-              : 'idle';
-          } else {
-            status = 'idle';
-          }
-
-          await TripModel.create({
-            driverId: sub.driverId,
-            parentId: sub.parentId,
-            childId: sub.childId,
-            subscriptionId: sub._id,
-            origin: sub.origin,
-            destination: sub.destination,
-            status,
-            tripType,
-            scheduledDate: date,
-            scheduledTime: time,
-            dayOfWeek: pattern.dayOfWeek,
-          });
-          tripCount++;
-        }
+    if (sub) {
+      const generatedTrips = await tripGeneratorService.generateTripsForDateRange(sub, 30);
+      if (generatedTrips.length > 0) {
+        const tripIds = generatedTrips.map(trip => trip._id);
+        await subscriptionRepo.addTripsToSchedule(sub._id.toString(), tripIds);
+        tripCount += generatedTrips.length;
       }
     }
+
+    subscriptions.push(sub);
   }
+  console.log(`Created ${subscriptions.length} subscriptions`);
   console.log(`Created ${tripCount} trips`);
 
   // --- Summary ---
@@ -403,8 +344,8 @@ async function seedDatabase() {
   console.log(`Trips:              ${tripCount}`);
   console.log(`\nUnified password for ALL accounts: ${UNIFIED_PASSWORD}`);
   console.log(`Admin email: admin@kiddrive.com`);
-  console.log(`Parent emails: parent1@test.com ... parent100@test.com`);
-  console.log(`Driver emails: driver1@test.com ... driver200@test.com`);
+  console.log(`Parent emails: parent1@test.com ... parent${parents.length}@test.com`);
+  console.log(`Driver emails: driver1@test.com ... driver${drivers.length}@test.com`);
   console.log('======================================================');
 
   await mongoose.disconnect();

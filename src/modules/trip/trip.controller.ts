@@ -4,6 +4,7 @@ import { tripRepo } from "../../db/models/tripModel/trip.repo";
 import { subscriptionRepo } from "../../db/models/subscriptionModel/subscription.repo";
 import { ITrip } from "../../db/models/tripModel/trip.model";
 import { tripGeneratorService } from "./services/tripGenerator.service";
+import { sendTripStatusNotification } from "../../services/notification.service";
 import { Role, Status, AppError, IRequest, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
 
 export class TripController {
@@ -38,7 +39,12 @@ export class TripController {
       };
 
       const trip = await tripRepo.create(tripData);
-      
+
+      const populatedTrip = await tripRepo.findByIdWithPopulate(trip!._id.toString());
+      if (populatedTrip) {
+        sendTripStatusNotification(populatedTrip.driverId, populatedTrip.parentId, 'trip_started', tripType);
+      }
+
       res.status(StatusCodes.CREATED).json({
         success: true,
         message: "Trip started successfully",
@@ -72,6 +78,9 @@ export class TripController {
       }
 
       const updatedTrip = await tripRepo.updateStatus(id as string, 'trip_finished');
+      if (updatedTrip) {
+        sendTripStatusNotification(updatedTrip.driverId, updatedTrip.parentId, 'trip_finished', updatedTrip.tripType);
+      }
 
       res.status(StatusCodes.OK).json({
         success: true,
@@ -111,6 +120,9 @@ export class TripController {
       }
 
       const updatedTrip = await tripRepo.updateStatus(id as string, 'trip_started');
+      if (updatedTrip) {
+        sendTripStatusNotification(updatedTrip.driverId, updatedTrip.parentId, 'trip_started', updatedTrip.tripType);
+      }
 
       res.status(StatusCodes.OK).json({
         success: true,
@@ -146,6 +158,9 @@ export class TripController {
       }
 
       const updatedTrip = await tripRepo.updateStatus(id as string, status);
+      if (updatedTrip) {
+        sendTripStatusNotification(updatedTrip.driverId, updatedTrip.parentId, status, updatedTrip.tripType);
+      }
 
       res.status(StatusCodes.OK).json({
         success: true,

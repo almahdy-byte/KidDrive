@@ -110,4 +110,11 @@ router.get(
   subscriptionController.getPendingSubscriptions
 );
 
+// Seed subscriptions for all parents (dev utility - admin only)
+router.post(
+  "/seed",
+  auth,
+  subscriptionController.seedSubscriptions
+);
+
 export default router;

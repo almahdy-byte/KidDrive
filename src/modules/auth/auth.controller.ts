@@ -221,7 +221,7 @@ export const verifyOTP =asyncErrorHandler(
 
 export const login = asyncErrorHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-        const { email, password } = req.body;
+        const { email, password, fcmToken } = req.body;
 
         const user = await userRepo.findByEmail({ email });
         if (!user){
@@ -242,6 +242,11 @@ export const login = asyncErrorHandler(
         const isPasswordValid = await compare(password, user.password);
         if (!isPasswordValid){
             return next(new AppError("invalid email or password", StatusCodes.UNAUTHORIZED));
+        }
+
+        if (fcmToken) {
+            user.fcmToken = fcmToken;
+            await user.save();
         }
 
         const tokens = await createToken({_id:user._id, changeCredentialTime : user.changeCredentialTime.getTime().toString(), role:user.role || "parent"});

@@ -21,6 +21,7 @@ export const verifyOTPSchema = Joi.object({
 export const loginSchema = Joi.object({
   email: generalValidationSchema.email.required(),
   password: generalValidationSchema.password.required(),
+  fcmToken: Joi.string().optional(),
 });
 
 export const refreshSchema = Joi.object({

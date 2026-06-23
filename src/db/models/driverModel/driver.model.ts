@@ -19,6 +19,7 @@ export interface IDriver {
     average: number;
     count: number;
   };
+  fcmToken?: string;
   location: {
     city: string;
     department: string;
@@ -58,6 +59,7 @@ const driverSchema = new Schema<IDriver>(
       average: { type: Number, default: 0, min: 0, max: 5 },
       count: { type: Number, default: 0, min: 0 },
     },
+    fcmToken: { type: String },
     location: {
       city: { type: String, required: true },
       department: { type: String, required: true },

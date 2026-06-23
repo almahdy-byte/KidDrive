@@ -24,6 +24,7 @@ export interface IUser extends Document<Types.ObjectId, {}, IUser> {
   createdAt?: Date,
   isApprovedDriver?: boolean,
   vehicles?: Types.ObjectId[],
+  fcmToken?: string,
   location?: {
     latitude: number;
     longitude: number;
@@ -112,6 +113,7 @@ const userSchema = new Schema<IUser>(
         required:  false,
       },
     ],
+    fcmToken: { type: String },
     location: {
       latitude: { type: Number },
       longitude: { type: Number },

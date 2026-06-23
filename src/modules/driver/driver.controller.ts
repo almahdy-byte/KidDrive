@@ -195,7 +195,7 @@ export const approveApplication = asyncErrorHandler(
 
 export const login = asyncErrorHandler(
     async (req: IRequest, res: Response, next: NextFunction) => {
-        const { email, password } = req.body;
+        const { email, password, fcmToken } = req.body;
 
         const driver = await driverRepo.findByEmail({ email });
         if (!driver) {
@@ -209,6 +209,11 @@ export const login = asyncErrorHandler(
         const isPasswordValid = await compare(password, driver.password);
         if (!isPasswordValid) {
             return next(new AppError("Invalid email or password", StatusCodes.UNAUTHORIZED));
+        }
+
+        if (fcmToken) {
+            driver.fcmToken = fcmToken;
+            await driver.save();
         }
 
         const tokens = await createToken({

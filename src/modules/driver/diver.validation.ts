@@ -67,6 +67,7 @@ export const approveApplication = Joi.object({
 export const login = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().required(),
+    fcmToken: Joi.string().optional(),
 });
 
 export const updateProfile = Joi.object({

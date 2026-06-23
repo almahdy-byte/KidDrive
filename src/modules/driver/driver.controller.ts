@@ -55,7 +55,7 @@ export const apply = asyncErrorHandler(
         if(!existingDriver){
         // Create driver
         const hashedPassword = await hash(req.body.password);
-        const encryptedPhone = await encrypt(req.body.phone);
+        const encryptedPhone = req.body.phone;
         driver = await driverRepo.create({
             userName: req.body.userName,
             email: req.body.email,

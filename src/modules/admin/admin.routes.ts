@@ -4,7 +4,8 @@ import {
     getDriverApplicationById, 
     approveDriverApplication, 
     rejectDriverApplication, 
-    getDashboardStats 
+    getDashboardStats,
+    getAllParents
 } from "./admin.controller";
 import { validate } from "../../middleware/validation.middleware";
 import { 
@@ -44,5 +45,8 @@ router.patch('/applications/:id/reject',
     validate(rejectApplicationValidation),
     rejectDriverApplication
 );
+
+// Get all parents with pagination and search
+router.get('/parents', getAllParents);
 
 export default router;

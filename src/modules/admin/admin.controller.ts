@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { AppError, ApplicationStatus, asyncErrorHandler, IRequest, Role, getPaginationOptions, calculatePagination, createPaginatedResponse } from "../../common";
-import { driverApplicationRepo, driverRepo, userRepo } from "../../db";
+import { driverApplicationRepo, userRepo } from "../../db";
 import { DriverApplicationModel, HDriverApplicationDocument } from "../../db/models/driverApplicationModel/driverApp.model";
 import { StatusCodes } from "http-status-codes";
 import mongoose, { Types } from "mongoose";
@@ -241,6 +241,26 @@ export const getDashboardStats = asyncErrorHandler(
                     total: totalParents
                 }
             }
+        });
+    }
+);
+
+export const getAllParents = asyncErrorHandler(
+    async (req: IRequest, res: Response, next: NextFunction) => {
+        const pagination = getPaginationOptions(req.query);
+        const { parents, total } = await userRepo.findAllParentsPaginated(
+            pagination.page!,
+            pagination.limit!,
+            pagination.search
+        );
+
+        const paginationResult = calculatePagination(pagination.page!, pagination.limit!, total, "parents");
+        const paginatedResponse = createPaginatedResponse(parents, paginationResult);
+
+        res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Parents retrieved successfully",
+            ...paginatedResponse
         });
     }
 );

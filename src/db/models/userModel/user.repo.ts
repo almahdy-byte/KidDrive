@@ -28,6 +28,32 @@ class UserRepo extends DBServices<IUser> {
       .populate('children', 'name age gender photo school')
       .exec();
   }
+
+  async findAllParentsPaginated(page: number, limit: number, search?: string): Promise<{ parents: IUser[]; total: number }> {
+    const filter: any = { role: 'parent', isDeleted: false };
+
+    if (search) {
+      filter.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+    const [parents, total] = await Promise.all([
+      userModel.find(filter)
+        .select('-password -otp')
+        .populate('children', 'name age gender photo school')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
+      userModel.countDocuments(filter),
+    ]);
+
+    return { parents, total };
+  }
 }
 
 export const userRepo = new UserRepo();

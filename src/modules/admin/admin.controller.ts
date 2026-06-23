@@ -41,8 +41,8 @@ export const getDriverApplications = asyncErrorHandler(
         
         const applications = await DriverApplicationModel
             .find(filter)
-            .populate('driver', 'userName email nationalId phone')
-            .populate('vehicle', 'carModel plateNumber carColor')
+            .populate('driver')
+            .populate('vehicle')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(parsedLimit);
@@ -71,8 +71,8 @@ export const getDriverApplicationById = asyncErrorHandler(
 
         const application = await DriverApplicationModel
             .findById(applicationId)
-            .populate('driver', 'firstName lastName email nationalId phone city department')
-            .populate('vehicle', 'make model year licensePlate registrationExpiry insuranceExpiry images');
+            .populate('driver')
+            .populate('vehicle');
 
         if (!application) {
             return next(new AppError("Application not found", StatusCodes.NOT_FOUND));

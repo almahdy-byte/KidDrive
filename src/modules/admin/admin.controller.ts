@@ -115,7 +115,7 @@ export const approveDriverApplication = asyncErrorHandler(
             // Update driver status to active using findOneAndUpdate
             await mongoose.model('Driver').findOneAndUpdate(
                 { _id: application.driver },
-                { isActive: true },
+                { isActive: true, isApproved: true },
                 { session }
             );
 
